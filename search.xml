@@ -92,7 +92,7 @@
 <p>​    登录 <a href="https://nodejs.org/en/download/">Node.js官网</a>，可以看到Node.js很贴心的给出了推荐版本，点开<code>Linux Binaries (ARM)</code>下支持<code>ARMv7</code>架构的最新版本是<code>v14.15.4</code>。</p>
 <img src="/upload_image/image-20210110195145708.png" alt="image-20210110195145708" style="zoom: 33%;" />
 
-<p>​    <u>——————以下是一次试错记录，仅供阅读不推荐亲自尝试，直到下一次提示出现否则不要尝试—————————</u></p>
+<p>​    <u>—以下是一次试错记录，仅供阅读不推荐亲自尝试，直到下一次提示出现否则不要尝试—</u></p>
 <p>​    下载node.js：</p>
 <figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">wget https://nodejs.org/dist/v14.15.4/node-v14.15.4-linux-armv7l.tar.xz</span><br></pre></td></tr></table></figure>
 <p>​    <em>注意将版本改为当前的最新版本，更改命令中数字即可，下面的命令全部都要作出相应修改</em></p>
@@ -164,7 +164,7 @@
 <p>​    三分钟之后，果然是坑…在安装Hexo步骤时成功崩溃：Hexo安装需要有Node.js的版本支持：</p>
 <img src="/upload_image/image-20210111113028964.png" alt="image-20210111113028964" style="zoom:50%;" />
 
-<p><u>————————————————试错结束，正确的打开方式如下—————————————————</u>    </p>
+<p><u>————————试错结束，正确的打开方式如下————————</u>    </p>
 <p>重新安装Node.js 10.13.0，步骤上同。</p>
 <figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo rm -rf /usr/bin/node</span><br><span class="line">sudo rm -rf /usr/bin/npm</span><br><span class="line">cd /usr/local</span><br><span class="line">rm -f -R -v node</span><br><span class="line">cd ..</span><br><span class="line">cd ..</span><br><span class="line">cd home</span><br><span class="line">cd pi</span><br><span class="line">wget https://nodejs.org/dist/v10.13.0/node-v10.13.0-linux-armv7l.tar.xz</span><br><span class="line">cd /usr/local/node</span><br><span class="line">sudo tar xavf ~/node-v10.13.0-linux-arm-pi.tar.gz --strip=1</span><br><span class="line">sudo ln -s /usr/local/node/bin/node /usr/bin/node</span><br><span class="line">sudo ln -s /usr/local/node/bin/npm /usr/bin/npm</span><br><span class="line">node -v &amp;&amp; npm -v</span><br></pre></td></tr></table></figure>
 <p>​                                        <img src="/upload_image/image-20210111113144727.png" alt="image-20210111113144727" style="zoom:50%;" /></p>
