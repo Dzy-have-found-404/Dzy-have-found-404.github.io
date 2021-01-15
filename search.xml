@@ -14,4 +14,237 @@
 <p>More info: <a href="https://hexo.io/docs/one-command-deployment.html">Deployment</a></p>
 ]]></content>
   </entry>
+  <entry>
+    <title>树莓派平台自建博客(一)——搭建树莓派托管平台</title>
+    <url>/2021/01/11/%E8%87%AA%E5%BB%BA%E5%8D%9A%E5%AE%A2(%E4%B8%80)%E2%80%94%E2%80%94%E6%90%AD%E5%BB%BA%E6%A0%91%E8%8E%93%E6%B4%BE%E6%89%98%E7%AE%A1%E5%B9%B3%E5%8F%B0/</url>
+    <content><![CDATA[<h3 id="0-前言"><a href="#0-前言" class="headerlink" title="0.  前言"></a>0.  前言</h3><p>​    选择树莓派作为博客搭管平台的理由:</p>
+<p>​    一是大多数博客都是在上班摸鱼期间完成，主要写在公司的PC上；</p>
+<p>​    二是公司开发产品的环境大多会故意折旧，搭建博客各类所需的各种环境搭载在工作PC上容易造成各类很难解决的麻烦；</p>
+<p>​    三是树莓派系统读写在SD卡上，断电拔插解千愁；</p>
+<p>​    四，穷。</p>
+<h3 id="1-树莓派环境"><a href="#1-树莓派环境" class="headerlink" title="1.  树莓派环境"></a>1.  树莓派环境</h3><h4 id="1-1-树莓派的连接"><a href="#1-1-树莓派的连接" class="headerlink" title="1.1 树莓派的连接"></a>1.1 树莓派的连接</h4><p>​    首先烧写树莓派系统，这里选择的是<code>2017-04-10-ssh-china-raspbian-jessie.img</code>，新版的系统怕遇到新麻烦难以解决搞球不来所以选了个熟悉的旧版本；</p>
+<p>​    内存卡方面选择了A1的16G的金士顿，用<code>Win32DiskImager</code>工具烧完系统；</p>
+<p>​    先将自己显示器的HDMI接口连接至树莓派(没有显示器的看这里：<a href="https://segmentfault.com/a/1190000010976507#articleHeader3">树莓派如何完全无头(无屏无网线无键盘鼠标)安装</a> )；</p>
+<p>​    插卡，上电(5v2A)，开机，手动连接至PC连接的同一局域网；</p>
+<p>​    打开终端，输入：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">ifconfig</span><br></pre></td></tr></table></figure>
+<p>​    获取树莓派的ip地址，记住树莓派的默认username是<code>pi</code>，默认密码是<code>raspberry</code></p>
+<p>​    下载<code>Putty</code>或者<code>xshell</code>通过SSH方式连接树莓派，这里用的是Putty，<a href="https://www.chiark.greenend.org.uk/~sgtatham/putty/latest.html">附上下载链接</a>，选择<code>putty.exe(the SSH and Telnet client itself)</code>。打开Putty，按图中顺序输入IP地址，点击[Open]。</p>
+<img src="/upload_image/image-20210110185859101.png" alt="image-20210110185859101" style="zoom:67%;" />
+
+<p>​    打开之后，输入正确的用户名和密码，回车*2。</p>
+<img src="/upload_image/image-20210110190526959.png" alt="image-20210110190526959" style="zoom:50%;" />
+
+<h4 id="1-2-树莓派的硬件驱动"><a href="#1-2-树莓派的硬件驱动" class="headerlink" title="1.2 树莓派的硬件驱动"></a>1.2 树莓派的硬件驱动</h4><p>​    因为大学里也阔过所以还有一块微雪的3.5寸的触摸屏，树莓派默认1080分辨率的HDMI视频输出，因此使用这块屏幕需要下载专门的驱动；</p>
+<p>​    终端输入：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">git clone https://github.com/waveshare/LCD-show.git</span><br><span class="line">cd LCD-show/</span><br><span class="line">sudo ./LCD35-show</span><br></pre></td></tr></table></figure>
+<p>​    这种驱动工作的话执行apt-get upgrade会导致LCD无法正常工作，解决方法：</p>
+<p>​    关机，拔下SD卡，读卡器插入PC，boot根目录下找到 config.txt 文件并打开，找到并删除这一句：<code>dtoverlay=ads7846,</code></p>
+<p>​    Ctrl+S保存config.txt文件并关闭，重新给树莓派插上SD卡，开机；</p>
+<p>​    树莓派的系统就适配在3.5寸屏幕上了，因为初始的桌面方向底部在电源口方向我很不方便，所以需要旋转屏幕，还是putty打开终端输入</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">cd LCD-show/</span><br><span class="line"><span class="meta">#</span><span class="bash">X可选0、90、180和270。分别表示LCD旋转0度、90度、180度和270度。</span></span><br><span class="line">sudo ./LCD35-show X</span><br><span class="line"><span class="meta">#</span><span class="bash">这里X我选的是180，个人喜爱</span></span><br></pre></td></tr></table></figure>
+<p>​    <em>请不要输入0！！！请不要输入0！！！请不要输入0！！！会直接白屏，如果手贱已输，网上攻略让找找config.txt文件注释LCD一些设置或者跟我一样选择重装系统…</em></p>
+<h4 id="1-3-为树莓派修改更新源"><a href="#1-3-为树莓派修改更新源" class="headerlink" title="1.3 为树莓派修改更新源"></a>1.3 为树莓派修改更新源</h4><p>​    因为社会主义网络下载资本主义的系统源和软件源会非常非常非常慢，所以需要在手贱进行<code>sudo apt-get upgrade</code>之前将镜像源换掉，    终端输入：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo nano /etc/apt/sources.list</span><br><span class="line"><span class="meta">#</span><span class="bash">修改软件更新源</span></span><br></pre></td></tr></table></figure>
+<p>​    如下图所示：</p>
+<p><img src="/upload_image/1.jpg" alt="修改前sources.list"></p>
+<p>​    用 # 号将原来的国外镜像源注释掉，并添加国内的清华源，在文件后添加如下代码：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">deb http://mirrors.tuna.tsinghua.edu.cn/raspbian/raspbian/ buster main contrib non-free rpi</span><br><span class="line"><span class="meta">#</span><span class="bash">deb-src http://mirrors.tuna.tsinghua.edu.cn/raspbian/raspbian/ buster main contrib non-free rpi</span></span><br></pre></td></tr></table></figure>
+<p>​    完成后如图所示：</p>
+<p><img src="/upload_image/2.jpg" alt="修改后的sources.list"></p>
+<p>​    <code>Ctrl+X</code>退出，然后按<code>Y</code>保存，回车退出。</p>
+<p>​    终端输入：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo nano /etc/apt/sources.list.d/raspi.list</span><br><span class="line"><span class="meta">#</span><span class="bash">修改系统更新源</span></span><br></pre></td></tr></table></figure>
+<p>​    如下图所示：</p>
+<p><img src="/upload_image/3.jpg" alt="修改前的raspi.list内容"></p>
+<p>​    注释第一行，末尾加上添加的新源地址：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">deb http://mirrors.ustc.edu.cn/archive.raspberrypi.org/debian/ buster main uih</span><br></pre></td></tr></table></figure>
+<p>​    完成如图所示：</p>
+<p><img src="/upload_image/4.jpg" alt="修改后的raspi.list内容"></p>
+<p>​    <code>Ctrl+X</code>退出，然后按<code>Y</code>保存，回车退出。</p>
+<h4 id="1-4-更新"><a href="#1-4-更新" class="headerlink" title="1.4 更新"></a>1.4 更新</h4><p>​    更新树莓派系统，在终端输入<code>sudo apt-get update</code></p>
+<p>​    更新树莓派软件，在终端输入<code>sudo apt-get upgrade</code></p>
+<p>​    过程漫长，开始煲汤…</p>
+<p>​    第二步结束之后，卡住不动出现changelogs说明第一阶段结束，一直按回车到变更记录底部</p>
+<img src="/upload_image/image-20210110191529225.png" alt="image-20210110191529225" style="zoom:50%;" />
+
+<p>​    出现提示：<code>q to quit</code>，按下q，然后回车。</p>
+<img src="/upload_image/image-20210110191444420.png" alt="image-20210110191444420" style="zoom:50%;" />
+
+<p>​    Done.</p>
+<h3 id="2-安装Git"><a href="#2-安装Git" class="headerlink" title="2.  安装Git"></a>2.  安装Git</h3><p>​    终端输入：<code>sudo apt-get install git</code></p>
+<p>​    修改全局用户名：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">git config --global user.name &quot;你的GitHub/Gitee用户名&quot;</span><br><span class="line">git config --global user.email &quot;你的GitHub/Gitee邮箱&quot;</span><br></pre></td></tr></table></figure>
+<p>​    Email不知道是啥的点进Github右上角头像[Settings]，找到<code>Emails</code></p>
+<img src="/upload_image/image-20210110194209174.png" alt="image-20210110194209174" style="zoom: 33%;" />
+
+<p>​    查看自己是不是已经修改成功：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">git config --list</span><br></pre></td></tr></table></figure>
+<p>​    如图则成功：</p>
+<img src="/upload_image/image-20210110194529563.png" alt="image-20210110194529563" style="zoom:50%;" />
+
+<h3 id="3-安装Node-js"><a href="#3-安装Node-js" class="headerlink" title="3.  安装Node.js"></a>3.  安装Node.js</h3><p>​    <strong>前排提示可能是最坑的一步要来了…</strong></p>
+<p>​    先装个傻子假装不知道树莓派的架构，打开终端输入：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">uname -a</span><br></pre></td></tr></table></figure>
+<img src="/upload_image/image-20210110194811054.png" alt="image-20210110194811054" style="zoom:50%;" />
+
+<p>​    可以看到树莓派是armv71架构，即ARM7.</p>
+<p>​    登录 <a href="https://nodejs.org/en/download/">Node.js官网</a>，可以看到Node.js很贴心的给出了推荐版本，点开<code>Linux Binaries (ARM)</code>下支持<code>ARMv7</code>架构的最新版本是<code>v14.15.4</code>。</p>
+<img src="/upload_image/image-20210110195145708.png" alt="image-20210110195145708" style="zoom: 33%;" />
+
+<p>​    <u>——————以下是一次试错记录，仅供阅读不推荐亲自尝试，直到下一次提示出现否则不要尝试—————————</u></p>
+<p>​    下载node.js：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">wget https://nodejs.org/dist/v14.15.4/node-v14.15.4-linux-armv7l.tar.xz</span><br></pre></td></tr></table></figure>
+<p>​    <em>注意将版本改为当前的最新版本，更改命令中数字即可，下面的命令全部都要作出相应修改</em></p>
+<img src="/upload_image/image-20210110195755526.png" alt="image-20210110195755526" style="zoom:50%;" />
+
+<p>​    解压二进制包：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">xz -d node-v14.15.4-linux-armv7l.tar.xz</span><br><span class="line">tar -xavf node-v14.15.4-linux-armv7l.tar</span><br></pre></td></tr></table></figure>
+<p>​    删除系统内原本存在的<code>/usr/bin.node</code>:</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo rm -rf /usr/bin/node</span><br><span class="line">sudo rm -rf /usr/bin/npm</span><br><span class="line"><span class="meta">#</span><span class="bash">如果不存在，忽略此步骤</span></span><br></pre></td></tr></table></figure>
+<p>​    解压后将解压文件移动到<code>/usr/local/node</code>下：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo mv ./node-v14.15.4-linux-armv7l /usr/local/node</span><br></pre></td></tr></table></figure>
+<p>​    为node和npm建立软连接（就是上上步骤删除的那个）：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo ln -s /usr/local/node/bin/node /usr/bin/node</span><br><span class="line">sudo ln -s /usr/local/node/bin/npm /usr/bin/npm</span><br><span class="line"><span class="meta">#</span><span class="bash">这类似于Windows中的快捷方式</span></span><br></pre></td></tr></table></figure>
+<p>​    查看版本号：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">node -v &amp;&amp; npm -v</span><br></pre></td></tr></table></figure>
+<p>​    坑爹的来了…提示报错</p>
+<p> <code>node: /usr/lib/arm-linux-gnueabihf/libstdc++.so.6: version&#39;CXXABI_1.3.9&#39;not found (required by node) </code></p>
+<p> <code>node: /usr/lib/arm-linux-gnueabihf/libstdc++.so.6: version ‘GLIBCXX_3.4.21’not found (required by node)</code></p>
+<img src="/upload_image/image-20210110200800909.png" alt="image-20210110200800909" style="zoom:50%;" />
+
+<p>​    上论坛找解决方案，找到了几个跟我同病相怜的哥们：</p>
+<p>​    <a href="https://github.com/nvm-sh/nvm/issues/2044">问题原因</a>&amp;<a href="https://stackoverflow.com/questions/32563173/installing-node-js-on-raspberry-pi-2">解决方案</a></p>
+<p>​    <strong>坑爹的树莓派老Raspbian系统不支持较新的node.js…</strong></p>
+<p>​    将刚才的步骤一步步回溯：</p>
+<ol>
+<li><p>删除软连接：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo rm -rf /usr/bin/node</span><br><span class="line">sudo rm -rf /usr/bin/npm</span><br></pre></td></tr></table></figure></li>
+<li><p>删除<code>/usr/local/node</code>下的文件</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">cd /usr/local</span><br><span class="line">rm -f -R -v node</span><br><span class="line"><span class="meta">#</span><span class="bash">不要再root模式下输入最后一个命令&amp;不要自行加sudo</span></span><br></pre></td></tr></table></figure>
+<img src="/upload_image/image-20210110202351885.png" alt="image-20210110202351885" style="zoom:50%;" />
+
+
+
+</li>
+</ol>
+<ol start="3">
+<li><p>回到pi目录下，删除刚刚下载的v14.15.4的压缩包</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">cd ..</span><br><span class="line">cd ..</span><br><span class="line">cd home</span><br><span class="line">cd pi</span><br><span class="line">rm node-v14.15.4-linux-armv7l.tar</span><br></pre></td></tr></table></figure></li>
+<li><p>下载当前系统支持的node.js版本</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">wget https://nodejs.org/download/release/v0.10.0/node-v0.10.0-linux-arm-pi.tar.gz</span><br></pre></td></tr></table></figure>
+<p>解压到local文件夹下：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">cd /usr/local/node</span><br><span class="line"></span><br><span class="line">sudo tar xzvf ~/node-v0.10.0-linux-arm-pi.tar.gz --strip=1</span><br></pre></td></tr></table></figure>
+<p>检查目录内容：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">ls -l</span><br></pre></td></tr></table></figure>
+<img src="/upload_image/image-20210110202954600.png" alt="image-20210110202954600" style="zoom:50%;" />
+</li>
+<li><p>建立软连接&amp;查看版本号</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo ln -s /usr/local/node/bin/node /usr/bin/node</span><br><span class="line">sudo ln -s /usr/local/node/bin/npm /usr/bin/npm</span><br><span class="line">node -v &amp;&amp; npm -v</span><br></pre></td></tr></table></figure>
+<img src="/upload_image/image-20210110203111090.png" alt="image-20210110203111090" style="zoom:50%;" />
+
+<p>DONE！</p>
+</li>
+</ol>
+<p>​    由于网速问题npm的包管理器的速度很慢，所以使用npm安装cnpm即淘宝源，终端输入：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">npm install -g cnpm --registry=https://registry.npm.taobao.org</span><br></pre></td></tr></table></figure>
+<img src="/upload_image/image-20210111094319946.png" alt="image-20210111094319946" style="zoom:50%;" />
+
+<p>​    要求<code>node&gt;= 6.0.0</code>。。。。。。</p>
+<p>​    打开 <a href="https://nodejs.org/en/download/">Node.js官网</a>，点开<code>Previous Releases</code>，根据发布日期选择一个不晚于树莓派当前系统镜像制作时间的版本</p>
+<img src="/upload_image/image-20210111101246619.png" alt="image-20210111101246619" style="zoom: 50%;" />
+
+<p>​    我选的是<code>Node.js 7.3.0</code>，步骤同上述步骤1-5，如果在<code>node -v &amp;&amp; npm -v</code></p>
+<img src="/upload_image/image-20210111101553050.png" alt="image-20210111101553050" style="zoom:50%;" />
+
+<p>​    读条，煲汤…</p>
+<p>​    成功之后如下：（两个WARN总感觉给自己挖了个大坑=~=|||）</p>
+<img src="/upload_image/image-20210111102233699.png" alt="image-20210111102233699" style="zoom:50%;" />
+
+<p>​    三分钟之后，果然是坑…在安装Hexo步骤时成功崩溃：Hexo安装需要有Node.js的版本支持：</p>
+<img src="/upload_image/image-20210111113028964.png" alt="image-20210111113028964" style="zoom:50%;" />
+
+<p><u>————————————————试错结束，正确的打开方式如下—————————————————</u>    </p>
+<p>重新安装Node.js 10.13.0，步骤上同。</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo rm -rf /usr/bin/node</span><br><span class="line">sudo rm -rf /usr/bin/npm</span><br><span class="line">cd /usr/local</span><br><span class="line">rm -f -R -v node</span><br><span class="line">cd ..</span><br><span class="line">cd ..</span><br><span class="line">cd home</span><br><span class="line">cd pi</span><br><span class="line">wget https://nodejs.org/dist/v10.13.0/node-v10.13.0-linux-armv7l.tar.xz</span><br><span class="line">cd /usr/local/node</span><br><span class="line">sudo tar xavf ~/node-v10.13.0-linux-arm-pi.tar.gz --strip=1</span><br><span class="line">sudo ln -s /usr/local/node/bin/node /usr/bin/node</span><br><span class="line">sudo ln -s /usr/local/node/bin/npm /usr/bin/npm</span><br><span class="line">node -v &amp;&amp; npm -v</span><br></pre></td></tr></table></figure>
+<p>​                                        <img src="/upload_image/image-20210111113144727.png" alt="image-20210111113144727" style="zoom:50%;" /></p>
+<p>​    <strong>填坑小结：</strong></p>
+<ol>
+<li>看论坛注意时间戳，解决方案具有时效性；</li>
+<li>以第一目标所需配置为目标进行检索，比如安装hexo应当优先关注的是hexo所需的版本要求而不是先根据自身硬件条件去猜支持的版本；</li>
+<li>安装路径很重要，如建立软连接<code>sudo ln -s /usr/local/node/bin/node /usr/bin/node </code>，需要注意前面一个路径是否正确；如果没有设置正确，在 node -v 时会出现找不到对象；解决方法是cd到node目录下，<code>ls -l</code>查看当前文件目录，有的时候使用其他的解压文件方式会使得在node文件夹下建立了一个和压缩包同名的文件夹，按照各个博客里的命令设置软连接肯定是会撞在南墙上的。</li>
+</ol>
+<h3 id="4-安装Hexo"><a href="#4-安装Hexo" class="headerlink" title="4. 安装Hexo"></a>4. 安装Hexo</h3><p>​    <strong>方式一：cnpm/npm安装</strong></p>
+<p>​    国内网速较慢，nmp包管理器的速度会较慢，利用nmp安装cnpm即淘宝源，在终端输入：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">npm install -g cnpm --registry=https://registry.npm.taobao.org</span><br></pre></td></tr></table></figure>
+<img src="/upload_image/image-20210111114225195.png" alt="image-20210111114225195" style="zoom:50%;" />
+
+<p>​    报错…Hexo论坛查找问题发现大多数人都遇到过，原因是安装权限不足，在命令前加上sudo即可，下面涉及安装的作同类处理</p>
+<p>​                                        <img src="/upload_image/image-20210111131013291.png" alt="image-20210111131013291" style="zoom:50%;" /></p>
+<p>​    为cnpm建立软连接，在终端输入：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo ln -s /usr/local/node/bin/cnpm /usr/bin/cnpm</span><br></pre></td></tr></table></figure>
+<p>​    安装hexo博客框架，在终端输入：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo cnpm install -g hexo-cli</span><br></pre></td></tr></table></figure>
+<img src="/upload_image/image-20210111132437986.png" alt="image-20210111132437986" style="zoom:50%;" />
+
+<p>​    这时候输入<code>hexo -v</code>是找不到hexo的…说明安装的步骤出了问题(或者可以跳转到下文中hexo路径配置尝试，我这里选择直接换方法)</p>
+<p>​    cnpm有时候确实鸡肋，因为下文npm安装下载速度并不像那些推荐cnpm的博主所说的那样慢，改用npm安装：</p>
+<p>​    通过ape-get安装npm的需要下载以下nodejs的legacy：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo apt-get install nodejs-legacy</span><br></pre></td></tr></table></figure>
+<p>​    y，回车</p>
+<img src="/upload_image/image-20210111133211425.png" alt="image-20210111133211425" style="zoom:50%;" />
+
+<p>​    虽然hexo官方的文档强烈建议<strong>不要</strong>使用 root、sudo 等方法覆盖权限，但其他方法太麻烦了，sudo走一个</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo npm install -g hexo-cli</span><br></pre></td></tr></table></figure>
+<img src="/upload_image/image-20210111134702577.png" alt="image-20210111134702577" style="zoom:50%;" />
+
+<img src="/upload_image/image-20210111141122455.png" alt="image-20210111141122455" style="zoom:50%;" />
+
+<p>​    骂骂咧咧找问题…</p>
+<p>​    第一步，先检查当前npm的镜像</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">npm get registry</span><br></pre></td></tr></table></figure>
+<p>​    如果不是<code>https://registry.npmjs.org/</code>，终端输入<code>npm config set registry https://registry.npmjs.org/</code>从淘宝源换回官方源；</p>
+<p>​    重试<code>sudo npm install -g hexo</code> ，不出意外还是失败，淦…</p>
+<p>​    第二步，清除cache</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">npm cacha cleam --force</span><br></pre></td></tr></table></figure>
+<p>​    npm官方提醒：I sure hope you know what you are doing. （=//=）</p>
+<img src="/upload_image/image-20210111142126335.png" alt="image-20210111142126335" style="zoom: 80%;" />
+
+<p>​    第三步，设置npm的官方源以防万一</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">npm config set registry http://registry.cnpmjs.org</span><br></pre></td></tr></table></figure>
+<p>​    好了，继续</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo npm install -g hexo</span><br></pre></td></tr></table></figure>
+<img src="/upload_image/image-20210111142658630.png" alt="image-20210111142658630" style="zoom:80%;" />
+
+<p>​    胜利在望！！！！</p>
+<p>​    查看hexo版本：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">hexo -v</span><br></pre></td></tr></table></figure>
+<img src="/upload_image/image-20210111142832673.png" alt="image-20210111142832673" style="zoom:80%;" />
+
+<p>​    骂骂咧咧找问题*2…</p>
+<p>​    【安装hexo提示command not found】</p>
+<p>​    在知乎找到了答案：</p>
+<img src="/upload_image/image-20210111143337916.png" alt="image-20210111143337916" style="zoom:50%;" />
+
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">npm -root -g</span><br></pre></td></tr></table></figure>
+<p>​    回复：<code>/usr/local/node/lib/node_modules</code>，cd到这个目录下不停, <code>ls -l</code> 或者用VNC工具查看树莓派文件夹，目的是为了找到hexo</p>
+<img src="/upload_image/image-20210111143559765.png" alt="image-20210111143559765" style="zoom:80%;" />
+
+<p>​    路径是<code>/usr/local/node/lib/node_modules/hexo/bin/hexo</code>，我们重新设置软连接到 <code>/usr/bin/</code> 文件夹下：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo ln -s /usr/local/node/lib/node_modules/hexo/bin/hexo /usr/bin/hexo</span><br></pre></td></tr></table></figure>
+<p>​    查看hexo版本：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">hexo -v</span><br></pre></td></tr></table></figure>
+<img src="/upload_image/image-20210111143812943.png" alt="image-20210111143812943" style="zoom:80%;" />
+
+<p>​    终于，成功了…</p>
+]]></content>
+      <categories>
+        <category>树莓派</category>
+      </categories>
+      <tags>
+        <tag>Linux</tag>
+        <tag>Github</tag>
+        <tag>Hexo</tag>
+      </tags>
+  </entry>
 </search>
