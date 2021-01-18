@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="搭建完树莓派的环境之后接下来就是需要将blog上传到Github Page进行发布">
+<meta property="og:type" content="article">
+<meta property="og:title" content="树莓派平台自建博客(二)——博客上传&amp;域名绑定">
+<meta property="og:url" content="http://example.com/2021/01/13/%E8%87%AA%E5%BB%BA%E5%8D%9A%E5%AE%A2(%E4%BA%8C)%E2%80%94%E2%80%94%E5%8D%9A%E5%AE%A2%E4%B8%8A%E4%BC%A0&%E5%9F%9F%E5%90%8D%E7%BB%91%E5%AE%9A/index.html">
+<meta property="og:site_name" content="Dzy404&#39;s Blog">
+<meta property="og:description" content="搭建完树莓派的环境之后接下来就是需要将blog上传到Github Page进行发布">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/upload_image/image-20210111154531312.png">
+<meta property="og:image" content="http://example.com/upload_image/image-20210111155319327.png">
+<meta property="og:image" content="http://example.com/upload_image/image-20210111163300563.png">
+<meta property="og:image" content="http://example.com/upload_image/image-20210111164141255.png">
+<meta property="og:image" content="http://example.com/upload_image/image-20210111164422107.png">
+<meta property="og:image" content="http://example.com/upload_image/image-20210111164454185.png">
+<meta property="og:image" content="http://example.com/upload_image/image-20210113120314433.png">
+<meta property="og:image" content="http://example.com/upload_image/image-20210113141759658.png">
+<meta property="og:image" content="http://example.com/upload_image/image-20210113132556672.png">
+<meta property="og:image" content="http://example.com/upload_image/image-20210113132901512.png">
+<meta property="og:image" content="http://example.com/upload_image/image-20210113143531819.png">
+<meta property="og:image" content="http://example.com/upload_image/image-20210113144236022.png">
+<meta property="og:image" content="http://example.com/upload_image/image-20210113151136100.png">
+<meta property="og:image" content="http://example.com/upload_image/image-20210113152554039.png">
+<meta property="og:image" content="http://example.com/upload_image/image-20210113153008674.png">
+<meta property="og:image" content="http://example.com/upload_image/image-20210113153354265.png">
+<meta property="og:image" content="http://example.com/upload_image/image-20210113153801944.png">
+<meta property="og:image" content="http://example.com/upload_image/image-20210113154809149.png">
+<meta property="og:image" content="http://example.com/upload_image/image-20210113155440294.png">
+<meta property="og:image" content="http://example.com/upload_image/image-20210113160915169.png">
+<meta property="og:image" content="http://example.com/upload_image/image-20210113170231119.png">
+<meta property="og:image" content="http://example.com/upload_image/image-20210114093742330.png">
+<meta property="og:image" content="http://example.com/upload_image/image-20210114094137705.png">
+<meta property="og:image" content="http://example.com/upload_image/image-20210112101348945.png">
+<meta property="og:image" content="http://example.com/upload_image/image-20210112101447248.png">
+<meta property="og:image" content="http://example.com/upload_image/image-20210112101622397.png">
+<meta property="og:image" content="http://example.com/upload_image/image-20210112101718817.png">
+<meta property="og:image" content="http://example.com/upload_image/image-20210112101927936.png">
+<meta property="og:image" content="http://example.com/upload_image/image-20210112102109683.png">
+<meta property="og:image" content="http://example.com/upload_image/image-20210112151849544.png">
+<meta property="article:published_time" content="2021-01-13T21:00:00.000Z">
+<meta property="article:modified_time" content="2021-01-18T06:41:39.000Z">
+<meta property="article:author" content="Dzy">
+<meta property="article:tag" content="Linux">
+<meta property="article:tag" content="Github">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/upload_image/image-20210111154531312.png">
+
+<link rel="canonical" href="http://example.com/2021/01/13/%E8%87%AA%E5%BB%BA%E5%8D%9A%E5%AE%A2(%E4%BA%8C)%E2%80%94%E2%80%94%E5%8D%9A%E5%AE%A2%E4%B8%8A%E4%BC%A0&%E5%9F%9F%E5%90%8D%E7%BB%91%E5%AE%9A/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>树莓派平台自建博客(二)——博客上传&域名绑定 | Dzy404's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Dzy404's Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">式遏寇虐  憯不畏明</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-commonweal">
+
+    <a href="/404/" rel="section"><i class="fa fa-heartbeat fa-fw"></i>公益 404</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/01/13/%E8%87%AA%E5%BB%BA%E5%8D%9A%E5%AE%A2(%E4%BA%8C)%E2%80%94%E2%80%94%E5%8D%9A%E5%AE%A2%E4%B8%8A%E4%BC%A0&%E5%9F%9F%E5%90%8D%E7%BB%91%E5%AE%9A/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="Dzy">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Dzy404's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          树莓派平台自建博客(二)——博客上传&域名绑定
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-01-13 21:00:00" itemprop="dateCreated datePublished" datetime="2021-01-13T21:00:00+00:00">2021-01-13</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-01-18 06:41:39" itemprop="dateModified" datetime="2021-01-18T06:41:39+00:00">2021-01-18</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%A0%91%E8%8E%93%E6%B4%BE/" itemprop="url" rel="index"><span itemprop="name">树莓派</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%A0%91%E8%8E%93%E6%B4%BE/Linux/" itemprop="url" rel="index"><span itemprop="name">Linux</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <blockquote>
+<p>搭建完树莓派的环境之后接下来就是需要将blog上传到Github Page进行发布</p>
+</blockquote>
+<a id="more"></a>
+
+<h3 id="0-令人Angry的-Github-Pages"><a href="#0-令人Angry的-Github-Pages" class="headerlink" title="0. 令人Angry的 Github Pages"></a>0. 令人Angry的 Github Pages</h3><p>​    创建一个目录用来放博客的文件，名字任意</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo mkdir blog</span><br><span class="line">cd blog</span><br></pre></td></tr></table></figure>
+<p>​    进入blog目录之后，初始化hexo：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo hexo init</span><br></pre></td></tr></table></figure>
+<img src="/upload_image/image-20210111154531312.png" alt="image-20210111154531312" style="zoom: 50%;" />
+
+<p>​    煲汤…</p>
+<p>​    启动hexo：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo hexo s</span><br></pre></td></tr></table></figure>
+<img src="/upload_image/image-20210111155319327.png" alt="image-20210111155319327" style="zoom: 50%;" />
+
+<p>​    <code>Ctrl + C</code> 退出，安装 deployer</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo cnpm install --save hexo-deployer-git</span><br></pre></td></tr></table></figure>
+<img src="/upload_image/image-20210111163300563.png" alt="image-20210111163300563" style="zoom:50%;" />
+
+<p>​    启动博客： <code>sudo hexo s</code></p>
+<img src="/upload_image/image-20210111164141255.png" alt="image-20210111164141255" style="zoom: 67%;" />
+
+<p>​    上传博客： <code>sudo hexo d</code></p>
+<img src="/upload_image/image-20210111164422107.png" alt="image-20210111164422107" style="zoom:50%;" />
+
+<img src="/upload_image/image-20210111164454185.png" alt="image-20210111164454185" style="zoom: 50%;" />
+
+<p>​    我以为是我的GitHub第一邮箱设置的是Gmail导致了auto detect失败，将第一邮箱设置成163之后也还是失败了…</p>
+<p>​    于是当前的问题就变成了我输入 <code>git config -l</code> 能够正确显示我的name和email，但当我试图push的时候git却说不能识别我的身份…</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">*** Please tell me who you are.</span><br><span class="line"></span><br><span class="line">Run</span><br><span class="line"></span><br><span class="line">  git config --global user.email &quot;you@example.com&quot;</span><br><span class="line">  git config --global user.name &quot;Your Name&quot;</span><br><span class="line"></span><br><span class="line">to set your account&#x27;s default identity.</span><br><span class="line">Omit --global to set the identity only in this repository.</span><br><span class="line"></span><br><span class="line">fatal: unable to auto-detect email address (got &#x27;root@raspberrypi.(none)&#x27;)</span><br><span class="line">error: src refspec HEAD does not match any.</span><br><span class="line">error: 无法推送一些引用到 &#x27;https://github.com/dzy404/dzy404.github.io&#x27;</span><br></pre></td></tr></table></figure>
+<p>​    easy,easy…(我一开始以为这只是个小问题，没想到这个报错提示一直伴随着我接下来的22小时)</p>
+<p>​    这种问题只可能有两个可能：1.我对git不够了解，需要重新复习一下 git 的目录结构以及配置；2.GitHub那边可能有问题。</p>
+<p>​    第一种我在大学里做项目时就已经遇到过，当时的我选择了绕开，现在的我还是一条懒狗，所以我先找第二种情况可能的解决方法。</p>
+<p>​    于是尝试了很多次比如 hexo-deployer 在 pi 目录、home 目录和 blog目录下重新安装或者是更改_config.yml之类的操作，最终都以失败告终。</p>
+<p>​    然后我决定暂时放弃去看网上的教程和博客，直奔 hexo-deployer 的 <a target="_blank" rel="noopener" href="https://hexo.io/zh-cn/docs/one-command-deployment.html">官方文档</a> 去：[部署]-[Git]部分，最后的第四点提醒要在Github的库设置中也要设置成_config.yml配置中的分支名称。</p>
+<img src="/upload_image/image-20210113120314433.png" alt="image-20210113120314433" style="zoom:50%;" />
+
+<p>​    打开GitHub官网，翻到库的 Settings</p>
+<p>​    果然，Github 更新了Github Page的用法，<strong>必须在库设置（Repository Settings）设置好Source和发布站点…</strong></p>
+<img src="/upload_image/image-20210113141759658.png" alt="image-20210113141759658" style="zoom:50%;" />
+
+<p>​    打开 <a target="_blank" rel="noopener" href="https://docs.github.com/en/free-pro-team@latest/github/working-with-github-pages/creating-a-github-pages-site#creating-your-site">Github Paga的官方文档</a> ，根据它的步骤一步步设置所有者和 Github Page的发布站点，如图：</p>
+<img src="/upload_image/image-20210113132556672.png" alt="image-20210113132556672" style="zoom:50%;" />
+
+<img src="/upload_image/image-20210113132901512.png" alt="image-20210113132901512" style="zoom:50%;" />
+
+<p>​    我以为我的 git 推送失败是因为这个没有设置，于是在设置结束之后我直奔终端，结果还是以失败告终…</p>
+<p>​    我排除了第二种情况的可能性，唯一的可能只有我对 git 的一知半解导致了一直在撞南墙</p>
+<p>​    <strong>尝试一：利用 cache 将我的密码临时存储在内存里</strong></p>
+<p>​    有可能是name和email的环境路径不对劲导致了deployer读不到信息；</p>
+<p>​    既然读不到我的git身份信息，那就把密码临时存储在内存进行操作，于是我打开 <a target="_blank" rel="noopener" href="https://git-scm.com/docs/git-credential-cache">git 的官方文档</a> ：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">cd home/pi</span><br><span class="line">git config credential.helper cache</span><br><span class="line">cd blog </span><br><span class="line">sudo hexo d</span><br></pre></td></tr></table></figure>
+<p>​    失败…</p>
+<p>​    <strong>尝试二：.git 和 .ssh 文件的位置</strong></p>
+<p>​    我先是到 Pi 目录下（此时pi目录下只有一个 .git 目录）执行了 <code>sudo hexo d</code>：</p>
+<img src="/upload_image/image-20210113143531819.png" alt="image-20210113143531819" style="zoom:50%;" />
+
+<p>​    说明 hexo命令必须在 执行 <code>hexo init</code> 的目录下进行…Fine</p>
+<p>​    我将Pi目录下的 .git 目录打包送到了bolg目录下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sudo mv ./.git ./blog</span><br><span class="line">cd blog/.git</span><br><span class="line">sudo nano config</span><br></pre></td></tr></table></figure>
+<p>​    确认configure文件中是否有email和name的信息，如果没有，添加如下字段：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">［user］</span><br><span class="line"> 	email＝your email		#你的GitHub邮箱</span><br><span class="line"> 	name＝your name			#你的Github名字</span><br></pre></td></tr></table></figure>
+<p>​    这样的话，我的blog目录下就有.git文件，应当就能读取到我的信息</p>
+<p>​    but…</p>
+<img src="/upload_image/image-20210113144236022.png" alt="image-20210113144236022" style="zoom:50%;" />
+
+<p>​    <strong>尝试三：将deployer推倒重来</strong></p>
+<p>​    参考链接：<a target="_blank" rel="noopener" href="https://www.cnblogs.com/tenderwx/p/5783432.html">【Hexo】deploy出错的解决方法</a></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">cd blog</span><br><span class="line">git config --list	</span><br><span class="line"><span class="meta">#</span><span class="bash">一般会出现你的user.name和user.email，不出现也没关系</span></span><br><span class="line">sudo rm -rf .deployer_git</span><br><span class="line">sudo hexo d</span><br></pre></td></tr></table></figure>
+<img src="/upload_image/image-20210113151136100.png" alt="image-20210113151136100" style="zoom:50%;" />
+
+<p>​    还是失败…</p>
+<p>​    <strong>尝试四：root 大法好</strong></p>
+<p>​    事先说明，root大法我成功了，但来来回回的曲折比前三种方法可能还要更多一点，顺带着还学习了Linux的权限控制</p>
+<p>​    Linux环境下hexo的 <code>hexo d</code> 在各个博主的博文里体现的似乎都很顺利，几乎没有博主在这一步被卡过…Linux方面找不到我想要的答案，我就去找了Windows下配置 <code>hexo d</code> 的步骤和问题。发现Windows下要进行commit必须要在 <code>Git Bush</code> 进行…</p>
+<p>​    于是我怀疑我的所有命令都是在 <code>Pi@raspberry:</code>这个用户下进行的，将信将疑地进入blog目录，然后输入 <code>su git</code>，输入我的Github密码，我的终端变了颜色</p>
+<img src="/upload_image/image-20210113152554039.png" alt="image-20210113152554039" style="zoom:50%;" />
+
+<p>​    也就是说当前我的操作是在git用户下进行的，按理说我是输了GitHub密码进来的，当前的账户就是我的账户不可能会出现deployer不能识别我的情况，输入：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo hexo d</span><br></pre></td></tr></table></figure>
+<p>​    “权力越大，责任越大” ，整挺好；输入Github密码</p>
+<img src="/upload_image/image-20210113153008674.png" alt="image-20210113153008674" style="zoom:50%;" />
+
+<p>​    提示我：<code>Git不在 sudoers 文件中。此事将被报告</code> </p>
+<p>​    那就放弃管理员权限直接开d</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hexo d</span><br></pre></td></tr></table></figure>
+<p>​    提示我 <code>Error: EACCES: permission denied, unlink &#39;/home/pi/blog/.deploy_git/index.html&#39;</code> .</p>
+<img src="/upload_image/image-20210113153354265.png" alt="image-20210113153354265" style="zoom:50%;" />
+
+<p>​    死结就在这里，sudo的话git没权限，不 sudo 的话deployer 禁止非管理员启动.</p>
+<p>​    我对Linux的配置文件的原则是能不招惹就不招惹，配错了重装一切就得重头来过…</p>
+<p>​    第一个思路：<strong>将.deployer_git这个文件的权限拉满拉到 777</strong></p>
+<img src="/upload_image/image-20210113153801944.png" alt="image-20210113153801944" style="zoom:50%;" />
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">cd blog</span><br><span class="line">su root	</span><br><span class="line"><span class="meta">#</span><span class="bash">输入root密码</span></span><br><span class="line">chmod 777 .deployer_git</span><br></pre></td></tr></table></figure>
+<p>​    再次尝试，失败；</p>
+<p>​    第二个思路：<strong>硬着头皮去改 sudoers 这个文件</strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">su root</span><br><span class="line"><span class="meta">#</span><span class="bash">输入root密码</span></span><br><span class="line">cd .. </span><br><span class="line">cd ..</span><br><span class="line">nano etc/sudoers</span><br></pre></td></tr></table></figure>
+<img src="/upload_image/image-20210113154809149.png" alt="image-20210113154809149" style="zoom:50%;" />
+
+<p>​    <em>注意：在这种情况下，git 这个用户已经拥有和root一样的权限，在这个用户下面进行操作一定要注意</em></p>
+<p>​    <code>Ctrl+X</code> ，Y 退出</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">cd home/pi</span><br><span class="line">su git</span><br><span class="line">cd blog </span><br><span class="line">sudo hexo d</span><br></pre></td></tr></table></figure>
+<img src="/upload_image/image-20210113155440294.png" alt="image-20210113155440294" style="zoom:50%;" />
+
+<p>​    没有权限的提示消失了，接下来就是在 git 用户下解决 email 探测问题</p>
+<p>​    在各个目录下面安装 git ，使用 <code>sudo npm install git</code> 在/home，/pi，/blog 下执行这个指令</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">cd home</span><br><span class="line">sudo mkdir git</span><br><span class="line">cd git</span><br><span class="line">sudo touch .gitconfig</span><br><span class="line">sudo nano .gitconfig</span><br></pre></td></tr></table></figure>
+<p>​    加上自己的user.name 和user.email，见尝试二</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">su git </span><br><span class="line">cd home/pi/blog</span><br><span class="line">sudo git config --global user.name &quot;dzy404&quot;</span><br><span class="line">sudo git config --global user.email &quot;dzy1056343052@163.com&quot;</span><br><span class="line">sudo hexo d</span><br></pre></td></tr></table></figure>
+<img src="/upload_image/image-20210113160915169.png" alt="image-20210113160915169" style="zoom:67%;" />
+
+<p>​    成功了…</p>
+<h3 id="1-原因总结"><a href="#1-原因总结" class="headerlink" title="1. 原因总结"></a>1. 原因总结</h3><ol>
+<li>报错一</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">*** Please tell me who you are.</span><br><span class="line"></span><br><span class="line">Run</span><br><span class="line"></span><br><span class="line">  git config --global user.email &quot;you@example.com&quot;</span><br><span class="line">  git config --global user.name &quot;Your Name&quot;</span><br><span class="line"></span><br><span class="line">to set your account&#x27;s default identity.</span><br><span class="line">Omit --global to set the identity only in this repository.</span><br><span class="line"></span><br><span class="line">fatal: unable to auto-detect email address (got &#x27;root@raspberrypi.(none)&#x27;)</span><br><span class="line">error: src refspec HEAD does not match any.</span><br><span class="line">error: 无法推送一些引用到 &#x27;https://github.com/dzy404/dzy404.github.io&#x27;</span><br><span class="line">FATAL &#123; err:</span><br><span class="line">   &#123; Error: Spawn failed</span><br><span class="line">       at ChildProcess.task.on.code (/home/pi/blog/node_modules/hexo-deployer-gi t/node_modules/hexo-util/lib/spawn.js:51:21)</span><br><span class="line">       at ChildProcess.emit (events.js:182:13)</span><br><span class="line">       at Process.ChildProcess._handle.onexit (internal/child_process.js:240:12)  code: 1 &#125; &#125; &#x27;Something\&#x27;s wrong. Maybe you can find the solution here: %s&#x27; &#x27;\u0 01b[4mhttps://hexo.io/docs/troubleshooting.html\u001b[24m&#x27;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>​    这是最主要的问题，问题的关键在于检测不到我的github信息；</p>
+<p>​    在 pi 和 root用户下都尝试过 <code>sudo git config --global  xxxxxx</code> 的操作但还是会出现；</p>
+<p>​    通过Windows配置时需要通过 <code>Git Bush</code> 进行操作发现有可能是账户的问题，就考虑切换 Git 用户进行 git config</p>
+<p>​    最后成功</p>
+<ol start="2">
+<li>报错二</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">EACCES: permission denied, unlink</span><br></pre></td></tr></table></figure>
+<p>​    权限问题：不加sudo 进行hexo d就会出现报错</p>
+<ol start="3">
+<li>报错三</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">xxxx不在sudoers文件中。此时将被报告</span><br></pre></td></tr></table></figure>
+<p>​    切换到root，在/etc/sudoers中加上当前用户的名字</p>
+<ol start="4">
+<li><p>报错四</p>
+<p>在每一次hexo d失败后重新尝试时，都可以将你blog目录下的.deployer_git整个目录删掉再进行尝试。然后终端输入</p>
+</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">git config --global user.name &quot;yourname&quot;</span><br><span class="line">git config --global user.email &quot;youremail&quot;</span><br></pre></td></tr></table></figure>
+<p>​    或是直接打开.git/config文件，加上</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">［user］</span><br><span class="line"> 	email＝your email</span><br><span class="line"> 	name＝your name</span><br></pre></td></tr></table></figure>
+<ol start="5">
+<li>报错五</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ERROR Deployer not found: git</span><br></pre></td></tr></table></figure>
+<p>​    再站点目录安装deployer插件，执行</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo npm uninstall hexo-deployer-git --save</span><br><span class="line">sudo npm install hexo-deployer-git --save</span><br></pre></td></tr></table></figure>
+<h3 id="2-域名绑定"><a href="#2-域名绑定" class="headerlink" title="2. 域名绑定"></a>2. 域名绑定</h3><p>​    阿里云买一个适合自己的域名，看各人博客定位，我选择的是dzyblog.site;</p>
+<p>​    实名认证;</p>
+<p>​    Github下设置打开仓库的 [Settings]，拖到下方 [Custom domain] 添加自己的域名；</p>
+<img src="/upload_image/image-20210113170231119.png" alt="image-20210113170231119" style="zoom:50%;" />
+
+<p>​    这个时候仓库的根目录下面就会出现CNAME的文件，打开之后是域名的名字，如果没有则手动添加；</p>
+<p>​    有了域名之后就需要解析；</p>
+<p>​    再更新主题之后会有 <code>sudo hexo d</code> 的操作，然后就可以发现浏览器输入独立域名页面Page显示404，但输入 <code>xxxx.github.io</code> 还是能够访问，非常的amazing</p>
+<p>​    我以为是我DNS解析出了问题，打开阿里云解析：</p>
+<table>
+<thead>
+<tr>
+<th align="center">主机记录</th>
+<th align="center">记录类型</th>
+<th align="center">解析路线</th>
+<th align="center">记录值</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">@</td>
+<td align="center">A</td>
+<td align="center">默认</td>
+<td align="center">ip地址(ip地址的获得通过在终端Ping你的 <code>用户名.github.io</code> 获得)</td>
+</tr>
+<tr>
+<td align="center">www</td>
+<td align="center">CNAME</td>
+<td align="center">默认</td>
+<td align="center">用户名.github.io</td>
+</tr>
+</tbody></table>
+<img src="/upload_image/image-20210114093742330.png" alt="image-20210114093742330" style="zoom:50%;" />
+
+<p>​    解析是没有问题的，检查目录结构，发现问题所在：</p>
+<p>​    树莓派本地并没有添加上述CNAME的文件，所以在进行一次提交之后，新版本就把原来的老版本里CNAME文件给删除了…</p>
+<p>​    需要在本地source文件里添加CNAME文件，再依次执行 <code>hexo clean</code> <code>hexo g</code> <code>hexo s</code> .</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">cd blog/source</span><br><span class="line">sudo touch CNAME</span><br><span class="line">sudo nano CNAME</span><br><span class="line"><span class="meta">#</span><span class="bash">添加自己的域名</span></span><br></pre></td></tr></table></figure>
+<img src="/upload_image/image-20210114094137705.png" alt="image-20210114094137705" style="zoom:50%;" />
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sudo hexo clean</span><br><span class="line">sudo hexo g</span><br><span class="line">sudo hexo d</span><br></pre></td></tr></table></figure>
+<h3 id="3-其他问题"><a href="#3-其他问题" class="headerlink" title="3. 其他问题"></a>3. 其他问题</h3><ol>
+<li><p>中间做github推送时心态崩溃把整个blog的文件目录都删了准备重建，这时候在blog下执行 <code>sudo hexo init</code>发现报错：</p>
+<img src="/upload_image/image-20210112101348945.png" alt="image-20210112101348945" style="zoom: 50%;" />
+
+<p>心态崩溃*2…加上sudo之后再次尝试：</p>
+<img src="/upload_image/image-20210112101447248.png" alt="image-20210112101447248" style="zoom:50%;" />
+
+<p>心态崩溃*3…Google了一圈怀疑可能是自己误删了pi根目录下面的一些隐藏文件导致把git也删了…于是重装git：</p>
+<img src="/upload_image/image-20210112101622397.png" alt="image-20210112101622397" style="zoom:50%;" />
+
+<p>不对劲，安装git要在pi的根目录下进行：<code>cd ..</code>，安装git</p>
+<img src="/upload_image/image-20210112101718817.png" alt="image-20210112101718817" style="zoom:50%;" />
+
+<p>提示缺少<code>package.json</code>文件，印象里确实把它删了，解决方法：将npm初始化</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm init</span><br></pre></td></tr></table></figure>
+<p>安装git：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo npm install git</span><br></pre></td></tr></table></figure>
+<img src="/upload_image/image-20210112101927936.png" alt="image-20210112101927936" style="zoom:50%;" />
+
+<p>重新搭框架：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cd blog </span><br><span class="line">sudo hexo init</span><br></pre></td></tr></table></figure>
+<img src="/upload_image/image-20210112102109683.png" alt="image-20210112102109683" style="zoom:50%;" />
+</li>
+<li><p>git连接不上了: Permission denied (publickey) 的解决方法(树莓派端)</p>
+<p><strong>错误报告：</strong><code>Permission denied (publickey).</code></p>
+<p><strong>前情提要：</strong>在RaspberryPi本地和Github端都已经设置好ssh公钥…但是当我试图push我的本地hexo时，发现没有成功于是就删掉了本地的.ssh文件，按照之前的github公钥方式再次尝试就不行了…</p>
+<p><strong>解决方案：</strong></p>
+<ol>
+<li><p>先删除GitHub网页中的ssh公钥和树莓派本地/pi/.ssh/这个文件夹；</p>
+</li>
+<li><p> 不再使用 <code>ssh-keygen -t rsa -C &quot;你的邮箱地址&quot;</code> 这个命令，使用全默认 <code>ssh -keygen -t rsa</code> ;</p>
+</li>
+<li><p> <code>cat ~/.ssh/id_rsa.pub</code> ，将这段public key复制到Github的 <a target="_blank" rel="noopener" href="https://github.com/settings/keys">New ssh</a> 里；</p>
+</li>
+<li><p>回到shell，删掉原来的remote信息 <code>git remote rm origin</code> ;</p>
+</li>
+<li><p><code>ssh -T git@github.com</code>，Done. 出现Hi，xxxxx的提示就表示成功。</p>
+</li>
+</ol>
+<img src="/upload_image/image-20210112151849544.png" alt="image-20210112151849544" style="zoom:67%;" />
+
+</li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Linux/" rel="tag"><i class="fa fa-tag"></i> Linux</a>
+              <a href="/tags/Github/" rel="tag"><i class="fa fa-tag"></i> Github</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/01/11/%E8%87%AA%E5%BB%BA%E5%8D%9A%E5%AE%A2(%E4%B8%80)%E2%80%94%E2%80%94%E6%90%AD%E5%BB%BA%E6%A0%91%E8%8E%93%E6%B4%BE%E6%89%98%E7%AE%A1%E5%B9%B3%E5%8F%B0/" rel="prev" title="树莓派平台自建博客(一)——搭建树莓派托管平台">
+      <i class="fa fa-chevron-left"></i> 树莓派平台自建博客(一)——搭建树莓派托管平台
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/10/19/VMware-pro15%E5%AE%89%E8%A3%85CentOS/" rel="next" title="VMware-pro15安装CentOS">
+      VMware-pro15安装CentOS <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#0-%E4%BB%A4%E4%BA%BAAngry%E7%9A%84-Github-Pages"><span class="nav-number">1.</span> <span class="nav-text">0. 令人Angry的 Github Pages</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E5%8E%9F%E5%9B%A0%E6%80%BB%E7%BB%93"><span class="nav-number">2.</span> <span class="nav-text">1. 原因总结</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E5%9F%9F%E5%90%8D%E7%BB%91%E5%AE%9A"><span class="nav-number">3.</span> <span class="nav-text">2. 域名绑定</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E5%85%B6%E4%BB%96%E9%97%AE%E9%A2%98"><span class="nav-number">4.</span> <span class="nav-text">3. 其他问题</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Dzy"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">Dzy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">17</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">23</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/dzy404" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;dzy404" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:dzhiyuan529@gmail.com" title="E-Mail → mailto:dzhiyuan529@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i></a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Dzy</span>
+</div>
+
+<!--
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+-->
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

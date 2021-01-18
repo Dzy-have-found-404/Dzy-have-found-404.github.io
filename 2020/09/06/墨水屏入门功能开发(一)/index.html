@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="墨水屏入门功能开发(一) 开发工具： Keil 5开发芯片： STM32F1X墨水屏型号：GooDisplay 2.7寸四阶灰度墨水屏(GDEW027W3)文档编写工具： Markdown">
+<meta property="og:type" content="article">
+<meta property="og:title" content="墨水屏入门功能开发(一)">
+<meta property="og:url" content="http://example.com/2020/09/06/%E5%A2%A8%E6%B0%B4%E5%B1%8F%E5%85%A5%E9%97%A8%E5%8A%9F%E8%83%BD%E5%BC%80%E5%8F%91(%E4%B8%80)/index.html">
+<meta property="og:site_name" content="Dzy404&#39;s Blog">
+<meta property="og:description" content="墨水屏入门功能开发(一) 开发工具： Keil 5开发芯片： STM32F1X墨水屏型号：GooDisplay 2.7寸四阶灰度墨水屏(GDEW027W3)文档编写工具： Markdown">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/upload_image/%E5%8E%9F%E7%90%86.png">
+<meta property="og:image" content="http://example.com/upload_image/安全出口.jpg">
+<meta property="og:image" content="http://example.com/upload_image/image-20210118143657105.png">
+<meta property="og:image" content="http://example.com/upload_image/image-20200831214637793.png">
+<meta property="og:image" content="http://example.com/upload_image/image-20200831214513063.png">
+<meta property="og:image" content="http://example.com/upload_image/image-20200831214427132.png">
+<meta property="og:image" content="http://example.com/upload_image/磁滞效应.jpg">
+<meta property="og:image" content="http://example.com/upload_image/20200715160631675.jpg">
+<meta property="article:published_time" content="2020-09-06T18:00:00.000Z">
+<meta property="article:modified_time" content="2021-01-18T06:40:06.000Z">
+<meta property="article:author" content="Dzy">
+<meta property="article:tag" content="嵌入式">
+<meta property="article:tag" content="驱动开发">
+<meta property="article:tag" content="E-paper">
+<meta property="article:tag" content="低功耗">
+<meta property="article:tag" content="Keil">
+<meta property="article:tag" content="STM32">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/upload_image/%E5%8E%9F%E7%90%86.png">
+
+<link rel="canonical" href="http://example.com/2020/09/06/%E5%A2%A8%E6%B0%B4%E5%B1%8F%E5%85%A5%E9%97%A8%E5%8A%9F%E8%83%BD%E5%BC%80%E5%8F%91(%E4%B8%80)/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>墨水屏入门功能开发(一) | Dzy404's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Dzy404's Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">式遏寇虐  憯不畏明</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-commonweal">
+
+    <a href="/404/" rel="section"><i class="fa fa-heartbeat fa-fw"></i>公益 404</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2020/09/06/%E5%A2%A8%E6%B0%B4%E5%B1%8F%E5%85%A5%E9%97%A8%E5%8A%9F%E8%83%BD%E5%BC%80%E5%8F%91(%E4%B8%80)/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="Dzy">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Dzy404's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          墨水屏入门功能开发(一)
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-09-06 18:00:00" itemprop="dateCreated datePublished" datetime="2020-09-06T18:00:00+00:00">2020-09-06</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-01-18 06:40:06" itemprop="dateModified" datetime="2021-01-18T06:40:06+00:00">2021-01-18</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F%E5%BC%80%E5%8F%91/" itemprop="url" rel="index"><span itemprop="name">嵌入式开发</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="墨水屏入门功能开发-一"><a href="#墨水屏入门功能开发-一" class="headerlink" title="墨水屏入门功能开发(一)"></a>墨水屏入门功能开发(一)</h2><blockquote>
+<p>开发工具： Keil 5<br>开发芯片： STM32F1X<br>墨水屏型号：GooDisplay 2.7寸四阶灰度墨水屏(GDEW027W3)<br>文档编写工具： Markdown</p>
+</blockquote>
+<a id="more"></a>
+
+<h3 id="1-墨水屏简介"><a href="#1-墨水屏简介" class="headerlink" title="1 墨水屏简介"></a>1 墨水屏简介</h3><h5 id="1-1-墨水屏特性"><a href="#1-1-墨水屏特性" class="headerlink" title="1.1 墨水屏特性"></a>1.1 墨水屏特性</h5><p><img src="/upload_image/%E5%8E%9F%E7%90%86.png" alt="原理"><br>        墨水屏下包含这很多黑白粒子，黑白例子都是带不同电荷的色素颗粒，初始状态下色素颗粒会在一个单位中漂浮(floating)；当施加过一定方向的电场后，相应的色素颗粒会被推到顶端，使得一个单位呈现相应的颜色，大量的显示单位通过这种显色方式同时工作组成了不同的图案和文字。</p>
+<p>以GooDisplay的产品为例，根据它的数据手册将墨水屏原理总结如下：</p>
+<ul>
+<li><strong>物理原理</strong>：黑色粒子带负电荷，白色粒子带正电荷，通过基板的电压正负控制粒子运动(面板显示的颜色)；</li>
+<li><strong>双稳态特性：</strong> 由于电子墨水具有双稳态效应(磁滞效应)，黑白粒子不会回复原状或者变成随机的混沌状态；</li>
+<li><strong>低功耗：</strong> 屏幕不变化，屏幕部分耗电量为0，主要耗电来自于电路板待机消耗以及电源内阻消耗；</li>
+<li><strong>刷新缺陷：</strong> 同样由于磁滞效应，墨水屏在刷新一次如果不施加反向电压(显示为黑白切换)就有可能导致色素粒子运动混乱，在屏幕中出现“残影”<h5 id="1-2-墨水屏光源解决方案"><a href="#1-2-墨水屏光源解决方案" class="headerlink" title="1.2 墨水屏光源解决方案"></a>1.2 墨水屏光源解决方案</h5>传统的LCD液晶屏有背光，受外界光源影响较小，只有日光环境下需要调节背光亮度来抵御环境光对屏幕显示的遮盖效果。墨水屏因为其物理特性比较依赖环境光，在实际应用中通常使用<strong>导光板+内置LED光源</strong>进行补光。<br>这在现实应用中已有先例可循，如生活中最常见的 <strong>[安全出口]</strong> 的指示牌就是利用了导光板实现低功耗光源的扩散效果。</li>
+</ul>
+<img src="/upload_image/安全出口.jpg" alt="安全出口" style="zoom:150%;" />
+
+<blockquote>
+<p>​                                            底部为荧光LED，表面使用导光板</p>
+</blockquote>
+<h5 id="1-3-墨水屏功耗实测"><a href="#1-3-墨水屏功耗实测" class="headerlink" title="1.3 墨水屏功耗实测"></a>1.3 墨水屏功耗实测</h5><p>仍以GooDisplay的GDEW027W3型号的墨水屏为例，手册中给出的功耗如下表所示：</p>
+<p><img src="/upload_image/image-20210118143657105.png" alt="image-20210118143657105"></p>
+<p>实际应用时需要将墨水屏的驱动板功耗也考虑进去。使用万用表测量墨水屏转接板DESPI-C02上<strong>GND</strong>与<strong>PREVGH</strong>之间的电流，如下图所示：</p>
+<blockquote>
+<p>待机功耗<br><img src="/upload_image/image-20200831214637793.png" alt="image-20200831214637793" style="zoom: 25%;" /></p>
+</blockquote>
+<blockquote>
+<p>静态画面功耗<br><img src="/upload_image/image-20200831214513063.png" alt="image-20200831214513063"></p>
+</blockquote>
+<blockquote>
+<p>刷新峰值功耗<br><img src="/upload_image/image-20200831214427132.png" alt="image-20200831214427132"></p>
+</blockquote>
+<p>可以看到墨水屏在实际应用时功耗也相当低，能够满足低功耗的大部分应用场景。</p>
+<h5 id="1-4-墨水屏的应用问题"><a href="#1-4-墨水屏的应用问题" class="headerlink" title="1.4 墨水屏的应用问题"></a>1.4 墨水屏的应用问题</h5><p>在墨水屏实际应用进行全局刷新时，遇到的最大问题为全局刷新的速度慢，且刷新时面板会出现夸张的黑白影像互换 **(即闪屏现象)**。 如果忽略这一问题进行开发，容易使客户形成产品有问题的印象。</p>
+<p>针对这一问题的解决需要从墨水屏的物理原理入手。通过上述墨水屏的简介中可以知道，墨水屏能够在断电后保持原图像是因为墨水屏本身的磁滞效应。<br><img src="/upload_image/磁滞效应.jpg" alt="磁滞效应" style="zoom:120%;" /><br>       上图中，横轴为电压大小，纵轴为灰度(设正轴为白负轴为黑)。电压加大的过程和减小的过程，给予同样的电压，电子墨水黑白程度是不同的，这就是双稳态效应(磁滞效应)。利用这样的效应，我们就可以给一个正电压，电压从0升至B（在图中体现为从原点对应的A点到B点的过程，走下面上升的路线），吸引负电荷，显示正电荷白色给读者，然后断电（电压从B减少到0，走上方那条回来的路线），白色得以保持。墨水屏省电就在于如果不需要显示有所变化，屏幕部分消耗电量为0。</p>
+<p>利用上图解释我们在全局刷新时遇到的问题：假设电压从0加大然后又降为0，墨水屏对应的灰度从A点经B最终达到了C点。如果下一次变化，减少电压，使得灰度沿着上图中的路径继续行走则墨水屏工作正常，墨水屏从黑–&gt;白–&gt;黑，这就是全局刷新时“闪屏”现象出现的原因，<strong>本质上为短时间内黑白两色粒子在反向电压下相互交替</strong>，全局刷新的实现手段即施加一个电压之后再施加一个反向电压，在形式上体现为“全部清场”；如果下一次变化不施加反向电压，即这个时刻得到白色之后在下一时刻仍需要这个像素点表现为白色，那么墨水屏在C点的灰度就不再是这个图形，电路驱动的电压对应的灰度将会不准确，白色粒子会堆积在上层，下一次施加反向电压(需要黑色)时，白色粒子在顶层仍有残留，墨水屏的黑白颜色程度就会不相同，出现了残影。</p>
+<p>为了避免残影的出现，就必须在刷新时给墨水屏施加最大或者最小电压，使墨水屏的黑白粒子完成磁滞效应图中一个完整的运动周期(A–&gt;B–&gt;C–&gt;D–&gt;A)。</p>
+<p>刷新速率慢则是各个厂家不同产品之间的差异，微观上体现为黑白粒子在正反向电压下运动速率。</p>
+<hr>
+<h3 id="2-SPI寄存器工作"><a href="#2-SPI寄存器工作" class="headerlink" title="2 SPI寄存器工作"></a>2 SPI寄存器工作</h3><p>SDA以D7、D6、…D0的顺序移位到8位移位寄存器中。移位寄存器中的数据字节在同一时钟内写入图形显示数据RAM(RAM)或命令寄存器。在串行模式下，仅允许写入操作。<br>SDA写入移位寄存器，先Command(发送寄存器指令)再parameter(write Data)，实现大多数的命令+数据写入。</p>
+<p>在刷新和初始设置中有一部分指令比较重要，对以下指令作着重介绍。</p>
+<h5 id="2-1-面板设置指令-R00H-："><a href="#2-1-面板设置指令-R00H-：" class="headerlink" title="2.1 面板设置指令(R00H)："></a>2.1 面板设置指令(<strong>R00H</strong>)：</h5><p>面板设置是执行所有操作之前必须设置的一项，通过面板设置我们可以改变墨水屏的分辨率、灰度初始设置、显示模式切换、调整扫描方向(包括左右扫描方向和上下扫描方向)等，理解这一指令对墨水屏的开发有着关键的意义。<br>| W/R  | C/D  |  D7  |  D6  |  D5  |  D4  |  D3  |  D2  |  D1  |  D0  |<br>| :–: | :–: | :–: | :–: | :–: | :–: | :–: | :–: | :–: | :–: |<br>|  0   |  0   |  0   |  0   |  0   |  0   |  0   |  0   |  0   |  0   |<br>|  0   |  1   | RES1 | RES0 | LUT  | BWR  |  UD  | SHL  |  SH  | RST  |</p>
+<blockquote>
+<p><strong>RES[1:0]: 显示分辨率设置 (source×gate)</strong><br>00b: 320×300 (default)  , 01b: 300×200<br>10b: 296×160 , 11b: 296×128 </p>
+</blockquote>
+<blockquote>
+<p><strong>LUT: LUT选择设定.</strong><br>0: Using LUT from OTP. (default)<br>1: Using LUT from register. </p>
+</blockquote>
+<blockquote>
+<p><strong>BWR: 颜色选择设定.</strong><br>0: 使用黑/白/红像素点. Run both LU1 and LU2. (default)<br>1: 使用黑/白像素点.  Run LU1 only. </p>
+</blockquote>
+<blockquote>
+<p><strong>UD: Gate 扫描方向</strong><br>0: Scan down First line to last: Gn→…→ G1 (default)<br>1: Scan up. (default) First line to last: G1→…→ Gn </p>
+</blockquote>
+<blockquote>
+<p><strong>SHL: Source偏移方向</strong><br>0: shift left. First data to last data: Sn→…→ S1<br>1: shift right First data to last data: S1→…  →Sn (default) </p>
+</blockquote>
+<blockquote>
+<p><strong>SHD: 升压开关</strong><br>0: Booster OFF，寄存器数据保持不变，SEG / BG / VCOM保持浮动。<br>1: Booster ON（默认）SHD_N变低时，DC-DC将关闭。 寄存器和SRAM数据将一直保持到VDD OFF。  SD输出和VCOM将基于先前的条件并保持浮动。</p>
+</blockquote>
+<blockquote>
+<p><strong>RST: 软复位</strong><br>0: No effect.<br>1: 升压器关闭，寄存器数据设置为其默认值，并且SEG / BG / VCOM：0V。  （默认）当RST_N变为低电平时，驱动器将复位。 所有寄存器将重置为默认值。 驱动程序所有功能将被禁用。  SD输出和VCOM将基于先前的条件并保持浮动。</p>
+</blockquote>
+<p><strong>应用举例：</strong> </p>
+<blockquote>
+<p>EPD_W21_WriteCMD(0x90);        </p>
+</blockquote>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">0x90</span>即<span class="number">1001</span> <span class="number">0000</span>(RES1|RES0|LUT_EN|BWR|UD|SHL|SHD_N|RST_N)</span><br><span class="line">RSE[<span class="number">1</span>:<span class="number">0</span>]设为<span class="number">10</span>即设置分辨率为<span class="number">296</span>x160,</span><br><span class="line">LUT_EN为<span class="number">0</span>表示<span class="function">Using LUT from <span class="title">OTP</span><span class="params">(默认设置)</span></span></span><br><span class="line">BWR为1表示仅使用黑白像素点</span><br><span class="line">UD为<span class="number">0</span>设置扫描横方向从左到右,SHL为<span class="number">0</span>设置扫描纵方向从上往下</span><br><span class="line">SHD_N设置为<span class="number">0</span>即设置升压开关状态为OFF</span><br><span class="line">RST_N为<span class="number">0</span>表示所有设置重置为默认值，输出将默认为之前的设定</span><br></pre></td></tr></table></figure>
+<h5 id="2-2-显示刷新命令-R12H"><a href="#2-2-显示刷新命令-R12H" class="headerlink" title="2.2 显示刷新命令(R12H)"></a>2.2 显示刷新命令(<strong>R12H</strong>)</h5><table>
+<thead>
+<tr>
+<th align="center">W/R</th>
+<th align="center">C/D</th>
+<th align="center">D7</th>
+<th align="center">D6</th>
+<th align="center">D5</th>
+<th align="center">D4</th>
+<th align="center">D3</th>
+<th align="center">D2</th>
+<th align="center">D1</th>
+<th align="center">D0</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">0</td>
+<td align="center">0</td>
+<td align="center">0</td>
+<td align="center">0</td>
+<td align="center">0</td>
+<td align="center">1</td>
+<td align="center">0</td>
+<td align="center">0</td>
+<td align="center">1</td>
+<td align="center">0</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p> -该命令定义为：当用户发送该命令时，驱动程序将根据SRAM数据和LUT刷新显示(DATA/VCOM)。显示刷新命令后，BUSY_N信号将变为“0”。</p>
+</blockquote>
+<h5 id="2-3-部分数据传输至寄存器1-R14H"><a href="#2-3-部分数据传输至寄存器1-R14H" class="headerlink" title="2.3 部分数据传输至寄存器1(R14H)"></a>2.3 部分数据传输至寄存器1(<strong>R14H</strong>)</h5><table>
+<thead>
+<tr>
+<th align="center">Inst</th>
+<th align="center">W/R</th>
+<th align="center">C/D</th>
+<th align="center">D7</th>
+<th align="center">D6</th>
+<th align="center">D5</th>
+<th align="center">D4</th>
+<th align="center">D3</th>
+<th align="center">D2</th>
+<th align="center">D1</th>
+<th align="center">D0</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">PDT</td>
+<td align="center">w</td>
+<td align="center">0</td>
+<td align="center">0</td>
+<td align="center">0</td>
+<td align="center">0</td>
+<td align="center">1</td>
+<td align="center">0</td>
+<td align="center">1</td>
+<td align="center">0</td>
+<td align="center">0</td>
+</tr>
+<tr>
+<td align="center">1st</td>
+<td align="center">w</td>
+<td align="center">1</td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center">x8</td>
+</tr>
+<tr>
+<td align="center">2nd</td>
+<td align="center">w</td>
+<td align="center">1</td>
+<td align="center">x7</td>
+<td align="center">x6</td>
+<td align="center">x5</td>
+<td align="center">x4</td>
+<td align="center">x3</td>
+<td align="center">0</td>
+<td align="center">0</td>
+<td align="center">0</td>
+</tr>
+<tr>
+<td align="center">3rd</td>
+<td align="center">w</td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center">Y8</td>
+</tr>
+<tr>
+<td align="center">4th</td>
+<td align="center">w</td>
+<td align="center">1</td>
+<td align="center">Y7</td>
+<td align="center">Y6</td>
+<td align="center">Y5</td>
+<td align="center">Y4</td>
+<td align="center">Y3</td>
+<td align="center">Y2</td>
+<td align="center">Y1</td>
+<td align="center">Y0</td>
+</tr>
+<tr>
+<td align="center">5th</td>
+<td align="center">w</td>
+<td align="center">1</td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center">w8</td>
+</tr>
+<tr>
+<td align="center">6th</td>
+<td align="center">w</td>
+<td align="center">1</td>
+<td align="center">w7</td>
+<td align="center">w6</td>
+<td align="center">w5</td>
+<td align="center">w4</td>
+<td align="center">w3</td>
+<td align="center">0</td>
+<td align="center">0</td>
+<td align="center">0</td>
+</tr>
+<tr>
+<td align="center">7th</td>
+<td align="center">w</td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center">L8</td>
+</tr>
+<tr>
+<td align="center">8th</td>
+<td align="center">w</td>
+<td align="center">1</td>
+<td align="center">L7</td>
+<td align="center">L6</td>
+<td align="center">L5</td>
+<td align="center">L4</td>
+<td align="center">L3</td>
+<td align="center">L2</td>
+<td align="center">L1</td>
+<td align="center">L0</td>
+</tr>
+<tr>
+<td align="center">…</td>
+<td align="center">…</td>
+<td align="center">…</td>
+<td align="center">…</td>
+<td align="center">…</td>
+<td align="center">…</td>
+<td align="center">…</td>
+<td align="center">…</td>
+<td align="center">…</td>
+<td align="center">…</td>
+<td align="center">…</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>命令定义如下：寄存器IS表示用户开始传输数据，然后写入SRAM。<br>当数据传输完成时，用户必须发送命令11H。<br>然后芯片将开始向面板发送数据/VCOM。<br>在B/W模式下，此命令将“旧”数据写入SRAM。<br>在B/W/Red模式下，此命令将“B/W”数据写入SRAM。 </p>
+</blockquote>
+<p>局部刷新位置和区域见数据手册</p>
+<hr>
+<h3 id="3-墨水屏主要功能实现"><a href="#3-墨水屏主要功能实现" class="headerlink" title="3 墨水屏主要功能实现"></a>3 墨水屏主要功能实现</h3><h5 id="3-1-局部刷新"><a href="#3-1-局部刷新" class="headerlink" title="3.1 局部刷新"></a>3.1 局部刷新</h5><p>在分析完墨水屏的物理特性之后了解了全局刷新的缺陷，这种缺陷由墨水屏的先天物理特性决定无法更改。但墨水屏厂家为了应对这一情况，给墨水屏添加了局部刷新的功能，局部刷新模式下能够减少磁滞效应的闪屏和刷新缓慢的影响，但局部刷新多次后需要执行一次全局刷新将残影抹除。</p>
+<p>局刷程序的流程为：</p>
+<p><strong>面板设置–&gt;色度设置(LUT)–&gt;扫描方向设置–&gt;旧数据写入–&gt;新数据写入–&gt;刷新并将BUSY_N信号置0</strong></p>
+<p>其中，新旧数据写入在不同的场景下可以通过模式进行区分</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">旧数据写入：</span><br><span class="line">    模式0：写入刷新区域全白数据，使用场景为第一张图片(无旧图片替代)</span><br><span class="line">    非0模式：写入前一张图像点阵</span><br><span class="line">新数据写入：</span><br><span class="line">    模式2：写入刷新区域全白数据，使用场景为没有新图像以空白刷新</span><br><span class="line">    非2模式：写入新图像的点阵</span><br></pre></td></tr></table></figure>
+<p>完整局刷程序如下所示：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//局部刷新程序</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">EPD_partial_display</span><span class="params">(u16 x,u16 y,<span class="keyword">const</span> <span class="keyword">unsigned</span> <span class="keyword">char</span> *old_data,<span class="keyword">const</span> <span class="keyword">unsigned</span> <span class="keyword">char</span> *new_data,<span class="keyword">unsigned</span> <span class="keyword">int</span> w,<span class="keyword">unsigned</span> <span class="keyword">int</span> l,<span class="keyword">unsigned</span> <span class="keyword">char</span> mode)</span> </span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	    <span class="keyword">unsigned</span> <span class="keyword">int</span> i,count;</span><br><span class="line">	    EPD_W21_WriteCMD(<span class="number">0x82</span>);		<span class="comment">//vcom_DC setting  	</span></span><br><span class="line">        EPD_W21_WriteDATA (<span class="number">0x08</span>);	<span class="comment">//VCOM_DC VALUE=-0.5v</span></span><br><span class="line">		EPD_W21_WriteCMD(<span class="number">0X50</span>);     <span class="comment">//vcom和数据间隔设置（CDI）</span></span><br><span class="line">		EPD_W21_WriteDATA(<span class="number">0x47</span>);	<span class="comment">//0x47=0100 0111：01-LUTBW(0→1)，00-B/W两色模式，</span></span><br><span class="line">		                            <span class="comment">//0111-vcom和数据间隔设置为10(默认)	</span></span><br><span class="line">		lut1();	                    <span class="comment">//设置Look-up Table</span></span><br><span class="line">	    EPD_W21_WriteCMD(<span class="number">0x91</span>);		<span class="comment">//This command makes the display enter partial mode</span></span><br><span class="line">		EPD_W21_WriteCMD(<span class="number">0x90</span>);		<span class="comment">//resolution setting </span></span><br><span class="line">        EPD_W21_WriteCMD(<span class="number">0x14</span>);     <span class="comment">//old data 发送到寄存器1(x和w应该是8的整除)</span></span><br><span class="line">		EPD_W21_WriteDATA(<span class="number">0</span>);	    <span class="comment">//x-start</span></span><br><span class="line">		EPD_W21_WriteDATA(x);       <span class="comment">//x-end</span></span><br><span class="line">		EPD_W21_WriteDATA(<span class="number">0</span>);	    <span class="comment">//y-start</span></span><br><span class="line">		EPD_W21_WriteDATA(y);	    <span class="comment">//y-end</span></span><br><span class="line">		EPD_W21_WriteDATA(<span class="number">0</span>);	    <span class="comment">//w-start</span></span><br><span class="line">		EPD_W21_WriteDATA(w);	    <span class="comment">//w-end</span></span><br><span class="line">		EPD_W21_WriteDATA(<span class="number">0</span>);	    <span class="comment">//l-start</span></span><br><span class="line">		EPD_W21_WriteDATA(l);	    <span class="comment">//l-end</span></span><br><span class="line"></span><br><span class="line">    count=w*l/<span class="number">8</span>;    <span class="comment">//计算Byte个数</span></span><br><span class="line">	<span class="keyword">if</span>(mode==<span class="number">0</span>)</span><br><span class="line">	&#123;</span><br><span class="line">    	<span class="keyword">for</span>(i=<span class="number">0</span>;i&lt;count;i++)	     </span><br><span class="line">    	&#123;</span><br><span class="line">    	 EPD_W21_WriteDATA(<span class="number">0x00</span>);  <span class="comment">//全白</span></span><br><span class="line">    	&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">else</span></span><br><span class="line">	&#123;</span><br><span class="line">    	 <span class="keyword">for</span>(i=<span class="number">0</span>;i&lt;count;i++)	     </span><br><span class="line">    	&#123;</span><br><span class="line">    	EPD_W21_WriteDATA(~old_data[i]);  <span class="comment">//写入旧数据</span></span><br><span class="line">    	&#125; </span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">         EPD_W21_WriteCMD(<span class="number">0x15</span>);     <span class="comment">//write new data(发送到寄存器2)</span></span><br><span class="line">		EPD_W21_WriteDATA(<span class="number">0</span>);	    <span class="comment">//x-start</span></span><br><span class="line">		EPD_W21_WriteDATA(x);       <span class="comment">//x-end</span></span><br><span class="line">		EPD_W21_WriteDATA(<span class="number">0</span>);	    <span class="comment">//y-start</span></span><br><span class="line">		EPD_W21_WriteDATA(y);	    <span class="comment">//y-end</span></span><br><span class="line">		EPD_W21_WriteDATA(<span class="number">0</span>);	    <span class="comment">//w-start</span></span><br><span class="line">		EPD_W21_WriteDATA(w);	    <span class="comment">//w-end</span></span><br><span class="line">		EPD_W21_WriteDATA(<span class="number">0</span>);	    <span class="comment">//l-start</span></span><br><span class="line">		EPD_W21_WriteDATA(l);	    <span class="comment">//l-end</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span>(mode!=<span class="number">2</span>) <span class="comment">//new  datas</span></span><br><span class="line">    	&#123;</span><br><span class="line">    		<span class="keyword">for</span>(i=<span class="number">0</span>;i&lt;count;i++)	     </span><br><span class="line">    	    &#123;</span><br><span class="line">    		EPD_W21_WriteDATA(~new_data[i]);  </span><br><span class="line">    		<span class="comment">//old_data[i]=new_data[i];</span></span><br><span class="line">    	    &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    <span class="keyword">else</span>  <span class="comment">//white</span></span><br><span class="line">     &#123;</span><br><span class="line">    		<span class="keyword">for</span>(i=<span class="number">0</span>;i&lt;count;i++)	     </span><br><span class="line">    		&#123;</span><br><span class="line">    		 EPD_W21_WriteDATA(<span class="number">0x00</span>);  </span><br><span class="line">    		&#125;		</span><br><span class="line">     &#125;		</span><br><span class="line"></span><br><span class="line">        EPD_W21_WriteCMD(<span class="number">0x16</span>);     <span class="comment">//write display position</span></span><br><span class="line">		EPD_W21_WriteDATA(<span class="number">0</span>);	    <span class="comment">//x-start</span></span><br><span class="line">		EPD_W21_WriteDATA(x);       <span class="comment">//x-end</span></span><br><span class="line">		EPD_W21_WriteDATA(<span class="number">0</span>);	    <span class="comment">//y-start</span></span><br><span class="line">		EPD_W21_WriteDATA(y);	    <span class="comment">//y-end</span></span><br><span class="line">		EPD_W21_WriteDATA(<span class="number">0</span>);	    <span class="comment">//w-start</span></span><br><span class="line">		EPD_W21_WriteDATA(w);	    <span class="comment">//w-end</span></span><br><span class="line">		EPD_W21_WriteDATA(<span class="number">0</span>);	    <span class="comment">//l-start</span></span><br><span class="line">		EPD_W21_WriteDATA(l);	    <span class="comment">//l-end</span></span><br><span class="line">	    lcd_chkstatus();</span><br><span class="line">    	</span><br><span class="line">		EPD_W21_WriteCMD(<span class="number">0x12</span>);		 <span class="comment">//DISPLAY REFRESH</span></span><br><span class="line">		<span class="comment">//发出此命令后，驱动程序将根据SRAM数据和LUT刷新显示（数据/ VCOM）。 </span></span><br><span class="line">		<span class="comment">//显示刷新命令后，BUSY_N信号将变为“ 0”。 </span></span><br><span class="line">		<span class="comment">//该命令仅在BUSY_N =“ 1”时有效。           </span></span><br><span class="line">		driver_delay_xms(<span class="number">1</span>);     <span class="comment">//!!!The delay here is necessary, 200uS at least!!!     </span></span><br><span class="line">		lcd_chkstatus();        <span class="comment">//Check BUSY_N  </span></span><br><span class="line">		<span class="comment">//当BUSY_N为低电平时，芯片的操作不中断，并且不向模块发出任何命令。</span></span><br><span class="line">	  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h5 id="3-2-灰度调节"><a href="#3-2-灰度调节" class="headerlink" title="3.2 灰度调节"></a>3.2 灰度调节</h5><p>随着对墨水屏了解的深入，发现手册中介绍了墨水屏的另一个功能——<strong>灰度调节</strong></p>
+<h6 id="3-2-1-灰度功能简介"><a href="#3-2-1-灰度功能简介" class="headerlink" title="3.2.1 灰度功能简介"></a>3.2.1 灰度功能简介</h6><p>这个功能由LUT(Look-Up-Table)实现，针对LUT搜集到的资料如下：</p>
+<blockquote>
+<p><strong>定义</strong>：LUT指显示查找表（Look-Up-Table)，本质上就是一个RAM。可以应用到一张像素灰度值的映射表，它将实际采样到的像素灰度值经过一定的变换如阈值、反转、二值化、对比度调整、线性变换等，变成了另外一个与之对应的灰度值，这样可以起到突出图像的有用信息，增强图像的光对比度的作用。</p>
+<p><strong>参考链接</strong>：</p>
+<p><a target="_blank" rel="noopener" href="https://baike.baidu.com/item/LUT/9096116">LUT(Look-Up-Table)-百度百科</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/liuligui5200/article/details/79553233?ops_request_misc=%257B%2522request%255Fid%2522%253A%2522159533369819195264557086%2522%252C%2522scm%2522%253A%252220140713.130102334.pc%255Fall.%2522%257D&request_id=159533369819195264557086&biz_id=0&utm_medium=distribute.pc_search_result.none-task-blog-2~all~first_rank_ecpm_v3~pc_rank_v3-2-79553233.pc_ecpm_v3_pc_rank_v3&utm_term=LED%E7%9A%84LUT&spm=1018.2118.3001.4187">TW8836字体OSD~第一节LUT-CSDN</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.jacksonlin.net/20170914-luts-function/">LUT的3種不同用途解析</a></p>
+</blockquote>
+<h6 id="3-2-2-LUT函数的实现"><a href="#3-2-2-LUT函数的实现" class="headerlink" title="3.2.2 LUT函数的实现"></a>3.2.2 LUT函数的实现</h6><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">lut</span><span class="params">(<span class="keyword">void</span>)</span><span class="comment">//改变画面的曝光与色彩，增强图像的光对比度的作用      </span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">unsigned</span> <span class="keyword">int</span> count;</span><br><span class="line">	EPD_W21_WriteCMD(<span class="number">0x20</span>);    <span class="comment">//使用该指令为VCOM建立一个显示查找表（Look-Up-Table)</span></span><br><span class="line">	<span class="keyword">for</span>(count=<span class="number">0</span>;count&lt;<span class="number">44</span>;count++)	     </span><br><span class="line">		&#123;EPD_W21_WriteDATA(lut_vcomDC[count]);&#125;</span><br><span class="line"></span><br><span class="line">	EPD_W21_WriteCMD(<span class="number">0x21</span>);    <span class="comment">//使用该指令建立一个白色-白色的显示查找表</span></span><br><span class="line">	<span class="keyword">for</span>(count=<span class="number">0</span>;count&lt;<span class="number">42</span>;count++)	     </span><br><span class="line">		&#123;EPD_W21_WriteDATA(lut_ww[count]);&#125;   </span><br><span class="line">	</span><br><span class="line">	EPD_W21_WriteCMD(<span class="number">0x22</span>);    <span class="comment">//使用该指令建立一个黑色-白色的显示查找表</span></span><br><span class="line">	<span class="keyword">for</span>(count=<span class="number">0</span>;count&lt;<span class="number">42</span>;count++)	     </span><br><span class="line">		&#123;EPD_W21_WriteDATA(lut_bw[count]);&#125; </span><br><span class="line"></span><br><span class="line">	EPD_W21_WriteCMD(<span class="number">0x23</span>);    <span class="comment">//使用该指令建立一个白色-黑色的显示查找表</span></span><br><span class="line">	<span class="keyword">for</span>(count=<span class="number">0</span>;count&lt;<span class="number">42</span>;count++)	     </span><br><span class="line">		&#123;EPD_W21_WriteDATA(lut_wb[count]);&#125; </span><br><span class="line"></span><br><span class="line">	EPD_W21_WriteCMD(<span class="number">0x24</span>);    <span class="comment">//使用该指令建立一个黑色-黑色的显示查找表</span></span><br><span class="line">	<span class="keyword">for</span>(count=<span class="number">0</span>;count&lt;<span class="number">42</span>;count++)	     </span><br><span class="line">		&#123;EPD_W21_WriteDATA(lut_bb[count]);&#125; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>手册中并没有告诉我lut_ww，lut_bw，lut_wb，lut_bb这些数组的作用，也并不清楚IC(驱动芯片)是如何工作的，因此我翻了国内外一些关于墨水屏开发的视频，<a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=MsbiO8EAsGw&t=1113s">E-paper hacking: fastest possible refresh rate-YouTube</a>中详细讲解了各个数组和波形的用途。</p>
+<p>查询GooDisplay墨水屏手册我了解到该型号墨水屏的驱动芯片(IC)为IL91874。在搜集了国外微雪的资料再结合视频中的知识之后，发现IL91874的波形与微雪的IC的波形在数据格式上是基本一致的，主要的区别在于GooDisplay中设置时钟频率和门电路的Byte放在前两位，而微雪则是放在最后两位 **(这一点在做不同厂家墨水屏开发程序之间的迁移时需要格外注意)**。</p>
+<blockquote>
+<p>微雪墨水屏数据手册：<br><img src="/upload_image/20200715160631675.jpg" alt="img"></p>
+</blockquote>
+<blockquote>
+<p>GooDisplay的数据手册：<br>![LUT for Vcom](/upload_image/LUT for Vcom.jpg)</p>
+</blockquote>
+<p>分析上表：</p>
+<ul>
+<li><p>1st Parameter： </p>
+<ul>
+<li><p>这个byte可以设置四个波形，第一个波形使用D7-D6指定，第二个波形使用D5-D4指定，第三个波形D3-D2，第四个波形D1-D0.</p>
+</li>
+<li><p>其中，Level selection的定义在数据手册中定义如下：</p>
+<blockquote>
+<p>  00: -VCM_DC </p>
+<p>  01: VSH-VCM_DC，为VCOMH，给VCOM正电</p>
+<p>  10: VSL-VCM_DC，为VCOML，给VCOM负电</p>
+<p>  11: Floating. </p>
+</blockquote>
+</li>
+<li><p>00和11在电压正常情况下，黑白粒子的位置会保持不变，灰度不变；</p>
+</li>
+<li><p>如果VCOM使用01b(正电)，结合前边的内容理解，屏幕会更黑；</p>
+</li>
+<li><p>如果VCOM使用10b(负电)，屏幕会更白。</p>
+</li>
+</ul>
+</li>
+<li><p>2nd Parameter： Frame number[7：0]，指定帧数[0~255]</p>
+</li>
+<li><p>3rd Parameter： Frame number[7：0]，指定帧数[0~255]</p>
+</li>
+<li><p>4th Parameter： Frame number[7：0]，指定帧数[0~255]</p>
+</li>
+<li><p>5th Parameter： Frame number[7：0]，指定帧数[0~255]</p>
+</li>
+<li><p>6th Parameter： Repeat number[7：0]，bytes2到bytes6做出的波形，要重复的次数[0~255]</p>
+</li>
+</ul>
+<p>如此，1-6定义一个子波形，7-13定义第二个子波形，等等等等以此类推。一共42/6=7个子波形，他们共同拼接成一整个波形。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="keyword">unsigned</span> <span class="keyword">char</span> lut_ww[] =&#123;	</span><br><span class="line"><span class="number">0x40</span>	,<span class="number">0x08</span>	,<span class="number">0x00</span>	,<span class="number">0x00</span>	,<span class="number">0x00</span>	,<span class="number">0x02</span>,	</span><br><span class="line"><span class="number">0x90</span>	,<span class="number">0x28</span>	,<span class="number">0x28</span>	,<span class="number">0x00</span>	,<span class="number">0x00</span>	,<span class="number">0x01</span>,	</span><br><span class="line"><span class="number">0x40</span>	,<span class="number">0x14</span>	,<span class="number">0x00</span>	,<span class="number">0x00</span>	,<span class="number">0x00</span>	,<span class="number">0x01</span>,	</span><br><span class="line"><span class="number">0xA0</span>	,<span class="number">0x12</span>	,<span class="number">0x12</span>	,<span class="number">0x00</span>	,<span class="number">0x00</span>	,<span class="number">0x01</span>,	</span><br><span class="line"><span class="number">0x00</span>	,<span class="number">0x00</span>	,<span class="number">0x00</span>	,<span class="number">0x00</span>	,<span class="number">0x00</span>	,<span class="number">0x00</span>,	</span><br><span class="line"><span class="number">0x00</span>	,<span class="number">0x00</span>	,<span class="number">0x00</span>	,<span class="number">0x00</span>	,<span class="number">0x00</span>	,<span class="number">0x00</span>,	</span><br><span class="line"><span class="number">0x00</span>	,<span class="number">0x00</span>	,<span class="number">0x00</span>	,<span class="number">0x00</span>	,<span class="number">0x00</span>	,<span class="number">0x00</span>,	&#125;;</span><br></pre></td></tr></table></figure>
+<p>以上述截图中的lut_ww(white-white)数组为例，一行6个Parameter共7行，第一个波形执行了两次(0x02)，第二个波形执行了一次(0x01)……实现的功能是通过控制VCOM的上电时间控制墨水屏例子显示的颜色，如在清屏之后的屏幕上(<strong>0.5单位的黑色+0.5单位的白色</strong>)的情况下，给墨水屏上1.5秒的负电，此时墨水屏中粒子的黑色浓度变成了(<strong>0.5单位的黑色+1.5单位的白色=1单位的白色</strong>)，墨水屏的颜色就从黑白平衡变成了纯白，lut_ww的”white-white”的功能就实现了。</p>
+<h6 id="3-2-3-分析lut函数的意义"><a href="#3-2-3-分析lut函数的意义" class="headerlink" title="3.2.3 分析lut函数的意义"></a>3.2.3 分析lut函数的意义</h6><ol>
+<li><p>根据以上3个场景，可以推理出其他色阶的展示。灰阶，就是波形的产物；</p>
+</li>
+<li><p>只要波形设置到位，可以显示任意灰阶；</p>
+</li>
+<li><p>在波形叠加的情况下，也可以从任意灰阶，直接跳到另一灰阶；</p>
+</li>
+<li><p>墨水屏上的灰度，可以对这个Vcom施加不同时长的正负电，以实现灰度；</p>
+</li>
+<li><p><del>(猜想)对于宋体字在墨水屏中显示单薄/不好看的问题，可以通过调整灰度来使”黑的更黑白的更白”，而不再需要更换字库中的字体。</del> </p>
+<p>7.23更新：暂时放弃，改善会议中提出的清晰度问题，通过改字库的方法更方便。这条可备用后续功能 <strong>[调整面板对比度]</strong></p>
+</li>
+</ol>
+<h5 id="3-3-BUSY状态检查"><a href="#3-3-BUSY状态检查" class="headerlink" title="3.3 BUSY状态检查"></a>3.3 BUSY状态检查</h5><p>使用SPI指令时需要用到自锁lcd_chkstatus程序(检查Busy状态)，引入这一信号量来保证指令之间不互相干涉。</p>
+<p>检查Busy状态的操作流程为：</p>
+<ol>
+<li>开机指令后，驱动器将根据开机顺序开机。接通电源命令后，BUSY_N信号将从高降至低；</li>
+<li>当完成断电序列时，BUSY_N信号将从低上升到高；</li>
+<li>BUSY_N=“0”：驱动程序繁忙，数据/VCOM正在转换。BUSY_N=“1”：非忙，主机端可以向驱动程序发送命令/数据。</li>
+</ol>
+<p>代码实现：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">lcd_chkstatus</span><span class="params">(<span class="keyword">void</span>)</span>    <span class="comment">//Check BUSY_N </span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">unsigned</span> <span class="keyword">char</span> busy;</span><br><span class="line">	<span class="keyword">do</span></span><br><span class="line">	&#123;</span><br><span class="line">		EPD_W21_WriteCMD(<span class="number">0x71</span>);     <span class="comment">//读取IC状态</span></span><br><span class="line">		busy = isEPD_W21_BUSY;</span><br><span class="line">		busy =!(busy &amp; <span class="number">0x01</span>);       <span class="comment">//    xxxx xxxx&amp;0000 0001    </span></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">while</span>(busy);           <span class="comment">//若BUSN_N为低电平，则循环查询</span></span><br><span class="line">	driver_delay_xms(<span class="number">200</span>);                       </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<hr>
+<h3 id="4-墨水屏开发小结"><a href="#4-墨水屏开发小结" class="headerlink" title="4 墨水屏开发小结"></a>4 墨水屏开发小结</h3><p>读懂墨水屏的英文开发文档之后再结合相关知识，我发现墨水屏的低功耗、局部快速刷新功能具有相当的实用价值。如果在实际应用中能够接受偶尔全局刷新的闪屏(约5-10次局部刷新之后)和墨水屏的成本较高等缺陷，那么墨水屏就可以作为工业显示仪表中传统LED屏幕的有力替代方案。</p>
+<p>第一阶段的开发过程有很多不足，需要在下一阶段继续调试和研究：</p>
+<ol>
+<li>项目开发的最终目标为在更低功耗的MSP430上运行，目前开发环境为STM32F1X芯片，需要重新比对两者区别，后续完成程序的移植；</li>
+<li>同一厂家的墨水屏硬件也不相同，同时字库的设置会因为字体要求不同而反复调整，为了方便维护，准备引入宏定义增加程序可移植性；</li>
+<li>墨水屏的汉字索引目前的方法为预先建立字库调用，效率较低，下一阶段准备使用2312汉字字库匹配的方式在程序中实现“所现即所求”。</li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/" rel="tag"><i class="fa fa-tag"></i> 嵌入式</a>
+              <a href="/tags/%E9%A9%B1%E5%8A%A8%E5%BC%80%E5%8F%91/" rel="tag"><i class="fa fa-tag"></i> 驱动开发</a>
+              <a href="/tags/E-paper/" rel="tag"><i class="fa fa-tag"></i> E-paper</a>
+              <a href="/tags/%E4%BD%8E%E5%8A%9F%E8%80%97/" rel="tag"><i class="fa fa-tag"></i> 低功耗</a>
+              <a href="/tags/Keil/" rel="tag"><i class="fa fa-tag"></i> Keil</a>
+              <a href="/tags/STM32/" rel="tag"><i class="fa fa-tag"></i> STM32</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/06/15/hello-world/" rel="prev" title="Hello World">
+      <i class="fa fa-chevron-left"></i> Hello World
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/09/13/%E5%A2%A8%E6%B0%B4%E5%B1%8F%E5%85%A5%E9%97%A8%E5%8A%9F%E8%83%BD%E5%BC%80%E5%8F%91(%E4%BA%8C)%E2%80%94%E2%80%94%E9%80%9A%E4%BF%A1%E6%80%BB%E7%BA%BF/" rel="next" title="墨水屏入门功能开发(二)——通信协议">
+      墨水屏入门功能开发(二)——通信协议 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A2%A8%E6%B0%B4%E5%B1%8F%E5%85%A5%E9%97%A8%E5%8A%9F%E8%83%BD%E5%BC%80%E5%8F%91-%E4%B8%80"><span class="nav-number">1.</span> <span class="nav-text">墨水屏入门功能开发(一)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E5%A2%A8%E6%B0%B4%E5%B1%8F%E7%AE%80%E4%BB%8B"><span class="nav-number">1.1.</span> <span class="nav-text">1 墨水屏简介</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1-1-%E5%A2%A8%E6%B0%B4%E5%B1%8F%E7%89%B9%E6%80%A7"><span class="nav-number">1.1.0.1.</span> <span class="nav-text">1.1 墨水屏特性</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#1-2-%E5%A2%A8%E6%B0%B4%E5%B1%8F%E5%85%89%E6%BA%90%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88"><span class="nav-number">1.1.0.2.</span> <span class="nav-text">1.2 墨水屏光源解决方案</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#1-3-%E5%A2%A8%E6%B0%B4%E5%B1%8F%E5%8A%9F%E8%80%97%E5%AE%9E%E6%B5%8B"><span class="nav-number">1.1.0.3.</span> <span class="nav-text">1.3 墨水屏功耗实测</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#1-4-%E5%A2%A8%E6%B0%B4%E5%B1%8F%E7%9A%84%E5%BA%94%E7%94%A8%E9%97%AE%E9%A2%98"><span class="nav-number">1.1.0.4.</span> <span class="nav-text">1.4 墨水屏的应用问题</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-SPI%E5%AF%84%E5%AD%98%E5%99%A8%E5%B7%A5%E4%BD%9C"><span class="nav-number">1.2.</span> <span class="nav-text">2 SPI寄存器工作</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#2-1-%E9%9D%A2%E6%9D%BF%E8%AE%BE%E7%BD%AE%E6%8C%87%E4%BB%A4-R00H-%EF%BC%9A"><span class="nav-number">1.2.0.1.</span> <span class="nav-text">2.1 面板设置指令(R00H)：</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2-2-%E6%98%BE%E7%A4%BA%E5%88%B7%E6%96%B0%E5%91%BD%E4%BB%A4-R12H"><span class="nav-number">1.2.0.2.</span> <span class="nav-text">2.2 显示刷新命令(R12H)</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2-3-%E9%83%A8%E5%88%86%E6%95%B0%E6%8D%AE%E4%BC%A0%E8%BE%93%E8%87%B3%E5%AF%84%E5%AD%98%E5%99%A81-R14H"><span class="nav-number">1.2.0.3.</span> <span class="nav-text">2.3 部分数据传输至寄存器1(R14H)</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E5%A2%A8%E6%B0%B4%E5%B1%8F%E4%B8%BB%E8%A6%81%E5%8A%9F%E8%83%BD%E5%AE%9E%E7%8E%B0"><span class="nav-number">1.3.</span> <span class="nav-text">3 墨水屏主要功能实现</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#3-1-%E5%B1%80%E9%83%A8%E5%88%B7%E6%96%B0"><span class="nav-number">1.3.0.1.</span> <span class="nav-text">3.1 局部刷新</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3-2-%E7%81%B0%E5%BA%A6%E8%B0%83%E8%8A%82"><span class="nav-number">1.3.0.2.</span> <span class="nav-text">3.2 灰度调节</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#3-2-1-%E7%81%B0%E5%BA%A6%E5%8A%9F%E8%83%BD%E7%AE%80%E4%BB%8B"><span class="nav-number">1.3.0.2.1.</span> <span class="nav-text">3.2.1 灰度功能简介</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#3-2-2-LUT%E5%87%BD%E6%95%B0%E7%9A%84%E5%AE%9E%E7%8E%B0"><span class="nav-number">1.3.0.2.2.</span> <span class="nav-text">3.2.2 LUT函数的实现</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#3-2-3-%E5%88%86%E6%9E%90lut%E5%87%BD%E6%95%B0%E7%9A%84%E6%84%8F%E4%B9%89"><span class="nav-number">1.3.0.2.3.</span> <span class="nav-text">3.2.3 分析lut函数的意义</span></a></li></ol></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3-3-BUSY%E7%8A%B6%E6%80%81%E6%A3%80%E6%9F%A5"><span class="nav-number">1.3.0.3.</span> <span class="nav-text">3.3 BUSY状态检查</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-%E5%A2%A8%E6%B0%B4%E5%B1%8F%E5%BC%80%E5%8F%91%E5%B0%8F%E7%BB%93"><span class="nav-number">1.4.</span> <span class="nav-text">4 墨水屏开发小结</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Dzy"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">Dzy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">17</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">23</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/dzy404" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;dzy404" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:dzhiyuan529@gmail.com" title="E-Mail → mailto:dzhiyuan529@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i></a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Dzy</span>
+</div>
+
+<!--
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+-->
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

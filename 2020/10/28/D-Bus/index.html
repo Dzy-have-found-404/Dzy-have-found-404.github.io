@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="D-Bus的方式在移动手机操作系统中非常重要，包括Maemo，Moblin等以Linux为基础的操作系统。 参考链接：D-bus简介 , 使用 D-BUS 连接桌面应用程序 , D-总线规格">
+<meta property="og:type" content="article">
+<meta property="og:title" content="D-Bus详解与应用">
+<meta property="og:url" content="http://example.com/2020/10/28/D-Bus/index.html">
+<meta property="og:site_name" content="Dzy404&#39;s Blog">
+<meta property="og:description" content="D-Bus的方式在移动手机操作系统中非常重要，包括Maemo，Moblin等以Linux为基础的操作系统。 参考链接：D-bus简介 , 使用 D-BUS 连接桌面应用程序 , D-总线规格">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-10-28T18:00:00.000Z">
+<meta property="article:modified_time" content="2021-01-18T03:49:48.000Z">
+<meta property="article:author" content="Dzy">
+<meta property="article:tag" content="Linux">
+<meta property="article:tag" content="通信">
+<meta property="article:tag" content="嵌入式开发">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://example.com/2020/10/28/D-Bus/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>D-Bus详解与应用 | Dzy404's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Dzy404's Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">式遏寇虐  憯不畏明</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-commonweal">
+
+    <a href="/404/" rel="section"><i class="fa fa-heartbeat fa-fw"></i>公益 404</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2020/10/28/D-Bus/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="Dzy">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Dzy404's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          D-Bus详解与应用
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-10-28 18:00:00" itemprop="dateCreated datePublished" datetime="2020-10-28T18:00:00+00:00">2020-10-28</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-01-18 03:49:48" itemprop="dateModified" datetime="2021-01-18T03:49:48+00:00">2021-01-18</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E9%80%9A%E4%BF%A1/" itemprop="url" rel="index"><span itemprop="name">通信</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <blockquote>
+<p>D-Bus的方式在移动手机操作系统中非常重要，包括Maemo，Moblin等以Linux为基础的操作系统。</p>
+<p>参考链接：<a target="_blank" rel="noopener" href="https://www.freedesktop.org/wiki/Software/dbus/">D-bus简介</a> , <a target="_blank" rel="noopener" href="https://www.ibm.com/developerworks/cn/linux/l-dbus.html">使用 D-BUS 连接桌面应用程序</a> , <a target="_blank" rel="noopener" href="https://dbus.freedesktop.org/doc/dbus-specification.html">D-总线规格</a> </p>
+</blockquote>
+<hr>
+<a id="more"></a>
+
+<h3 id="1-D-bus简介"><a href="#1-D-bus简介" class="headerlink" title="1. D-bus简介"></a>1. D-bus简介</h3><h4 id="1-1-什么是D-Bus"><a href="#1-1-什么是D-Bus" class="headerlink" title="1.1 什么是D-Bus"></a>1.1 什么是D-Bus</h4><p>有很多IPC（<em>interprocess communication</em> ） ，用于不同的解决方案：CORBA 是用于面向对象编程中复杂的 IPC 的一个强大的解决方案。DCOP 是一个较轻量级的 IPC 框架，功能较少，但是可以很好地集成到 K 桌面环境中。SOAP 和 XML-RPC 设计用于 Web 服务，因而使用 HTTP 作为其传输协议。D-BUS 设计用于桌面应用程序和 OS 通信。D-Bus(其中D原先是代表桌面“Desktop” 的意思)，即：用于桌面操作系统的通信总线。现在逐渐被引入到<strong>嵌入式系统</strong>中，不过名字还是保留原先的叫法而已。</p>
+<h4 id="1-2-D-Bus的特性"><a href="#1-2-D-Bus的特性" class="headerlink" title="1.2 D-Bus的特性"></a>1.2 D-Bus的特性</h4><ul>
+<li>低延迟、低开小，设计小而高效</li>
+<li>二进制协议而不是文本，去除了序列化过程</li>
+<li>结构化的名字空间</li>
+<li>独立于架构的数据格式</li>
+<li>支持消息中的大部分通用数据元素</li>
+<li>带有异常处理的通用远程调用接口</li>
+<li>支持广播类型的通信</li>
+</ul>
+<h4 id="1-3-D-Bus的内容"><a href="#1-3-D-Bus的内容" class="headerlink" title="1.3 D-Bus的内容"></a>1.3 D-Bus的内容</h4><p>D-Bus是一个为<strong>应用程序间通信</strong>的<strong>消息总线系统</strong>, 用于进程之间的通信。它是个3层架构的IPC 系统，包括：</p>
+<ul>
+<li>函数库<em>libdbus</em> ，用于两个应用程序互相联系和交互消息。</li>
+<li>一个基于libdbus构造的消息总线守护进程，可同时与多个应用程序相连，并能把来自一个应用程序的消息路由到0或者多个其他程序。</li>
+<li>基于特定应用程序框架的封装库或捆绑（<em>wrapper libraries or bindings</em> ）。例如，libdbus-glib和libdbus-qt，还有绑定在其他语言，例如Python的。大多数开发者都是使用这些封装库的API，因为它们简化了D-Bus编程细节。libdbus被有意设计成为更高层次绑定的底层后端（<em>low-level backend</em> ）。大部分libdbus的 API仅仅是为了用来实现绑定。</li>
+</ul>
+<h4 id="1-4-D-Bus的内部工作方式"><a href="#1-4-D-Bus的内部工作方式" class="headerlink" title="1.4 D-Bus的内部工作方式"></a>1.4 D-Bus的内部工作方式</h4><p>典型的 D-BUS 设置将由几个总线构成。将有一个持久的 <em>系统总线（system bus）</em>，它在 引导时就会启动。这个总线由操作系统和后台进程使用，安全性非常好，以使得任意的应用程序 不能欺骗系统事件。还将有很多 <em>会话总线（session buses）</em>，这些总线当用户登录后启动，属于 那个用户私有。它是用户的应用程序用来通信的一个会话总线。当然，如果一个应用程序需要接收 来自系统总线的消息，它不如直接连接到系统总线 —— 不过，它可以发送的消息将是受限的。</p>
+<p>一旦应用程序连接到了一个总线，它们就必须通过添加 <em>匹配器（matchers）</em> 来声明它们希望 收到哪种消息。匹配器为可以基于接口、对象路径和方法进行接收的消息指定一组规则（见后）。 这样就使得应用程序可以集中精力去处理它们想处理的内容，以实现消息的高效路由，并保持总线 上消息的预期数量，以使得不会因为这些消息导致所有应用程序的性能下降并变得很慢。</p>
+<h4 id="1-5-消息类型"><a href="#1-5-消息类型" class="headerlink" title="1.5 消息类型"></a>1.5 消息类型</h4><p>在 D-BUS 中有四种类型的消息：方法调用（method calls）、方法返回（method returns）、信号（signals） 和错误（errors）。要执行<code>D-BUS</code>对象的方法，您需要向对象发送一个方法调用消息。它将完成一些处理并返回 一个方法返回消息或者错误消息。信号的不同之处在于它们不返回任何内容：既没有“信号返回”消息，也没有 任何类型的错误消息。</p>
+<p>消息也可以有任意的参数。参数是强类型的，类型的范围是从基本的非派生类型（布尔（booleans）、 字节（bytes）、整型（integers））到高层次数据结构（字符串（strings）、数组（ arrays）和字典（dictionaries））。</p>
+<p><strong>DBusBusType</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>DBUS_BUS_SESSION</td>
+<td>登录的会话总线</td>
+</tr>
+<tr>
+<td>DBUS_BUS_SYSTEM</td>
+<td>系统范围的总线</td>
+</tr>
+<tr>
+<td>DBUS_BUS_STARTER</td>
+<td>启动的线程(如果有的话)</td>
+</tr>
+</tbody></table>
+<p><strong>DBusHandlerResult</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>DBUS_HANDLER_RESULT_HANDLED</td>
+<td>消息已产生效果-无需运行更多处理程序。</td>
+</tr>
+<tr>
+<td>DBUS_HANDLER_RESULT_NOT_YET_HANDLED</td>
+<td>消息没有任何效果-查看其他处理程序是否需要它。</td>
+</tr>
+<tr>
+<td>DBUS_HANDLER_RESULT_NEED_MEMORY</td>
+<td>需要更多内存才能返回<code>DBUS_HANDLER_RESULT_HANDLED</code>或<code>DBUS_HANDLER_RESULT_NOT_YET_HANDLED</code>。请稍后再尝试使用更多内存。</td>
+</tr>
+</tbody></table>
+<p><strong>DBusError</strong></p>
+<table>
+<thead>
+<tr>
+<th>Usage</th>
+<th>Meanings</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>const char*    name</td>
+<td>公共的error名称字段</td>
+</tr>
+<tr>
+<td>const char*    message</td>
+<td>公共的error消息字段</td>
+</tr>
+</tbody></table>
+<h3 id="2-D-bus应用"><a href="#2-D-bus应用" class="headerlink" title="2. D-bus应用"></a>2. D-bus应用</h3><blockquote>
+<p><a target="_blank" rel="noopener" href="https://dbus.freedesktop.org/doc/api/html/group__DBus.html">D-Bus 1.13.16</a></p>
+</blockquote>
+<h4 id="2-1-常用D-Bus函数"><a href="#2-1-常用D-Bus函数" class="headerlink" title="2.1 常用D-Bus函数"></a>2.1 常用D-Bus函数</h4><ol>
+<li><pre><code class="c">dbus_g_bus_get (DBusBusType type,
+                DBusError* error);
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">   **Function：**</span><br><span class="line"></span><br><span class="line">   r给指定的总线返回一个连接，这个连接是与该函数的其他调用者共享的全局变量。</span><br><span class="line"></span><br><span class="line">   **Parameters：**</span><br><span class="line"></span><br><span class="line">   &#96;Type&#96;：DBusBusType</span><br><span class="line"></span><br><span class="line">   &#96;error&#96;：错误可以被返回的地址</span><br><span class="line"></span><br><span class="line">   </span><br><span class="line"></span><br><span class="line">2. &#96;&#96;&#96;c</span><br><span class="line">   dbus_g_thread_init（void）;</span><br></pre></td></tr></table></figure>
+初始化`D-Bus`线程系统。此函数只能被调用一次，并且必须调用在`D-Bus`的API中任何其他函数之前。</code></pre>
+</li>
+<li><pre><code class="c">dbus_error_init()
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">   **Function：**</span><br><span class="line"></span><br><span class="line">   初始化DBusError结构。</span><br><span class="line"></span><br><span class="line">   **Parameters：**</span><br><span class="line"></span><br><span class="line">   &#96;error&#96;：DBusError</span><br><span class="line"></span><br><span class="line">4. &#96;&#96;&#96;c</span><br><span class="line">   dbus_error_free (&amp;error);</span><br></pre></td></tr></table></figure>
+**Function：**
+
+释放已设置或者刚刚初始化的错误，然后像dbus_error_init()一样重新初始化该错误
+
+**Parameters：**
+
+`&amp;error`：存储错误的内存</code></pre>
+</li>
+<li><pre><code class="c">dbus_connection_setup_with_g_main (DBusConnection *connection,
+                                   GMainContext *context);
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">   **Function：**</span><br><span class="line"></span><br><span class="line">   设置DBusConnection的监视和超时功能，将连接与GLib主循环集成在一起。 </span><br><span class="line"></span><br><span class="line">   **Parameters：**</span><br><span class="line"></span><br><span class="line">   &#96;connection&#96;：GMainContext内容，如果为NULL，将会使用默认的context；</span><br><span class="line"></span><br><span class="line">   &#96;context&#96;：设置为&#96;True&#96;表示循环正在运行；&#96;True&#96;或者&#96;FLASE&#96;都无所谓，在调用&#96;g_main_loop_run()&#96;之后，该设置都会被设置为&#96;True&#96;。</span><br><span class="line"></span><br><span class="line">6. &#96;&#96;&#96;c</span><br><span class="line">   dbus_message_new_signal	（	</span><br><span class="line">   const char * 	path，</span><br><span class="line">   const char * 	iface，</span><br><span class="line">   const char * 	name </span><br><span class="line">   ）	</span><br></pre></td></tr></table></figure>
+**Function：**
+
+构造一个表示消息发射的新消息。
+
+如果无法为消息分配内存，则返回NULL。
+
+**Parameters：**
+
+`Path`：发出signal的对象路径
+
+`iface`：发出signal的接口
+
+`name`：signal的名称</code></pre>
+</li>
+<li><pre><code class="c">dbus_g_proxy_new_for_name (DBusGConnection *connection,
+                           const char *name,
+                           const char *path,
+                           const char *iface);
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">   为通过消息总线上的连接导出的远程接口创建新的代理。通过该代理的方法调用和信号连接将转到名称所有者；该名称的所有者应支持给定的接口名称。**所有者的名称可能会随着时间变化**，例如在两个不同的方法调用之间，除非名称是唯一的名称。如果需要固定所有者，则需要请求当前所有者，并将代理绑定到其唯一名称而不是通用名称，参考 &#96;dbus_g_proxy_new_for_name_owner ()&#96;。</span><br><span class="line"></span><br><span class="line">   与名称相关的代理仅对消息总线有意义，而不适用于应用程序对应用程序的直接dbus连接。</span><br><span class="line"></span><br><span class="line">   仅当&#96;DBusConnection&#96;断开连接，该代理没有剩余引用或该名称是唯一名称并且其所有者消失时，此代理才会发出“销毁”信号。 如果一个“众所周知”的名称更改了所有者，则代理将仍然有效。</span><br><span class="line"></span><br><span class="line">8. &#96;&#96;&#96;c</span><br><span class="line">   dbus_g_proxy_new_for_name_owner（ ，DBusGConnection *connection，</span><br><span class="line">                                     ，</span><br><span class="line">                                     ，</span><br><span class="line">                                     ）;const char *nameconst char *pathconst char *ifaceGError **error</span><br></pre></td></tr></table></figure>
+和`dbus_g_proxy_new_for_name（）`类似，但却是想消息总线发出一个往返请求来获取当前名称所有者，然后将代理绑定到当前所有者的唯一名称，而不是`well-known name`。结果，名称所有者将不随时间改变，并且当所有者从消息总线中消失时，代理将发出“销毁”的信号。
+
+**两者区别举例：**
+
+如果你使用了`org.freedesktop.Database`作为一个“well-known name”，哪怕所有者更改，`dbus_g_proxy_new_for_name `依然会绑定到该名称；而`dbus_g_proxy_new_for_name_owner`则会绑定到该所有者的唯一名称，而不是通用名称。</code></pre>
+</li>
+<li><p>```c<br>dbus_connection_send_with_reply    (<br>DBusConnection *     connection,<br>DBusMessage *     message,<br>DBusPendingCall **     pending_return,<br>int     timeout_milliseconds<br>)    </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">   **Function：**</span><br><span class="line"></span><br><span class="line">   对要发送的消息进行排队，与&#96;dbus_connection_send（）&#96;相同，但也返回一个用于接收对消息的答复的&#96;DBusPendingCall&#96;。</span><br><span class="line">   如果在给定的超时时间内没有收到任何回复，则此函数会使挂起的回复过期，并生成一个合成错误回复（进程中生成，而不是由远程应用程序生成），指示发生了超时。</span><br><span class="line"></span><br><span class="line">   **Parameters：**</span><br><span class="line"></span><br><span class="line">   &#96;connection&#96;：the connection</span><br><span class="line"></span><br><span class="line">   &#96;message&#96;：the message to send</span><br><span class="line"></span><br><span class="line">   &#96;pending_return&#96;：返回&#96;DBusPendingCall&#96;对象的位置；如果连接断或者尝试在不支持Unix文件描述符的连接数发送它们，则返回NULL</span><br><span class="line"></span><br><span class="line">   &#96;timeout_milliseconds&#96;:超时以毫秒为单位，-1（或&#96;DBUS_timeout_USE_DEFAULT&#96;），或&#96;DBUS_timeout_INFINITE&#96;表示无超时</span><br><span class="line"></span><br><span class="line">#### 2.2 D-Bus流程</span><br><span class="line"></span><br><span class="line">**建立服务的流程：**</span><br><span class="line"></span><br><span class="line">&gt; 1. 建立一个dbus连接：&#96;dbus_bus_get()&#96;</span><br><span class="line">&gt;</span><br><span class="line">&gt; 2. 为这个dbus连接(DbusConnection)起名：&#96;dbus_bus_request_name()&#96;</span><br><span class="line">&gt;</span><br><span class="line">&gt; 3. 进入监听循环：&#96;dbus_connection_read_write()&#96;</span><br><span class="line">&gt;</span><br><span class="line">&gt; 4. 从总线上取出消息：&#96;dbus_connection_pop_message()&#96;</span><br><span class="line">&gt;</span><br><span class="line">&gt; 5. 比对消息中的接口名和方法名：&#96;dbus_message_is_method_call()&#96;</span><br><span class="line">&gt;</span><br><span class="line">&gt; 6. 如果比对一致，跳至相应处理，取出调用的参数+建立回传结果的通路：&#96;reply_to_method_call()&#96;.</span><br><span class="line">&gt;</span><br><span class="line">&gt;    注：回传动作本身等同于一次不需要等待结果的远程调用。</span><br><span class="line"></span><br><span class="line">**发送信号的流程：**</span><br><span class="line"></span><br><span class="line">&gt; **主函数**</span><br><span class="line">&gt;</span><br><span class="line">&gt; 1. 建立一个dbus连接：&#96;dbus_bus_get()&#96;</span><br><span class="line">&gt; 2. 为这个dbus连接(&#96;DbusConnection&#96;)起名：&#96;dbus_bus_request_name()&#96;</span><br><span class="line">&gt; 3. 将总线设置为接收Glib事件循环:&#96;dbus_connection_setup_with_g_main (bus, NULL)&#96;</span><br><span class="line">&gt; 4. 总指针设为参数，定时调用一次&#96;send()&#96;函数：&#96; g_timeout_add(time,send(),bus)&#96;</span><br><span class="line">&gt; 5. 启动事件循环：&#96;g_main_loop_run (loop)&#96;</span><br><span class="line">&gt;</span><br><span class="line">&gt; **&#96;send()&#96;函数**</span><br><span class="line">&gt;</span><br><span class="line">&gt; 1. 建立一个发送信号的通道(包括信号的路径、接口名和信号名)：&#96;dbus_message_new_signal()&#96;</span><br><span class="line">&gt; 2. 将信号对应的相关参数压进去</span><br><span class="line">&gt;    - 将参数附加到消息末尾：&#96;dbus_message_iter_init_append(DBusMessage *   message, DBusMessageIter * 	iter )&#96;</span><br><span class="line">&gt;    - 向消息追加基本类型值：&#96;dbus_message_iter_append_basic(DBusMessageIter *  iter, int 	type, const void * 	value)&#96;</span><br><span class="line">&gt;    - 在给定变量参数列表的消息中追加字段：&#96;dbus_message_append_args(DBusMessage *  message, int 	first_arg_type, ... )&#96;</span><br><span class="line">&gt; 3. 发送信号：&#96;dbus_connection_send()&#96;,&#96;dbus_connection_flush()&#96;</span><br><span class="line">&gt; 4. 释放消息对象：&#96; dbus_message_unref (message)&#96;</span><br><span class="line">&gt; 5. return TRUE;</span><br><span class="line"></span><br><span class="line">**进行一次远程调用的流程：**</span><br><span class="line"></span><br><span class="line">&gt; 1. 建立一个dbus连接：&#96;dbus_bus_get()&#96;</span><br><span class="line">&gt; 2. 为这个dbus连接(&#96;DbusConnection&#96;)起名：&#96;dbus_bus_request_name()&#96;</span><br><span class="line">&gt; 3. 申请一个远程调用通道（填入服务器名、接口名、调用名）：&#96;dbus_message_new_method_call()&#96;</span><br><span class="line">&gt; 4. 压入本次调用的参数：&#96;dbus_message_iter_init_append()&#96;、&#96;dbus_message_iter_append_basic()&#96;、&#96;dbus_message_append_args()&#96;</span><br><span class="line">&gt; 5. 启动发送调用并释放相关的消息：&#96;dbus_connection_send_with_reply()&#96;</span><br><span class="line">&gt; 6. 用dbus提供的函数提取参数的类型和参数：&#96;dbus_message_iter_init()&#96;、&#96;dbus_message_iter_next()&#96;、&#96;dbus_message_iter_get_arg_type()&#96;、&#96;dbus_message_iter_get_basic()&#96;</span><br><span class="line"></span><br><span class="line">**信号接收流程：**</span><br><span class="line"></span><br><span class="line">&gt; **main函数**</span><br><span class="line">&gt;</span><br><span class="line">&gt; 1. 建立一个dbus连接：&#96;dbus_bus_get()&#96;</span><br><span class="line">&gt; 2. 为这个dbus连接(&#96;DbusConnection&#96;)起名：&#96;dbus_bus_request_name()&#96;</span><br><span class="line">&gt; 3. 将总线设置为接收Glib事件循环:&#96;dbus_connection_setup_with_g_main (bus, NULL)&#96;</span><br><span class="line">&gt; 4. 为将要进行的消息循环添加匹配条件（类型和接口）：&#96;dbus_bus_add_match()&#96;</span><br><span class="line">&gt; 5. 设置通知函数：&#96;dbus_connection_add_filter(connection,   function,   user_data,  free_data_function )&#96;</span><br><span class="line">&gt; 6. 运行这个事件循环：&#96;g_main_loop_run (loop)&#96;</span><br><span class="line">&gt;</span><br><span class="line">&gt; **通知函数**</span><br><span class="line">&gt;</span><br><span class="line">&gt; 1. 检测是否连接成功：&#96;dbus_message_is_signal(message,   DBUS_INTERFACE_ORG_FREEDESKTOP_LOCAL,  &quot;Disconnected&quot;)&#96;</span><br><span class="line">&gt; 2. 若连接成功，进入匹配判断：&#96;dbus_message_is_signal(message,   Interface,    Name)&#96;</span><br><span class="line">&gt; 3. error初始化：&#96;dbus_error_init(&amp;eror)&#96;</span><br><span class="line">&gt; 4. 接收消息，并判断是否有错误：&#96;dbus_message_get_args (message, &amp;error,  DBUS_TYPE_STRING, the message address(&amp;s), DBUS_TYPE_INVALID)&#96;</span><br><span class="line">&gt; 5. 打印输出相应的结果：&#96;g_print()&#96;</span><br><span class="line">&gt; 6. 根据结果返回&#96;HANDLER&#96;类型：</span><br><span class="line">&gt;    - return DBUS_HANDLER_RESULT_HANDLED;</span><br><span class="line">&gt;    - return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;</span><br><span class="line"></span><br><span class="line">#### 2.3 D-Bus示例——通过会话总线收发信号</span><br><span class="line"></span><br><span class="line">- **dbus-ping-send.c**：每秒通过会话总线发送一个参数为字符串“Ping!”的信号</span><br><span class="line"></span><br><span class="line">&#96;&#96;&#96;C</span><br><span class="line">#include &lt;glib.h&gt;</span><br><span class="line">#include &lt;dbus&#x2F;dbus-glib.h&gt;</span><br><span class="line">static gboolean send_ping (DBusConnection *bus);</span><br><span class="line">int main (int argc, char **argv)</span><br><span class="line">&#123;</span><br><span class="line">  GMainLoop *loop;							&#x2F;&#x2F;定义一个事件循环对象的指针</span><br><span class="line">  DBusConnection *bus;						&#x2F;&#x2F;定义总线连接对象的指针</span><br><span class="line">  DBusError error;							&#x2F;&#x2F;定义D-Bus错误消息对象</span><br><span class="line">  &#x2F;* Create a new event loop to run in *&#x2F;</span><br><span class="line">  loop &#x3D; g_main_loop_new (NULL, FALSE);		&#x2F;&#x2F;创建一个新的GMainLoop结构(新事件循环对象)</span><br><span class="line">  &#x2F;* Get a connection to the session bus *&#x2F;</span><br><span class="line">  dbus_error_init (&amp;error);				   &#x2F;&#x2F;初始化DBusError结构</span><br><span class="line">  bus &#x3D; dbus_bus_get (DBUS_BUS_SESSION, &amp;error);&#x2F;&#x2F;连接到总线</span><br><span class="line">  if (!bus) 	&#x2F;&#x2F;判断连接是否正确</span><br><span class="line">  &#123;	</span><br><span class="line">    g_warning (&quot;Failed to connect to the D-BUS daemon: %s&quot;, error.message); &#x2F;&#x2F;使用Glib输出错误警告</span><br><span class="line">    dbus_error_free (&amp;error);				&#x2F;&#x2F;释放错误</span><br><span class="line">    return 1;</span><br><span class="line">  &#125;</span><br><span class="line">  &#x2F;* Set up this connection to work in a GLib event loop *&#x2F;</span><br><span class="line">  dbus_connection_setup_with_g_main (bus, NULL);	&#x2F;&#x2F;将总线设置为接收Glib事件循环</span><br><span class="line">  &#x2F;* Every second call send_ping() with the bus as an argument*&#x2F;</span><br><span class="line">  g_timeout_add (1000, (GSourceFunc)send_ping, bus);&#x2F;&#x2F;总线指针设为参数，隔1000ms调用一次send_ping()函数</span><br><span class="line">  &#x2F;* Start the event loop *&#x2F;</span><br><span class="line">  g_main_loop_run (loop);			&#x2F;&#x2F;启动事件循环</span><br><span class="line">  return 0;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">static gboolean send_ping (DBusConnection *bus)	&#x2F;&#x2F;定义发送消息函数的细节</span><br><span class="line">&#123;</span><br><span class="line">  DBusMessage *message;	&#x2F;&#x2F;创建消息对象指针</span><br><span class="line">  &#x2F;* Create a new signal &quot;Ping&quot; on the &quot;com.burtonini.dbus.Signal&quot; interface,</span><br><span class="line">   * from the object &quot;&#x2F;com&#x2F;burtonini&#x2F;dbus&#x2F;ping&quot;. *&#x2F;</span><br><span class="line">  message &#x3D; dbus_message_new_signal (&quot;&#x2F;com&#x2F;burtonini&#x2F;dbus&#x2F;ping&quot;,</span><br><span class="line">                                     &quot;com.burtonini.dbus.Signal&quot;, &quot;Ping&quot;); &#x2F;&#x2F;创建具有对象路径和接口的新Ping信号</span><br><span class="line">  &#x2F;* Append the string &quot;Ping!&quot; to the signal *&#x2F;</span><br><span class="line">  dbus_message_append_args (message,</span><br><span class="line">                            DBUS_TYPE_STRING, &quot;Ping!&quot;,</span><br><span class="line">                            DBUS_TYPE_INVALID);					&#x2F;&#x2F;将字符串“Ping!”作为参数添加到信号中</span><br><span class="line">  &#x2F;* Send the signal *&#x2F;</span><br><span class="line">  dbus_connection_send (bus, message, NULL);				&#x2F;&#x2F;通过总线发送</span><br><span class="line">  &#x2F;* Free the signal now we have finished with it *&#x2F;</span><br><span class="line">  dbus_message_unref (message);								&#x2F;&#x2F;释放消息对象</span><br><span class="line">  &#x2F;* Tell the user we send a signal *&#x2F;</span><br><span class="line">  g_print(&quot;Ping!\n&quot;);									&#x2F;&#x2F;标准输出打印一条消息通知用户</span><br><span class="line">  &#x2F;* Return TRUE to tell the event loop we want to be called again *&#x2F;</span><br><span class="line">  return TRUE;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ol>
+<p><strong>main函数</strong>：创建一个 <code>GLib</code> 事件循环，获得会话总线的一个连接， 并将<code>D-BUS</code>事件处理集成到 <code>Glib </code>事件循环之中。然后它创建了一个名为 <code>send_ping</code> 间隔为一秒的计时器，并启动事件循环。<code>send_ping</code> 构造一个来自于对象路径 /com/burtonini/dbus/ping 和接口 <code>com.burtonini.dbus.Signal</code> 的新的 Ping 信号。然后，字符串 “Ping!”作为参数添加到信号中并通过总线发送。在标准输出中会打印一条消息以让用户知道发送了 一个信号。</p>
+<ul>
+<li><strong>dbus-ping-listen.c</strong>：这个程序侦听<code>dbus-ping-send.c</code>正在发出的信号</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;glib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;dbus/dbus-glib.h&gt;</span></span></span><br><span class="line"><span class="keyword">static</span> DBusHandlerResult signal_filter </span><br><span class="line">      (DBusConnection *connection, DBusMessage *message, <span class="keyword">void</span> *user_data);	<span class="comment">//定义接收消息函数的原型</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span> <span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> **argv)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  GMainLoop *loop;			<span class="comment">//定义一个事件循环对象的指针</span></span><br><span class="line">  DBusConnection *bus;		<span class="comment">//定义总线连接对象的指针</span></span><br><span class="line">  DBusError error;			<span class="comment">//定义D-Bus的错误消息对象</span></span><br><span class="line">  loop = g_main_loop_new (<span class="literal">NULL</span>, FALSE);<span class="comment">//创建新事件循环对象</span></span><br><span class="line">  dbus_error_init (&amp;error);	<span class="comment">//初始化DBusError结构</span></span><br><span class="line">  bus = dbus_bus_get (DBUS_BUS_SESSION, &amp;error);<span class="comment">//错误消息连接到总线</span></span><br><span class="line">  <span class="keyword">if</span> (!bus) &#123;				<span class="comment">//判断</span></span><br><span class="line">    g_warning (<span class="string">&quot;Failed to connect to the D-BUS daemon: %s&quot;</span>, error.message);<span class="comment">//打印错误警告</span></span><br><span class="line">    dbus_error_free (&amp;error);<span class="comment">//释放错误</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  dbus_connection_setup_with_g_main (bus, <span class="literal">NULL</span>);	<span class="comment">//将总线设为接收Glib事件循环</span></span><br><span class="line">  <span class="comment">/* listening to messages from all objects as no path is specified */</span></span><br><span class="line">  dbus_bus_add_match (bus, <span class="string">&quot;type=&#x27;signal&#x27;,interface=&#x27;com.burtonini.dbus.Signal&#x27;&quot;</span>);	<span class="comment">//定义匹配规则的接口和类型</span></span><br><span class="line">  dbus_connection_add_filter (bus, signal_filter, loop, <span class="literal">NULL</span>);	<span class="comment">//将 signal_filter设置为通知函数</span></span><br><span class="line">  g_main_loop_run (loop);		<span class="comment">//运行这个循环</span></span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">static</span> DBusHandlerResult</span><br><span class="line">signal_filter (DBusConnection *connection, DBusMessage *message, <span class="keyword">void</span> *user_data)<span class="comment">//定义消息函数的细节</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="comment">/* User data is the event loop we are running in */</span></span><br><span class="line">  GMainLoop *loop = user_data;		<span class="comment">//定义事件循环对象的指针，user_data与主函数中运行的事件循环</span></span><br><span class="line">  <span class="comment">/* A signal from the bus saying we are about to be disconnected */</span></span><br><span class="line">  <span class="keyword">if</span> (dbus_message_is_signal 		</span><br><span class="line">        (message, DBUS_INTERFACE_ORG_FREEDESKTOP_LOCAL, <span class="string">&quot;Disconnected&quot;</span>)) <span class="comment">//检测是否连接成功</span></span><br><span class="line">  &#123;</span><br><span class="line">    <span class="comment">/* Tell the main loop to quit */</span></span><br><span class="line">    g_main_loop_quit (loop);			<span class="comment">//连接失败则退出主循环</span></span><br><span class="line">    <span class="comment">/* We have handled this message, don&#x27;t pass it on */</span></span><br><span class="line">    <span class="keyword">return</span> DBUS_HANDLER_RESULT_HANDLED;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">/* A Ping signal on the com.burtonini.dbus.Signal interface */</span></span><br><span class="line">  <span class="keyword">else</span> <span class="keyword">if</span> (dbus_message_is_signal (message, <span class="string">&quot;com.burtonini.dbus.Signal&quot;</span>, <span class="string">&quot;Ping&quot;</span>)) <span class="comment">//检测消息是否满足匹配规则</span></span><br><span class="line">  &#123;</span><br><span class="line">    DBusError error;	<span class="comment">//定义错误类型，详见消息类型</span></span><br><span class="line">    <span class="keyword">char</span> *s;</span><br><span class="line">    dbus_error_init (&amp;error);</span><br><span class="line">    <span class="keyword">if</span> (dbus_message_get_args </span><br><span class="line">       (message, &amp;error, DBUS_TYPE_STRING, &amp;s, DBUS_TYPE_INVALID)) <span class="comment">//接收消息，并判断是否有错误</span></span><br><span class="line">    &#123;</span><br><span class="line">      g_print(<span class="string">&quot;Ping received: %s\n&quot;</span>, s);	<span class="comment">//无误打印输出接收到的消息</span></span><br><span class="line">      dbus_free (s);						<span class="comment">//释放指针</span></span><br><span class="line">    &#125; </span><br><span class="line">    <span class="keyword">else</span> </span><br><span class="line">    &#123;</span><br><span class="line">      g_print(<span class="string">&quot;Ping received, but error getting message: %s\n&quot;</span>, error.message);<span class="comment">//消息已收到，打印错误信息</span></span><br><span class="line">      dbus_error_free (&amp;error);			<span class="comment">//释放错误</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> DBUS_HANDLER_RESULT_HANDLED;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> DBUS_HANDLER_RESULT_NOT_YET_HANDLED;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这个程序侦听 dbus-ping-send.c 正在发出的信号。 <code>main</code> 函数 和前面一样启动，创建一个到总线的连接。然后它声明愿意当具有 <code>com.burtonini.dbus.Signal</code> 接口的信号被发送时得到通知，将 <code>signal_filter</code> 设置为通知函数， 然后进入事件循环。</p>
+<p>当满足匹配的消息被发送时， <code>signal_func</code> 会被调用。不过，它也将会 收到来自总线本身的总线管理信号。要确定接收到消息时应该做些什么，仅仅需要检验消息头。如果消息是 总线断开信号，则事件循环终止，因为侦听一个不存在的总线是没有意义的。（告知总线信号已经处理）。 然后，将到来的消息与期望的消息相比较，如果成功，则解出参数并输出。如果到来的消息不是其中的任何一个， 则告知总线没有处理那个消息。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Linux/" rel="tag"><i class="fa fa-tag"></i> Linux</a>
+              <a href="/tags/%E9%80%9A%E4%BF%A1/" rel="tag"><i class="fa fa-tag"></i> 通信</a>
+              <a href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F%E5%BC%80%E5%8F%91/" rel="tag"><i class="fa fa-tag"></i> 嵌入式开发</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/10/27/glib/" rel="prev" title="glib库">
+      <i class="fa fa-chevron-left"></i> glib库
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/11/01/MSP430%20%E5%8D%95%E7%89%87%E6%9C%BA%E5%85%A5%E9%97%A8(%E4%B8%80)%E2%80%94%E2%80%94%E6%A6%82%E8%BF%B0/" rel="next" title="MSP430 单片机(一)——概述">
+      MSP430 单片机(一)——概述 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-D-bus%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">1. D-bus简介</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-1-%E4%BB%80%E4%B9%88%E6%98%AFD-Bus"><span class="nav-number">1.1.</span> <span class="nav-text">1.1 什么是D-Bus</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1-2-D-Bus%E7%9A%84%E7%89%B9%E6%80%A7"><span class="nav-number">1.2.</span> <span class="nav-text">1.2 D-Bus的特性</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1-3-D-Bus%E7%9A%84%E5%86%85%E5%AE%B9"><span class="nav-number">1.3.</span> <span class="nav-text">1.3 D-Bus的内容</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1-4-D-Bus%E7%9A%84%E5%86%85%E9%83%A8%E5%B7%A5%E4%BD%9C%E6%96%B9%E5%BC%8F"><span class="nav-number">1.4.</span> <span class="nav-text">1.4 D-Bus的内部工作方式</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1-5-%E6%B6%88%E6%81%AF%E7%B1%BB%E5%9E%8B"><span class="nav-number">1.5.</span> <span class="nav-text">1.5 消息类型</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-D-bus%E5%BA%94%E7%94%A8"><span class="nav-number">2.</span> <span class="nav-text">2. D-bus应用</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#2-1-%E5%B8%B8%E7%94%A8D-Bus%E5%87%BD%E6%95%B0"><span class="nav-number">2.1.</span> <span class="nav-text">2.1 常用D-Bus函数</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Dzy"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">Dzy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">17</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">23</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/dzy404" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;dzy404" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:dzhiyuan529@gmail.com" title="E-Mail → mailto:dzhiyuan529@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i></a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Dzy</span>
+</div>
+
+<!--
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+-->
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

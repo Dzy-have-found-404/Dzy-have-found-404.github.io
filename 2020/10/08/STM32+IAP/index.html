@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="开发工具： Keil 5开发芯片：   STM32F103RCT6文档编写工具： Markdown">
+<meta property="og:type" content="article">
+<meta property="og:title" content="远程升级实现——STM32+IAP">
+<meta property="og:url" content="http://example.com/2020/10/08/STM32+IAP/index.html">
+<meta property="og:site_name" content="Dzy404&#39;s Blog">
+<meta property="og:description" content="开发工具： Keil 5开发芯片：   STM32F103RCT6文档编写工具： Markdown">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/upload_image/20190316201052794.png">
+<meta property="og:image" content="http://example.com/upload_image/20190316201209186.png">
+<meta property="og:image" content="http://example.com/upload_image/image-20201010133907154.png">
+<meta property="og:image" content="http://example.com/upload_image/image-20201010133813256.png">
+<meta property="og:image" content="http://example.com/upload_image/image-20201010165809674.png">
+<meta property="og:image" content="http://example.com/upload_image/image-20201010171514423.png">
+<meta property="og:image" content="http://example.com/upload_image/image-20201012144259212.png">
+<meta property="og:image" content="http://example.com/upload_image/蜂鸣器.jpg">
+<meta property="og:image" content="http://example.com/upload_image/XCOM1.jpg">
+<meta property="og:image" content="http://example.com/upload_image/image-20201010133813256.png">
+<meta property="og:image" content="http://example.com/upload_image/image-20201010133907154.png">
+<meta property="article:published_time" content="2020-10-08T18:00:00.000Z">
+<meta property="article:modified_time" content="2021-01-18T06:20:37.000Z">
+<meta property="article:author" content="Dzy">
+<meta property="article:tag" content="嵌入式">
+<meta property="article:tag" content="驱动开发">
+<meta property="article:tag" content="通信协议">
+<meta property="article:tag" content="Keil">
+<meta property="article:tag" content="STM32">
+<meta property="article:tag" content="IAP">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/upload_image/20190316201052794.png">
+
+<link rel="canonical" href="http://example.com/2020/10/08/STM32+IAP/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>远程升级实现——STM32+IAP | Dzy404's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Dzy404's Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">式遏寇虐  憯不畏明</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-commonweal">
+
+    <a href="/404/" rel="section"><i class="fa fa-heartbeat fa-fw"></i>公益 404</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2020/10/08/STM32+IAP/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="Dzy">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Dzy404's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          远程升级实现——STM32+IAP
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-10-08 18:00:00" itemprop="dateCreated datePublished" datetime="2020-10-08T18:00:00+00:00">2020-10-08</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-01-18 06:20:37" itemprop="dateModified" datetime="2021-01-18T06:20:37+00:00">2021-01-18</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F%E5%BC%80%E5%8F%91/" itemprop="url" rel="index"><span itemprop="name">嵌入式开发</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <blockquote>
+<p>开发工具： Keil 5<br>开发芯片：   STM32F103RCT6<br>文档编写工具： Markdown</p>
+</blockquote>
+<a id="more"></a>
+
+<h4 id="1-IAP的基础知识"><a href="#1-IAP的基础知识" class="headerlink" title="1    IAP的基础知识"></a>1    IAP的基础知识</h4><h5 id="1-1-STM32的编程方式"><a href="#1-1-STM32的编程方式" class="headerlink" title="1.1 STM32的编程方式"></a>1.1 STM32的编程方式</h5><ul>
+<li><strong>ISP</strong>：In System Programming （在系统中编程），通过<strong>芯片专用的串行编程接口</strong>对其内部的程序存储器进行擦写。</li>
+<li><strong>IAP</strong>：In Application Programming（ 在应用中编程)，通过调用特定的<strong>bootloader</strong>程序，对程序存储器的指定段进行读/写操作，从而实现对目标板的程序的修改。</li>
+</ul>
+<p>ISP即我们平时所用的JLINK之类的下载器通过专门的接口来下载程序，IAP是通过调用Bootloader来充当下载器的功能实现更新程序的作用。</p>
+<h5 id="1-2-Bootloader"><a href="#1-2-Bootloader" class="headerlink" title="1.2 Bootloader"></a>1.2 Bootloader</h5><p><strong>一般程序下载方式：</strong></p>
+<img src="/upload_image/20190316201052794.png" alt="img" style="zoom: 67%;" />
+
+<p>STM32的内部内存(FLASH)地址起始于0x08000000，一般程序由此地址写入，0x08000004开始存放中断向量表。当中断开始时，STM32的内部硬件机制会将PC指针定位到“中断向量表”处，并根据中断源取出对应的中断向量执行中断服务程序。</p>
+<ol>
+<li>STM32复位之后，从0x08000004地址取出复位中断向量的地址，并跳转到复位中断服务程序。</li>
+<li>在复位中断服务程序执行完之后，跳转至main函数。main函数执行过程中，如果收到中断请求，STM32将PC指针重新拨回中断向量表处。</li>
+<li>根据中断源进入相应的中断服务程序。</li>
+<li>在执行完中断服务程序之后，程序再次返回main函数中执行。</li>
+</ol>
+<p><strong>IAP下程序的运行流程：</strong></p>
+<img src="/upload_image/20190316201209186.png" alt="img" style="zoom:67%;" />
+
+<ol>
+<li>STM32复位之后，从0x08000004地址取出复位中断向量的地址，并跳转到复位中断服务程序，在运行完复位中断服务程序之后跳转到IAP的main函数；</li>
+<li>在执行完IAP以后，跳转至新写入程序的复位向量表，取出新程序的复位中断向量表的地址，并跳转执行新程序的复位中断服务程序，随后跳转至新程序的main函数，上图中②和③；</li>
+<li>在main函数执行过程中，如果CPU得到一个中断请求,PC指针仍强制跳转到地址0x08000004中断向量表处，而不是新程序的中断向量表；</li>
+<li>程序根据设置的中断向量表偏移量，跳转到对应中断源新的中断服务程序中；</li>
+<li>在执行完中断服务程序后，程序返回main函数继续运行。</li>
+</ol>
+<hr>
+<h4 id="2-IAP的实现"><a href="#2-IAP的实现" class="headerlink" title="2    IAP的实现"></a>2    IAP的实现</h4><h5 id="2-1-Keil设置"><a href="#2-1-Keil设置" class="headerlink" title="2.1 Keil设置"></a>2.1 Keil设置</h5><p>keil中需要准备两个工程，一个是IAP，一个是APP。Bootloader通过ISP方式下载到Flash中，APP则是通过串口将编译生成的bin文件发送下载。</p>
+<p>使用的STM32型号为STM32F103RCT6，参数如下表所示：</p>
+<table>
+<thead>
+<tr>
+<th>基本参数</th>
+<th></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>名称</td>
+<td>STM32F103RCT6</td>
+</tr>
+<tr>
+<td>架构</td>
+<td>ARM Cortex-M3</td>
+</tr>
+<tr>
+<td>Flash容量</td>
+<td>256KB</td>
+</tr>
+<tr>
+<td>RAM容量</td>
+<td>48K</td>
+</tr>
+</tbody></table>
+<p>两个工程将Flash分成两个区域，Bootloader存储的起始地址为0x08000000，分配大小这里设置为0x2000字节；用户APP信息存储从0x08002000处开始，分配空间大小为(0x08040000-0x08002000=0x803E000)。<strong>IAP工程文件中使用keil默认设置即可</strong>，APP工程中的设置如下图所示。</p>
+<p><img src="/upload_image/image-20201010133907154.png" alt="image-20201010133907154" style="zoom:42%;" /><img src="/upload_image/image-20201010133813256.png" alt="image-20201010133813256" style="zoom: 32%;" /></p>
+<img src="/upload_image/image-20201010165809674.png" alt="image-20201010165809674" style="zoom: 67%;" />
+
+<img src="/upload_image/image-20201010171514423.png" alt="image-20201010171514423" style="zoom:67%;" />
+
+<h5 id="2-2-驱动程序"><a href="#2-2-驱动程序" class="headerlink" title="2.2 驱动程序"></a>2.2 驱动程序</h5><p><strong>串口接收：</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//串口接收缓冲区</span></span><br><span class="line">u8 serial_Buffer[SERIAL_MAX_LENGTH] = &#123;<span class="number">0</span>&#125;;</span><br><span class="line"><span class="comment">//串口接收数据长度</span></span><br><span class="line">u16 serial_Buffer_Length = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">u8 receiveMode = <span class="number">0</span>;<span class="comment">//接收参数的中断处理模型,为0的时候是命令模式,为1的时候为下载模式</span></span><br><span class="line">u8 receiveExpectCount = <span class="number">0</span>;<span class="comment">//串口期望接收长度</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//串口中断处理</span></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">SerialRecv</span><span class="params">(u8 ch)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">if</span>(receiveMode == <span class="number">0</span>)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">if</span>((serial_Buffer_Length&amp;<span class="number">0x8000</span>) == <span class="number">0x8000</span>)<span class="comment">//已经接收完成,系统还没处理</span></span><br><span class="line">		&#123;</span><br><span class="line">			serial_Buffer_Length |= <span class="number">0x8000</span>;<span class="comment">//退出</span></span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">else</span> <span class="keyword">if</span>((serial_Buffer_Length&amp;<span class="number">0x4000</span>) == <span class="number">0x4000</span>)<span class="comment">//接收到回车还没接收到换行</span></span><br><span class="line">		&#123;</span><br><span class="line">			<span class="keyword">if</span>(ch == <span class="string">&#x27;\n&#x27;</span>)serial_Buffer_Length |= <span class="number">0x8000</span>;</span><br><span class="line">			<span class="keyword">else</span> </span><br><span class="line">			&#123;</span><br><span class="line">				<span class="comment">//一帧接受失败</span></span><br><span class="line">				serial_Buffer_Length = <span class="number">0</span>;</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">else</span></span><br><span class="line">		&#123;</span><br><span class="line">			<span class="keyword">if</span>((serial_Buffer_Length&amp;<span class="number">0xff</span>) &lt; SERIAL_MAX_LENGTH)</span><br><span class="line">			&#123;</span><br><span class="line">				<span class="keyword">if</span>(ch == <span class="string">&#x27;\r&#x27;</span>)serial_Buffer_Length |= <span class="number">0x4000</span>;</span><br><span class="line">				<span class="keyword">else</span> </span><br><span class="line">				&#123;</span><br><span class="line">					serial_Buffer[(serial_Buffer_Length&amp;<span class="number">0xff</span>)] = ch;</span><br><span class="line">					serial_Buffer_Length++;</span><br><span class="line">				&#125;</span><br><span class="line">			&#125;</span><br><span class="line">			<span class="keyword">else</span></span><br><span class="line">			&#123;</span><br><span class="line">				<span class="comment">//一帧接受失败</span></span><br><span class="line">				serial_Buffer_Length = <span class="number">0</span>;</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">else</span></span><br><span class="line">	&#123;</span><br><span class="line">		<span class="comment">//下载模式,只控制字符串的量,数据的第一位是该数据包的长度,接收到这么多长度,接收完成位置一</span></span><br><span class="line">		<span class="comment">//注意,在这种模式下,清除serial_Buffer_Length之前应当清除receiveExpectCount的值</span></span><br><span class="line">		<span class="keyword">if</span>(receiveExpectCount == <span class="number">0</span>)<span class="comment">//期望下载为0,第一个数就是期望下载数</span></span><br><span class="line">		&#123;</span><br><span class="line">			receiveExpectCount = ch;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">else</span></span><br><span class="line">		&#123;</span><br><span class="line">			<span class="keyword">if</span>((serial_Buffer_Length&amp;<span class="number">0x8000</span>) == <span class="number">0x8000</span>)<span class="comment">//已经接收完成,系统还没处理,此时不接收数据</span></span><br><span class="line">			&#123;</span><br><span class="line">				serial_Buffer_Length |= <span class="number">0x8000</span>;<span class="comment">//退出</span></span><br><span class="line">			&#125;</span><br><span class="line">			<span class="keyword">else</span></span><br><span class="line">			&#123;</span><br><span class="line">				serial_Buffer[(serial_Buffer_Length&amp;<span class="number">0xff</span>)] = ch;<span class="comment">//接收数据并保存</span></span><br><span class="line">				serial_Buffer_Length++;</span><br><span class="line">				<span class="keyword">if</span>((serial_Buffer_Length&amp;<span class="number">0xff</span>) == receiveExpectCount)<span class="comment">//接收到了期望长度的数据</span></span><br><span class="line">				&#123;</span><br><span class="line">					serial_Buffer_Length |= <span class="number">0x8000</span>;<span class="comment">//一包接收完成标志</span></span><br><span class="line">				&#125;</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">		</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">USART1_IRQHandler</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	u8 ch = <span class="number">0</span>;</span><br><span class="line">	<span class="keyword">if</span>(USART_GetITStatus(USART1, USART_IT_RXNE) == SET)<span class="comment">//检查中断发生</span></span><br><span class="line">	&#123;</span><br><span class="line">		ch = (u8)USART_ReceiveData(USART1);</span><br><span class="line">		USART_ClearITPendingBit(USART1, USART_IT_RXNE);	<span class="comment">//清除中断</span></span><br><span class="line"><span class="comment">//		Debug_Serial_Send_Char(ch);				//将收到的数据发送出去</span></span><br><span class="line">		SerialRecv(ch);							<span class="comment">//处理中断数据</span></span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>IAP程序</strong></p>
+<p>IAP程序包括iap_down（下载程序，片机接收来自于上位机的数据），iap_jump_app（IAP跳转到APP的跳转指令），iap_over（指示IAP完成，将系统缓冲区清空），iap_set_flag（检测到该标志时跳转到APP程序中），iap_clear_flag（清除APP标志，让IAP不再自动跳转到APP中），app_jump_iap（app跳转到iap的跳转指令）。</p>
+<p>​    <strong>IAP_set_flag</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//设置app固化配置</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">iap_set_flag</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	Test_Write(APP_CONFIG_ADDR,APP_CONFIG_SET_VALUE);</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;固化成功\r\n&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//WriteAddr:起始地址</span></span><br><span class="line"><span class="comment">//WriteData:要写入的数据</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Test_Write</span><span class="params">(u32 WriteAddr,u16 WriteData)</span>   	</span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    STMFLASH_Write(WriteAddr,&amp;WriteData,<span class="number">1</span>);<span class="comment">//写入一个字 </span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在keil中我们设置0x08000000-0x08003000来存放iap代码，并将0x08001FFC作为存放app固化标志的地方，在宏定义中设置各个变量的地址：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> APP_CONFIG_ADDR     0X08001FFC <span class="comment">//配置地址</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> APP_CONFIG_SET_VALUE    0X5555 <span class="comment">//设置值</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> APP_CONFIG_CLEAR_VALUE  0XFFFF <span class="comment">//清零值</span></span></span><br></pre></td></tr></table></figure>
+<p>​    <strong>iap_claer_flag</strong></p>
+<p>清除标志的方式与写入标志的方式同理，在 APP_CONFIG_ADDR 这个地址写入清零值。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//清除app固化配置</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">iap_clear_flag</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	Test_Write(APP_CONFIG_ADDR,APP_CONFIG_CLEAR_VALUE);</span><br><span class="line">	</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;清除成功\r\n&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>​    <strong>iap_jump_app</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">typedef</span>  <span class="title">void</span> <span class="params">(*iapfun)</span><span class="params">(<span class="keyword">void</span>)</span></span>;				<span class="comment">//定义一个函数类型的参数.</span></span><br><span class="line">iapfun jump2app;</span><br><span class="line"></span><br><span class="line"><span class="comment">//设置栈顶地址</span></span><br><span class="line"><span class="comment">//addr:栈顶地址</span></span><br><span class="line"></span><br><span class="line"><span class="function">__asm <span class="keyword">void</span> <span class="title">MSR_MSP</span><span class="params">(u32 addr)</span> </span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    MSR MSP, r0 			<span class="comment">//set Main Stack value</span></span><br><span class="line">    BX r14</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//跳转到app区域运行</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">iap_jump_app</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	iap_load_app(FLASH_APP1_ADDR);<span class="comment">//跳转到app的复位向量地址</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//跳转到应用程序段</span></span><br><span class="line"><span class="comment">//appxaddr:用户代码起始地址.</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">iap_load_app</span><span class="params">(u32 appxaddr)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">if</span>(((*(vu32*)appxaddr)&amp;<span class="number">0x2FFE0000</span>)==<span class="number">0x20000000</span>)	<span class="comment">//检查栈顶地址是否合法.0x20000000是sram的起始地址,也是程序的栈顶地址</span></span><br><span class="line">	&#123; </span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">&quot;ok\r\n&quot;</span>);</span><br><span class="line">		Delay_Ms(<span class="number">10</span>);</span><br><span class="line">		jump2app=(iapfun)*(vu32*)(appxaddr+<span class="number">4</span>);		<span class="comment">//用户代码区第二个字为程序开始地址(复位地址)		</span></span><br><span class="line">		MSR_MSP(*(vu32*)appxaddr);					<span class="comment">//初始化APP堆栈指针(用户代码区的第一个字用于存放栈顶地址)</span></span><br><span class="line">		jump2app();									<span class="comment">//跳转到APP.</span></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">else</span></span><br><span class="line">	&#123;</span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">&quot;program in flash is error\r\n&quot;</span>);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>​    <strong>程序解释：</strong></p>
+<ol>
+<li><p>检查栈顶地址</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span>(((*(vu32*)appxaddr)&amp;<span class="number">0x2FFE0000</span>)==<span class="number">0x20000000</span>)</span><br></pre></td></tr></table></figure>
+<p>在实际的程序中，设置APP的起始地址为0x08003000，即appxaddr==0x08003000，而 *(vu32 *)appxaddr即取0x08003000-0x08003003这4个字节的值，因为APP中设置中断向量表放置在0x08003000开始的位置，中断向量表中第一个放的则是栈顶地址的值。通过判断栈顶地址值是否正确（是否在0x2000 0000 - 0x 2000 2000之间） 来判断是否应用程序已经下载了，因为应用程序的启动文件会初始化化栈空间，如果栈顶值对了，说明启动文件的初始化执行了应用程也已经下载了。</p>
+</li>
+<li><p>程序开始地址</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jump2app=(iapfun)*(vu32*)(appxaddr+<span class="number">4</span>);		<span class="comment">//用户代码区第二个字为程序开始地址(复位地址)		</span></span><br></pre></td></tr></table></figure>
+<p> (appxaddr+4)即0x08003004，这个地址放的时中断向量表的第二项“复位地址”</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">typedef</span>  <span class="title">void</span> <span class="params">(*iapfun)</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br></pre></td></tr></table></figure>
+<p>一般，typedef int a，是给整型定义一个别名 a ；而 void (* iapfun)(void) 是声明一个函数指针，加上 typedef 之后 iapfun 只不过是类型 void(*)void 的一个别名。所以，此时的jump2app已经指向了复位函数所在的地址 <strong>Reset_Handler</strong>(中断向量表的第二项)，跳转到main函数。下图为STM32启动文件 startup_stm32f10x_hd.s 中的代码解释：</p>
+<p>​        <img src="/upload_image/image-20201012144259212.png" alt="image-20201012144259212" style="zoom: 67%;" /></p>
+<blockquote>
+<p><em>ST</em>公司都提供了现成的直接可用的启动文件，程序开发人员可以直接引用启动文件后直接进行<em>C</em>应用程序的开发。这样能大大减小开发人员从其它微控制器平台跳转至<em>STM32</em>平台，也降低了适应<em>STM32</em>微控制器的难度。相对于<em>ARM</em>上一代的主流<em>ARM7/ARM9</em>内核架构，新一代<em>Cortex</em>内核架构的启动方式有了比较大的变化。<em>ARM7/ARM9</em>内核的控制器在复位后，<em>CPU</em>会从存储空间的绝对地址<em>0x000000</em>取出第一条指令执行复位中断服务程序的方式启动，即固定了复位后的起始地址为<em>0x000000</em>（<em>PC = 0x000000</em>）同时中断向量表的位置并不是固定的。而<em>Cortex-M3</em>内核则正好相反，有<em>3</em>种情况*:<br>1<em>、 通过</em>boot<em>引脚设置可以将中断向量表定位于</em>SRAM<em>区，即起始地址为</em>0x2000000<em>，同时复位后</em>PC<em>指针位于</em>0x2000000<em>处；<br>2、 通过</em>boot<em>引脚设置可以将中断向量表定位于</em>FLASH<em>区，即起始地址为 <em>0x8000000</em>，同时复位后</em>PC<em>指针位于</em>0x8000000<em>处；<br>3、 通过</em>boot<em>引脚设置可以将中断向量表定位于内置</em>Bootloader<em>区，本文不对这种情况做论述；<br>而Cortex-M3内核规定，<strong>起始地址必须存放堆顶指针</strong>，而<strong>第二个地址则必须存放复位中断入口向量地址</strong>，这样在</em>Cortex-M3<em>内核复位后，会自动从起始地址的下一个</em>32*位空间取出复位中断入口向量，跳转执行复位中断服务程序。</p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/yx_l128125/article/details/12992773">STM32 IAP 在线升级详解——CSDN</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_39780116/article/details/88605971?utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-4.channel_param&depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-4.channel_param">关于Stm32的IAP详细和应用——CSDN</a></p>
+</blockquote>
+</li>
+</ol>
+<p>​    <strong>app_jump_iap</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">app_jump_iap</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	SCB-&gt;VTOR = FLASH_BASE;		<span class="comment">//设置中断向量偏移量</span></span><br><span class="line">	NVIC_SystemReset();			<span class="comment">//复位函数，软件重启</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>​    其中，NVIC_SystemReset()这个函数在新版的STM32的官方固件库文件 <strong>core_cm3.h</strong> 中1720行处：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* ##################################    Reset function  ############################################ */</span></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * @brief  Initiate a system reset request.</span></span><br><span class="line"><span class="comment"> *	   系统复位</span></span><br><span class="line"><span class="comment"> * Initiate a system reset request to reset the MCU</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">static</span> __INLINE <span class="keyword">void</span> <span class="title">NVIC_SystemReset</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  SCB-&gt;AIRCR  = ((<span class="number">0x5FA</span> &lt;&lt; SCB_AIRCR_VECTKEY_Pos)      | </span><br><span class="line">                 (SCB-&gt;AIRCR &amp; SCB_AIRCR_PRIGROUP_Msk) | </span><br><span class="line">                 SCB_AIRCR_SYSRESETREQ_Msk);                   <span class="comment">/* Keep priority group unchanged */</span>		 <span class="comment">/*保持优先级组不变*/</span></span><br><span class="line">  __DSB();                                                     <span class="comment">/* Ensure completion of memory access */</span>   <span class="comment">/*确保完成内存访问*/</span>           </span><br><span class="line">  <span class="keyword">while</span>(<span class="number">1</span>);                                                    <span class="comment">/* wait until reset */</span>					<span class="comment">/*等待重启*/</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>​    <em>如果使用的是正点原子的老教程，版本文件老旧 core_cm3.h文件可能没有更新，则没有这个函数</em></p>
+<p>​    iap和app之间的跳转必须关闭所有中断 ，并且复位NVIC中断寄存器的值，因为跳转函数是用程序指针完成的，但跳转只是强制改变了PC指针的位置，NVIC寄存器的值还是保持着原来main的值，所以一旦发生中断就会指向跳转前的main函数的中断函数入口地址，<strong>程序会卡死</strong>导致 <strong>HardFault</strong>。所以最好的方法是使用上述的软件重启的思路，其余的处理方式还有：①跳转之前复位或者关闭所有打开的中断②跳转后在初始化时加入RCC_DeInit();NVIC_DeInit ();等让中断恢复默认值。</p>
+<p>​    <strong>iap_down_s</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> FLASH_APP1_ADDR		0x08002000  	<span class="comment">//第一个应用程序起始地址(存放在FLASH)</span></span></span><br><span class="line">											<span class="comment">//保留的空间为IAP使用</span></span><br><span class="line"></span><br><span class="line">u16 iapbuf[<span class="number">1024</span>] = &#123;<span class="number">0</span>&#125;; <span class="comment">//用于缓存数据的数组</span></span><br><span class="line">u16 receiveDataCur = <span class="number">0</span>;	<span class="comment">//当前iapbuffer中已经填充的数据长度,一次填充满了之后写入flash并清零</span></span><br><span class="line">u32 addrCur = FLASH_APP1_ADDR;			<span class="comment">//当前系统写入地址,每次写入之后地址增加2048</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//开始下载</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">iap_down_s</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	u16 i = <span class="number">0</span>;</span><br><span class="line">	u16 temp = <span class="number">0</span>;</span><br><span class="line">	u16 receiveCount;</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;begin,wait data download\r\n&quot;</span>);</span><br><span class="line">	receiveMode = <span class="number">1</span>;<span class="comment">//串口进入下载接收数据模式</span></span><br><span class="line">	<span class="keyword">while</span>(<span class="number">1</span>)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="comment">//循环接收数据,每次必须要发128个数据下来,如果没有128,说明这是最后一包数据</span></span><br><span class="line">		<span class="comment">//接收到一包数据之后,返回一个小数点,发送完成,系统编程完成之后返回一个iap_over</span></span><br><span class="line">		<span class="keyword">if</span>(serial_Buffer_Length &amp; <span class="number">0x8000</span>)</span><br><span class="line">		&#123;</span><br><span class="line">			receiveCount = (u8)(serial_Buffer_Length&amp;<span class="number">0x00ff</span>);</span><br><span class="line">			<span class="keyword">if</span>(receiveCount == <span class="number">128</span>)<span class="comment">//满足一包,填充并查看是否有了1024字节,有了写入闪存</span></span><br><span class="line">			&#123;</span><br><span class="line">				<span class="keyword">for</span>(i = <span class="number">0</span>; i &lt; receiveCount; i+=<span class="number">2</span>)</span><br><span class="line">				&#123;</span><br><span class="line">					<span class="comment">//数据八位融合为16位</span></span><br><span class="line">					temp = (((u16)serial_Buffer[i+<span class="number">1</span>])&lt;&lt;<span class="number">8</span>) + ((u16)serial_Buffer[i]);</span><br><span class="line">					iapbuf[receiveDataCur] = temp;</span><br><span class="line">					receiveDataCur++;<span class="comment">//完成之后receiveDataCur++;</span></span><br><span class="line">				&#125;</span><br><span class="line">				receiveExpectCount = <span class="number">0</span>;<span class="comment">//清除期望接收模式</span></span><br><span class="line">				serial_Buffer_Length = <span class="number">0</span>;<span class="comment">//清除串口满标志</span></span><br><span class="line">				<span class="built_in">printf</span>(<span class="string">&quot;.&quot;</span>);<span class="comment">//每次接受一次数据打一个点 </span></span><br><span class="line">				<span class="comment">//此时需要检测receiveDataCur的值,要是放满了,就需要写入</span></span><br><span class="line">				<span class="keyword">if</span>(receiveDataCur == <span class="number">1024</span>)</span><br><span class="line">				&#123;</span><br><span class="line">					<span class="comment">//写入flash中</span></span><br><span class="line">					STMFLASH_Write(addrCur,iapbuf,<span class="number">1024</span>);</span><br><span class="line">					<span class="comment">//printf(&quot;\r\nwrite addr %x,length 1024\r\n&quot;,addrCur);</span></span><br><span class="line">					addrCur += <span class="number">2048</span>;<span class="comment">//地址+2048</span></span><br><span class="line">					<span class="comment">//写完之后receiveDataCur要清零等待下一次传输</span></span><br><span class="line">					receiveDataCur = <span class="number">0</span>;</span><br><span class="line">				&#125;</span><br><span class="line">				<span class="keyword">else</span> <span class="comment">//有可能最后一包有128个数据但是最终没有2048个数据,此时扩展一个指令用于完成最后一个的写入</span></span><br><span class="line">				&#123;</span><br><span class="line">					</span><br><span class="line">				&#125;</span><br><span class="line">				<span class="comment">//还没放满,等待下一次数据过来</span></span><br><span class="line">			&#125;</span><br><span class="line">			<span class="keyword">else</span>	<span class="comment">//不满足一包,说明数据传送这是最后一包,写入闪存</span></span><br><span class="line">			&#123;</span><br><span class="line">				<span class="comment">//没有一包也要传送到缓存中</span></span><br><span class="line">				<span class="keyword">for</span>(i = <span class="number">0</span>; i &lt; receiveCount; i+=<span class="number">2</span>)</span><br><span class="line">				&#123;</span><br><span class="line">					</span><br><span class="line">					<span class="comment">//数据八位融合为16位</span></span><br><span class="line">					temp = (((u16)serial_Buffer[i+<span class="number">1</span>])&lt;&lt;<span class="number">8</span>) + ((u16)serial_Buffer[i]);</span><br><span class="line">					iapbuf[receiveDataCur] = temp;</span><br><span class="line">					receiveDataCur++;<span class="comment">//完成之后receiveDataCur++;</span></span><br><span class="line">					</span><br><span class="line">				&#125;</span><br><span class="line">				receiveExpectCount = <span class="number">0</span>;<span class="comment">//清除期望接收模式</span></span><br><span class="line">				serial_Buffer_Length = <span class="number">0</span>;<span class="comment">//清除串口满标志</span></span><br><span class="line">				<span class="built_in">printf</span>(<span class="string">&quot;.&quot;</span>);<span class="comment">//每次接受一次数据打一个点 </span></span><br><span class="line">				<span class="comment">//之后就要将这数据写入到闪存中</span></span><br><span class="line">				STMFLASH_Write(addrCur,iapbuf,receiveDataCur);<span class="comment">//将最后的一些内容字节写进去.</span></span><br><span class="line">				<span class="comment">//printf(&quot;\r\nwrite addr %x,length %d\r\n&quot;,addrCur,receiveDataCur);</span></span><br><span class="line">				<span class="comment">//写完之后要把地址恢复到原来的位置</span></span><br><span class="line">				addrCur = FLASH_APP1_ADDR;</span><br><span class="line">				receiveDataCur = <span class="number">0</span>;</span><br><span class="line">				<span class="comment">//写完之后要退出下载循环并告诉上位机,已经下载完了</span></span><br><span class="line">				<span class="built_in">printf</span>(<span class="string">&quot;download over\r\n&quot;</span>);</span><br><span class="line">				<span class="comment">//同时,也要退出下载循环模式</span></span><br><span class="line">				receiveMode = <span class="number">0</span>;</span><br><span class="line">				<span class="keyword">return</span>;</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>代码的核心思想是上位机每次发送128个数据，128个8位数据通过位操作两两融合成16位数据，每个新数据占2个地址，写满2048个addr后写一次flash；当最后一包数据不是128时说明数据发送完成了，将最后的数据烧入flash之后把地址恢复到原来位置<em>addrCur = FLASH_APP1_ADDR</em>，退出下载模式 <strong>receiveMode</strong>从1置为0；可能会出现的情况在于最后一包的数据也是128个，此时iap_down_s的判断机制仍处于下载模式，针对这种情况定义一个新指令iap_over，上位机侦测到最后一包数据也是128个时补充发送该命令，下位机将缓存写入并退出。</p>
+<p>​    <strong>iap_over_s</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//最后一包有128个数据但是最终没有2048个数据</span></span><br><span class="line"><span class="comment">//收到这个指令检测receiveDataCur和addrCur的值,</span></span><br><span class="line"><span class="comment">//完成最后的写入</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">iap_over_s</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="comment">//这个时候,依然在串口下载模式</span></span><br><span class="line">	<span class="keyword">if</span>(receiveDataCur != <span class="number">0</span>)</span><br><span class="line">	&#123;</span><br><span class="line">		STMFLASH_Write(addrCur,iapbuf,receiveDataCur);<span class="comment">//将最后的一些内容字节写进去.</span></span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">&quot;write addr %x,length %d&quot;</span>,addrCur,receiveDataCur);</span><br><span class="line">		addrCur = FLASH_APP1_ADDR;</span><br><span class="line">		receiveDataCur = <span class="number">0</span>;</span><br><span class="line">		<span class="comment">//同时,也要退出下载模式</span></span><br><span class="line">		receiveMode = <span class="number">0</span>;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;最后一包发送完成\r\n&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>Flash擦写</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//读取指定地址的半字(16位数据)</span></span><br><span class="line"><span class="comment">//faddr:读地址(此地址必须为2的倍数!!)</span></span><br><span class="line"><span class="comment">//返回值:对应数据.</span></span><br><span class="line"><span class="function">u16 <span class="title">STMFLASH_ReadHalfWord</span><span class="params">(u32 faddr)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> *(vu16*)faddr; </span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">if</span> STM32_FLASH_WREN	<span class="comment">//如果使能了写   </span></span></span><br><span class="line"><span class="comment">//不检查的写入</span></span><br><span class="line"><span class="comment">//WriteAddr:起始地址</span></span><br><span class="line"><span class="comment">//pBuffer:数据指针</span></span><br><span class="line"><span class="comment">//NumToWrite:半字(16位)数   </span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">STMFLASH_Write_NoCheck</span><span class="params">(u32 WriteAddr,u16 *pBuffer,u16 NumToWrite)</span>   </span></span><br><span class="line"><span class="function"></span>&#123; 			 		 </span><br><span class="line">    u16 i;</span><br><span class="line">    <span class="keyword">for</span>(i=<span class="number">0</span>;i&lt;NumToWrite;i++)</span><br><span class="line">    &#123;</span><br><span class="line">        FLASH_ProgramHalfWord(WriteAddr,pBuffer[i]);</span><br><span class="line">        WriteAddr+=<span class="number">2</span>;<span class="comment">//地址增加2.</span></span><br><span class="line">    &#125;  </span><br><span class="line">&#125; </span><br><span class="line"></span><br><span class="line"><span class="comment">//从指定地址开始写入指定长度的数据</span></span><br><span class="line"><span class="comment">//WriteAddr:起始地址(此地址必须为2的倍数!!)</span></span><br><span class="line"><span class="comment">//pBuffer:数据指针</span></span><br><span class="line"><span class="comment">//NumToWrite:半字(16位)数(就是要写入的16位数据的个数.)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">if</span> STM32_FLASH_SIZE&lt;256</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> STM_SECTOR_SIZE 1024 <span class="comment">//字节</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">else</span> </span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> STM_SECTOR_SIZE	2048</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span>	</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">u16 STMFLASH_BUF[STM_SECTOR_SIZE/<span class="number">2</span>];<span class="comment">//最多是2K字节</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">STMFLASH_Write</span><span class="params">(u32 WriteAddr,u16 *pBuffer,u16 NumToWrite)</span>	</span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    u32 secpos;	   <span class="comment">//扇区地址</span></span><br><span class="line">    u16 secoff;	   <span class="comment">//扇区内偏移地址(16位字计算)</span></span><br><span class="line">    u16 secremain; <span class="comment">//扇区内剩余地址(16位字计算)	   </span></span><br><span class="line">    u16 i;    </span><br><span class="line">    u32 offaddr;   <span class="comment">//去掉0X08000000后的地址</span></span><br><span class="line">    <span class="keyword">if</span>(WriteAddr&lt;STM32_FLASH_BASE||(WriteAddr&gt;=(STM32_FLASH_BASE+<span class="number">1024</span>*STM32_FLASH_SIZE)))<span class="keyword">return</span>;<span class="comment">//非法地址</span></span><br><span class="line">    FLASH_Unlock();						<span class="comment">//解锁</span></span><br><span class="line">    offaddr=WriteAddr-STM32_FLASH_BASE;		 <span class="comment">//实际偏移地址.</span></span><br><span class="line">    secpos=offaddr/STM_SECTOR_SIZE;				<span class="comment">//扇区地址  0~127 for STM32F103RBT6</span></span><br><span class="line">    secoff=(offaddr%STM_SECTOR_SIZE)/<span class="number">2</span>;		<span class="comment">//在扇区内的偏移(2个字节为基本单位.)</span></span><br><span class="line">    secremain=STM_SECTOR_SIZE/<span class="number">2</span>-secoff;		<span class="comment">//扇区剩余空间大小   </span></span><br><span class="line">    <span class="keyword">if</span>(NumToWrite&lt;=secremain)secremain=NumToWrite;<span class="comment">//不大于该扇区范围</span></span><br><span class="line">    <span class="keyword">while</span>(<span class="number">1</span>) </span><br><span class="line">    &#123;	</span><br><span class="line">        STMFLASH_Read(secpos*STM_SECTOR_SIZE+STM32_FLASH_BASE,STMFLASH_BUF,STM_SECTOR_SIZE/<span class="number">2</span>);<span class="comment">//读出整个扇区的内容</span></span><br><span class="line">        <span class="keyword">for</span>(i=<span class="number">0</span>;i&lt;secremain;i++)<span class="comment">//校验数据</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">if</span>(STMFLASH_BUF[secoff+i]!=<span class="number">0XFFFF</span>)<span class="keyword">break</span>;<span class="comment">//需要擦除  	  </span></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span>(i&lt;secremain)<span class="comment">//需要擦除</span></span><br><span class="line">        &#123;</span><br><span class="line">            FLASH_ErasePage(secpos*STM_SECTOR_SIZE+STM32_FLASH_BASE);<span class="comment">//擦除这个扇区</span></span><br><span class="line">            <span class="keyword">for</span>(i=<span class="number">0</span>;i&lt;secremain;i++)<span class="comment">//复制</span></span><br><span class="line">            &#123;</span><br><span class="line">                STMFLASH_BUF[i+secoff]=pBuffer[i];	  </span><br><span class="line">            &#125;</span><br><span class="line">            STMFLASH_Write_NoCheck(secpos*STM_SECTOR_SIZE+STM32_FLASH_BASE,STMFLASH_BUF,STM_SECTOR_SIZE/<span class="number">2</span>);<span class="comment">//写入整个扇区  </span></span><br><span class="line">        &#125;<span class="keyword">else</span> STMFLASH_Write_NoCheck(WriteAddr,pBuffer,secremain);<span class="comment">//写已经擦除了的,直接写入扇区剩余区间. 				   </span></span><br><span class="line">        <span class="keyword">if</span>(NumToWrite==secremain)<span class="keyword">break</span>;<span class="comment">//写入结束了</span></span><br><span class="line">        <span class="keyword">else</span><span class="comment">//写入未结束</span></span><br><span class="line">        &#123;</span><br><span class="line">            secpos++;				<span class="comment">//扇区地址增1</span></span><br><span class="line">            secoff=<span class="number">0</span>;				<span class="comment">//偏移位置为0 	 </span></span><br><span class="line">            pBuffer+=secremain;  	<span class="comment">//指针偏移</span></span><br><span class="line">            WriteAddr+=secremain;	<span class="comment">//写地址偏移	   </span></span><br><span class="line">            NumToWrite-=secremain;	<span class="comment">//字节(16位)数递减</span></span><br><span class="line">            <span class="keyword">if</span>(NumToWrite&gt;(STM_SECTOR_SIZE/<span class="number">2</span>))secremain=STM_SECTOR_SIZE/<span class="number">2</span>;<span class="comment">//下一个扇区还是写不完</span></span><br><span class="line">            <span class="keyword">else</span> secremain=NumToWrite;<span class="comment">//下一个扇区可以写完了</span></span><br><span class="line">        &#125;	 </span><br><span class="line">    &#125;;	</span><br><span class="line">    FLASH_Lock();<span class="comment">//上锁</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">//从指定地址开始读出指定长度的数据</span></span><br><span class="line"><span class="comment">//ReadAddr:起始地址</span></span><br><span class="line"><span class="comment">//pBuffer:数据指针</span></span><br><span class="line"><span class="comment">//NumToWrite:半字(16位)数</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">STMFLASH_Read</span><span class="params">(u32 ReadAddr,u16 *pBuffer,u16 NumToRead)</span>   	</span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    u16 i;</span><br><span class="line">    <span class="keyword">for</span>(i=<span class="number">0</span>;i&lt;NumToRead;i++)</span><br><span class="line">    &#123;</span><br><span class="line">        pBuffer[i]=STMFLASH_ReadHalfWord(ReadAddr);<span class="comment">//读取2个字节.</span></span><br><span class="line">        ReadAddr+=<span class="number">2</span>;<span class="comment">//偏移2个字节.	</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>用户回调函数</strong></p>
+<figure class="highlight cc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Help_Proc_Func</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;DzyLink shell v1.0\r\n&quot;</span>);</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;modify by Dingzy\r\n&quot;</span>);</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;2020/10/12 21:44\r\n&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">List_Proc_Func</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	u8 i = <span class="number">0</span>;</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;command num is %d\r\n&quot;</span>,COMMAND_NUM);</span><br><span class="line">	<span class="keyword">for</span>(i = <span class="number">0</span>; i &lt; COMMAND_NUM; i++)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">&quot;%d : %s\r\n&quot;</span>,i,commandStringList[i]);</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;*****************************************************\r\n&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>CommandScan扫描命令函数</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//扫描命令字符串,并调用相应处理函数</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">CommandScan</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	u8 commandLength1;</span><br><span class="line">	u8 commandLength2;</span><br><span class="line">	u8 i = <span class="number">0</span>,j = <span class="number">0</span>;</span><br><span class="line">	<span class="comment">//数据满</span></span><br><span class="line">	<span class="keyword">if</span>((serial_Buffer_Length &amp; <span class="number">0x8000</span>) == <span class="number">0x8000</span>)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="comment">//检测命令不是全为空格</span></span><br><span class="line">		<span class="keyword">if</span>(Command_Is_Vailed())</span><br><span class="line">		&#123;</span><br><span class="line">			Command_Copy();<span class="comment">//copy命令字符串等待处理</span></span><br><span class="line">			<span class="comment">//去除命令头上的空白</span></span><br><span class="line">			Command_Remove_Space_Head();</span><br><span class="line">			<span class="comment">//去除命令尾巴上的空格</span></span><br><span class="line">			Command_Remove_Space_End();</span><br><span class="line">			<span class="comment">//去除中间的重复空格</span></span><br><span class="line">			Command_Remove_Space_Inner();</span><br><span class="line">			commandLength1 = Command_Find_Space_Postion(<span class="number">1</span>);<span class="comment">//获取长度</span></span><br><span class="line">			<span class="keyword">if</span>(commandLength1 == <span class="number">0</span>)commandLength1 = commandStringLength;<span class="comment">//当第二个空格获取返回0的时候,说明没有参数,纯命令,所以没有空格</span></span><br><span class="line">			<span class="keyword">for</span>(i = <span class="number">0</span>; i &lt; COMMAND_NUM; i++)</span><br><span class="line">			&#123;</span><br><span class="line">				commandLength2 = StringGetLength(commandStringList[i]);</span><br><span class="line">				<span class="keyword">if</span>(commandLength1 == commandLength2)</span><br><span class="line">				&#123;</span><br><span class="line">					<span class="comment">//长度相同,比对每个字符</span></span><br><span class="line">					<span class="keyword">for</span>(j = <span class="number">0</span>; j &lt; commandLength1; j++)</span><br><span class="line">					&#123;</span><br><span class="line">						<span class="keyword">if</span>(commandStringBuffer[j] == commandStringList[i][j])<span class="keyword">continue</span>;</span><br><span class="line">						<span class="keyword">else</span> <span class="keyword">break</span>;</span><br><span class="line">					&#125;</span><br><span class="line">					<span class="keyword">if</span>(j == commandLength1)<span class="comment">//比对成功</span></span><br><span class="line">					&#123;</span><br><span class="line">						<span class="comment">//调用函数</span></span><br><span class="line">						Command_Proc_Func_Table[i]();</span><br><span class="line">						<span class="keyword">return</span>;</span><br><span class="line">					&#125;</span><br><span class="line">				&#125;</span><br><span class="line">				<span class="keyword">else</span></span><br><span class="line">				&#123;</span><br><span class="line">					<span class="comment">//直接长度不同,不需要比对了</span></span><br><span class="line">					<span class="keyword">continue</span>;</span><br><span class="line">				&#125;</span><br><span class="line">			&#125;</span><br><span class="line">			<span class="keyword">if</span>(i == COMMAND_NUM)</span><br><span class="line">			&#123;</span><br><span class="line">				<span class="comment">//没找到对应命令</span></span><br><span class="line">				<span class="built_in">printf</span>(<span class="string">&quot;not find command\r\n&quot;</span>);</span><br><span class="line">			&#125;</span><br><span class="line">			</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">else</span></span><br><span class="line">		&#123;</span><br><span class="line">			<span class="built_in">printf</span>(<span class="string">&quot;command can&#x27;t all space\r\n&quot;</span>);</span><br><span class="line">			serial_Buffer_Length = <span class="number">0</span>;</span><br><span class="line">		&#125;</span><br><span class="line">		</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//回调函数数组定义,比对成功之后按Command_table中的命令组依次执行</span></span><br><span class="line">Command_Proc_Func Command_Proc_Func_Table[] = </span><br><span class="line">&#123;</span><br><span class="line">	Help_Proc_Func,		<span class="comment">//打印版本、作者和时间信息			</span></span><br><span class="line">	List_Proc_Func,		<span class="comment">//打印命令num		</span></span><br><span class="line">	iap_down_s,			<span class="comment">//iap下载程序</span></span><br><span class="line">	iap_jump_app,		<span class="comment">//iap跳转到app</span></span><br><span class="line">	iap_over_s,			<span class="comment">//最后一包128数据写入</span></span><br><span class="line">	iap_set_flag,		<span class="comment">//设置app固化标志</span></span><br><span class="line">	iap_clear_flag		<span class="comment">//清除app固化标志</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p><strong>main函数</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	NVIC_Group_Init();	<span class="comment">//系统默认中断分组</span></span><br><span class="line">	Debug_Serial_Init(<span class="number">115200</span>);</span><br><span class="line">	Delay_Init();</span><br><span class="line">	Command_Init(<span class="number">100</span>);	<span class="comment">//100ms</span></span><br><span class="line">	<span class="keyword">while</span>(<span class="number">1</span>)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">if</span>(STMFLASH_ReadHalfWord(APP_CONFIG_ADDR) == <span class="number">0x5555</span>)</span><br><span class="line">		&#123;</span><br><span class="line">			<span class="comment">//直接跳转到APP</span></span><br><span class="line">			iap_jump_app_s();</span><br><span class="line">		&#125;</span><br><span class="line">		CommandScan();	<span class="comment">//扫描命令处理</span></span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h5 id="2-3-APP程序"><a href="#2-3-APP程序" class="headerlink" title="2.3 APP程序"></a>2.3 APP程序</h5><p>app使用最简单的蜂鸣器实验（代码来自正点原子），硬件部分将蜂鸣器的I/O口连接至PB8，代码如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;sys.h&quot;</span>	</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;delay.h&quot;</span>	</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;led.h&quot;</span> </span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;beep.h&quot;</span> </span></span><br><span class="line"><span class="comment">//ALIENTEK战舰STM32开发板实验2</span></span><br><span class="line"><span class="comment">//蜂鸣器实验  </span></span><br><span class="line"><span class="comment">//技术支持：www.openedv.com</span></span><br><span class="line"><span class="comment">//广州市星翼电子科技有限公司 </span></span><br><span class="line"> <span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"> </span>&#123;</span><br><span class="line">	delay_init();	    	 <span class="comment">//延时函数初始化	  </span></span><br><span class="line">	LED_Init();		  	 	<span class="comment">//初始化与LED连接的硬件接口</span></span><br><span class="line">	BEEP_Init();         	<span class="comment">//初始化蜂鸣器端口</span></span><br><span class="line">	<span class="keyword">while</span>(<span class="number">1</span>)</span><br><span class="line">	&#123;</span><br><span class="line">		LED0=<span class="number">0</span>;</span><br><span class="line">		BEEP=<span class="number">0</span>;		  </span><br><span class="line">		delay_ms(<span class="number">300</span>);<span class="comment">//延时300ms</span></span><br><span class="line">		LED0=<span class="number">1</span>;	  </span><br><span class="line">		BEEP=<span class="number">1</span>;  </span><br><span class="line">		delay_ms(<span class="number">300</span>);<span class="comment">//延时300ms</span></span><br><span class="line">	&#125;</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+<img src="/upload_image/蜂鸣器.jpg" alt="蜂鸣器" style="zoom: 33%;" />
+
+<h4 id="3-通信协议"><a href="#3-通信协议" class="headerlink" title="3    通信协议"></a>3    通信协议</h4><p>挖坑待填…</p>
+<h4 id="4-Q-amp-A"><a href="#4-Q-amp-A" class="headerlink" title="4   Q&amp;A"></a>4   Q&amp;A</h4><h5 id="4-1-报错"><a href="#4-1-报错" class="headerlink" title="4.1 报错"></a>4.1 报错</h5><ul>
+<li><pre><code>..\..\Libraries\CMSIS\stm32f10x.h(298): error: #67: expected a &quot;&#125;&quot;
+ADC1_2_IRQn = 18, /*!&lt; ADC1 and ADC2 global Interrupt */
+..\..\Libraries\CMSIS\stm32f10x.h(472): warning: #12-D: parsing restarts here after previous syntax error&#125; IRQn_Type;
+..\..\User\main.c: 1 warning, 1 error
+&quot;..\..\User\main.c&quot; - 1 Error(s), 1 Warning(s).
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">  **解决方法：**在C&#x2F;C++选项卡里，把STM3210X_HD从**Prepocessor symbol define** 里面删掉。在老版本的官方STM32F10x.h文件里，是&#96;...&amp;&amp;!defined(STM32F10X_HD) &amp;&amp; ...&#96; 原来是有括号的，不做标识符来处理，而新版的直接说明了出来.</span><br><span class="line"></span><br><span class="line">- &#96;&#96;&#96;</span><br><span class="line">  ..\driver\debugSerial.c(14): error:  #260-D: explicit type is missing (&quot;int&quot; assumed)</span><br><span class="line">    _sys_exit(int x) </span><br></pre></td></tr></table></figure>
+**问题原因：**_sys_exit(int x) 这个函数没有返回类型，产生这个的原因是因为用了C99的库，C99和C89的区别详见https://www.cnblogs.com/ys77/p/11541827.html
+
+**解决方法：**添加 void  不报错，编译通过。
+
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span>  _sys_exit(<span class="keyword">int</span> x)</span><br></pre></td></tr></table></figure>
+</code></pre>
+</li>
+</ul>
+<h5 id="4-2-IAP跳转执行的问题"><a href="#4-2-IAP跳转执行的问题" class="headerlink" title="4.2 IAP跳转执行的问题"></a>4.2 IAP跳转执行的问题</h5><p>在栈顶地址验证通过之后，Flash进行了擦除-拷贝-跳转执行的操作，问题在于跳转执行之后，Bootloader又将其引导回了流程一开始的阶段，两次擦除和拷贝之后，栈顶地址发生了改变，程序无法运行，如图所示：</p>
+<img src="/upload_image/XCOM1.jpg" style="zoom:50%;" />
+
+<p>解决方法：跳转程序没有正常执行，三种问题可能会导致APP跳转失败。</p>
+<ol>
+<li><p>设置了APP标志后，APP能够跳转到IAP中，但IAP马上又会跳转回APP，永远不能等待下载；</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//设置app固化配置</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">iap_set_flag_s</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	Test_Write(APP_CONFIG_ADDR,APP_CONFIG_SET_VALUE);</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;ok\r\n&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//清除app固化配置</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">iap_clear_flag</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	Test_Write(APP_CONFIG_ADDR,APP_CONFIG_CLEAR_VALUE);</span><br><span class="line">	</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;ok\r\n&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>先清除APP标志，然后再跳转到IAP程序中，标志就不会影响IAP的下载流程了。</p>
+</li>
+<li><p>APP的工程中，不仅是在[Target]中要设置Flash的起始地址和SIze，在Jlink的[Flash Download]中也需要设置芯片的起始地址和Size，如图所示：</p>
+<p><img src="/upload_image/image-20201010133813256.png" alt="image-20201010133813256" style="zoom: 32%;" /><img src="/upload_image/image-20201010133907154.png" alt="image-20201010133907154" style="zoom:42%;" /></p>
+</li>
+<li><p>中断向量表的设置。在IAP中不需要考虑中断向量表，IAP的默认程序就是从0x8000000位置开始的，但是APP代码的起始位置必须从IAP程序之后的地址开始，因此必须重新设置中断向量表。在system_stm32f10x.c中又一个system_init的函数，该函数的作用为启动时调用配置系统时钟，该函数的最后为：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">ifdef</span> VECT_TAB_SRAM</span></span><br><span class="line">  SCB-&gt;VTOR = SRAM_BASE | VECT_TAB_OFFSET; <span class="comment">/* Vector Table Relocation in Internal SRAM. */</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">else</span></span></span><br><span class="line">  SCB-&gt;VTOR = FLASH_BASE | VECT_TAB_OFFSET; <span class="comment">/* Vector Table Relocation in Internal FLASH. */</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span> </span></span><br></pre></td></tr></table></figure>
+<p>其中VECT_TAB_OFFSET就是需要修改的偏移量,也就是APP程序的起始地址偏移,这个设置必须与IAP同步，我们设置为2000。该值的宏就需要修改,在128行的位置，将0x0修改为0x2000(与2中设置同步)。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> VECT_TAB_OFFSET  0x2000 <span class="comment">/*!&lt; Vector Table base offset field. </span></span></span><br><span class="line"><span class="meta"><span class="comment">                                  This value must be a multiple of 0x200. */</span></span></span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/" rel="tag"><i class="fa fa-tag"></i> 嵌入式</a>
+              <a href="/tags/%E9%A9%B1%E5%8A%A8%E5%BC%80%E5%8F%91/" rel="tag"><i class="fa fa-tag"></i> 驱动开发</a>
+              <a href="/tags/%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE/" rel="tag"><i class="fa fa-tag"></i> 通信协议</a>
+              <a href="/tags/Keil/" rel="tag"><i class="fa fa-tag"></i> Keil</a>
+              <a href="/tags/STM32/" rel="tag"><i class="fa fa-tag"></i> STM32</a>
+              <a href="/tags/IAP/" rel="tag"><i class="fa fa-tag"></i> IAP</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/09/13/%E5%A2%A8%E6%B0%B4%E5%B1%8F%E5%85%A5%E9%97%A8%E5%8A%9F%E8%83%BD%E5%BC%80%E5%8F%91(%E4%BA%8C)%E2%80%94%E2%80%94%E9%80%9A%E4%BF%A1%E6%80%BB%E7%BA%BF/" rel="prev" title="墨水屏入门功能开发(二)——通信协议">
+      <i class="fa fa-chevron-left"></i> 墨水屏入门功能开发(二)——通信协议
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/10/15/VC++6.0%E6%89%93%E5%BC%80%E5%A4%9A%E4%B8%AA%E7%AA%97%E5%8F%A3/" rel="next" title="VC++6.0打开多个窗口">
+      VC++6.0打开多个窗口 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-IAP%E7%9A%84%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86"><span class="nav-number">1.</span> <span class="nav-text">1    IAP的基础知识</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1-1-STM32%E7%9A%84%E7%BC%96%E7%A8%8B%E6%96%B9%E5%BC%8F"><span class="nav-number">1.1.</span> <span class="nav-text">1.1 STM32的编程方式</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#1-2-Bootloader"><span class="nav-number">1.2.</span> <span class="nav-text">1.2 Bootloader</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-IAP%E7%9A%84%E5%AE%9E%E7%8E%B0"><span class="nav-number">2.</span> <span class="nav-text">2    IAP的实现</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#2-1-Keil%E8%AE%BE%E7%BD%AE"><span class="nav-number">2.1.</span> <span class="nav-text">2.1 Keil设置</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2-2-%E9%A9%B1%E5%8A%A8%E7%A8%8B%E5%BA%8F"><span class="nav-number">2.2.</span> <span class="nav-text">2.2 驱动程序</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2-3-APP%E7%A8%8B%E5%BA%8F"><span class="nav-number">2.3.</span> <span class="nav-text">2.3 APP程序</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE"><span class="nav-number">3.</span> <span class="nav-text">3    通信协议</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-Q-amp-A"><span class="nav-number">4.</span> <span class="nav-text">4   Q&amp;A</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#4-1-%E6%8A%A5%E9%94%99"><span class="nav-number">4.1.</span> <span class="nav-text">4.1 报错</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#4-2-IAP%E8%B7%B3%E8%BD%AC%E6%89%A7%E8%A1%8C%E7%9A%84%E9%97%AE%E9%A2%98"><span class="nav-number">4.2.</span> <span class="nav-text">4.2 IAP跳转执行的问题</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Dzy"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">Dzy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">17</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">23</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/dzy404" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;dzy404" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:dzhiyuan529@gmail.com" title="E-Mail → mailto:dzhiyuan529@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i></a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Dzy</span>
+</div>
+
+<!--
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+-->
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

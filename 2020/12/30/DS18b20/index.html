@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="1. 简介DS18B20通过1-Wire总线进行通信，根据定义，该总线仅需要一条数据线(和地线)即可与中央微处理器进行通信。它的工作温度范围为 -55°C 至 +125°C，在–10°C 至 +85°C 的范围内精确至 0.5°C。 此外，DS18B20可以直接从数据线获取电源（“寄生电源”），而无需外部电源。 每个DS18B20都有一个唯一的64位串行代码，它允许多个DS18B20在同一条1">
+<meta property="og:type" content="article">
+<meta property="og:title" content="DS18B20外设驱动">
+<meta property="og:url" content="http://example.com/2020/12/30/DS18b20/index.html">
+<meta property="og:site_name" content="Dzy404&#39;s Blog">
+<meta property="og:description" content="1. 简介DS18B20通过1-Wire总线进行通信，根据定义，该总线仅需要一条数据线(和地线)即可与中央微处理器进行通信。它的工作温度范围为 -55°C 至 +125°C，在–10°C 至 +85°C 的范围内精确至 0.5°C。 此外，DS18B20可以直接从数据线获取电源（“寄生电源”），而无需外部电源。 每个DS18B20都有一个唯一的64位串行代码，它允许多个DS18B20在同一条1">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/upload_image/image-20201224163342870.png">
+<meta property="og:image" content="http://example.com/upload_image/image-20201224163247580.png">
+<meta property="og:image" content="http://example.com/upload_image/image-20201224163128270.png">
+<meta property="article:published_time" content="2020-12-30T18:00:00.000Z">
+<meta property="article:modified_time" content="2021-01-18T06:09:17.000Z">
+<meta property="article:author" content="Dzy">
+<meta property="article:tag" content="嵌入式">
+<meta property="article:tag" content="驱动开发">
+<meta property="article:tag" content="MSP430">
+<meta property="article:tag" content="C&#x2F;C++">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/upload_image/image-20201224163342870.png">
+
+<link rel="canonical" href="http://example.com/2020/12/30/DS18b20/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>DS18B20外设驱动 | Dzy404's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Dzy404's Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">式遏寇虐  憯不畏明</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-commonweal">
+
+    <a href="/404/" rel="section"><i class="fa fa-heartbeat fa-fw"></i>公益 404</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2020/12/30/DS18b20/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="Dzy">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Dzy404's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          DS18B20外设驱动
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-12-30 18:00:00" itemprop="dateCreated datePublished" datetime="2020-12-30T18:00:00+00:00">2020-12-30</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-01-18 06:09:17" itemprop="dateModified" datetime="2021-01-18T06:09:17+00:00">2021-01-18</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F%E5%BC%80%E5%8F%91/" itemprop="url" rel="index"><span itemprop="name">嵌入式开发</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <a id="more"></a>
+
+<h3 id="1-简介"><a href="#1-简介" class="headerlink" title="1. 简介"></a>1. 简介</h3><p>DS18B20通过1-Wire总线进行通信，根据定义，该总线仅需要一条数据线(和地线)即可与中央微处理器进行通信。它的工作温度范围为 -55°C 至 +125°C，在–10°C 至 +85°C 的范围内精确至 0.5°C。 此外，DS18B20可以直接从数据线获取电源（“寄生电源”），而无需外部电源。</p>
+<p>每个DS18B20都有一个唯一的64位串行代码，它允许多个DS18B20在同一条1线总线上工作。 因此，使用一个微处理器控制分布在大面积上的许多DS18B20就很简单，DS18B20也由此成为温控系统中最常用的传感器。</p>
+<h3 id="2-温度测量工作原理"><a href="#2-温度测量工作原理" class="headerlink" title="2. 温度测量工作原理"></a>2. 温度测量工作原理</h3><ul>
+<li>使用DS18B20时可以将温度传感器的分辨率配置为9、10、11或12位，分别对应于0.5C，0.25C，0.125C和0.0625C的增量；</li>
+<li>要启动温度测量和a-D转换，主机必须发出Convert T[44h]命令；</li>
+<li>转换后，产生的热数据存储在草稿行内存中的2字节温度寄存器中，DS18B20返回到空闲状态。</li>
+</ul>
+<h4 id="2-1-寄存器格式"><a href="#2-1-寄存器格式" class="headerlink" title="2.1 寄存器格式"></a>2.1 寄存器格式</h4><ul>
+<li>DS18B20输出温度数据以摄氏度校准，温度数据以16位符号扩展2的补码形式存储在温度寄存器中；</li>
+<li>符号位表示温度是正还是负：正数S=0，负数S=1；</li>
+<li>如果DS18B20配置为12位分辨率，则温度寄存器中的所有位都将包含有效数据；</li>
+<li>分辨率位为1，代表加上该位的一个增量。</li>
+</ul>
+<p><strong>LS Byte：</strong></p>
+<table>
+<thead>
+<tr>
+<th align="center">bit 7</th>
+<th align="center">bit 6</th>
+<th align="center">bit 5</th>
+<th align="center">bit 4</th>
+<th align="center">bit 3</th>
+<th align="center">bit 2</th>
+<th align="center">bit 1</th>
+<th align="center">bit 0</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">2^3</td>
+<td align="center">2^2</td>
+<td align="center">2^1</td>
+<td align="center">2^0</td>
+<td align="center">2^-1</td>
+<td align="center">2^-2</td>
+<td align="center">2^-3</td>
+<td align="center">2^-4</td>
+</tr>
+</tbody></table>
+<p><strong>MS Byte</strong></p>
+<table>
+<thead>
+<tr>
+<th align="center">bit 15</th>
+<th align="center">bit 14</th>
+<th align="center">bit 13</th>
+<th align="center">bit 12</th>
+<th align="center">bit 11</th>
+<th align="center">bit 10</th>
+<th align="center">bit 9</th>
+<th align="center">bit 8</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">S</td>
+<td align="center">S</td>
+<td align="center">S</td>
+<td align="center">S</td>
+<td align="center">S</td>
+<td align="center">2^6</td>
+<td align="center">2^5</td>
+<td align="center">2^4</td>
+</tr>
+</tbody></table>
+<h4 id="2-2-温度-DATA关系表-示例"><a href="#2-2-温度-DATA关系表-示例" class="headerlink" title="2.2 温度/DATA关系表(示例)"></a>2.2 温度/DATA关系表(示例)</h4><table>
+<thead>
+<tr>
+<th align="center">温度</th>
+<th align="center">数字信号输出(二进制)</th>
+<th align="center">数字信号输出(十六进制)</th>
+<th align="center">计算过程</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">+125°C</td>
+<td align="center">0000 0111 1101 0000</td>
+<td align="center">07D0h</td>
+<td align="center">2^0+2^2+2^3+2^4+2^5+2^6=125</td>
+</tr>
+<tr>
+<td align="center">+85°C</td>
+<td align="center">0000 0101 0101 0000</td>
+<td align="center">0550h</td>
+<td align="center">2^0+2^2+2^4+2^6=85</td>
+</tr>
+<tr>
+<td align="center">+25.0625°C</td>
+<td align="center">0000 0001 1001 0001</td>
+<td align="center">0192h</td>
+<td align="center">2^-4+2^0+2^3+2^4=25.0625</td>
+</tr>
+<tr>
+<td align="center">+10.125°C</td>
+<td align="center">0000 0000 1010 0010</td>
+<td align="center">00A2h</td>
+<td align="center">2^-3+2^1+2^3=10.125</td>
+</tr>
+<tr>
+<td align="center">+0.5°C</td>
+<td align="center">0000 0000 0000 1000</td>
+<td align="center">0008h</td>
+<td align="center">2^-1=0.5</td>
+</tr>
+<tr>
+<td align="center">0°C</td>
+<td align="center">0000 0000 0000 0000</td>
+<td align="center">0000h</td>
+<td align="center">0</td>
+</tr>
+<tr>
+<td align="center">-0.5°C</td>
+<td align="center">1111 1111 1111 1000</td>
+<td align="center">FFF8h</td>
+<td align="center">2^-1=0.5</td>
+</tr>
+<tr>
+<td align="center">-10.125°C</td>
+<td align="center">1111 1111 0101 1110</td>
+<td align="center">FF5Eh</td>
+<td align="center">2^-3+2^1+2^3=10.125</td>
+</tr>
+<tr>
+<td align="center">-25.0625°C</td>
+<td align="center">1111 1110 0110 1111</td>
+<td align="center">FE6Fh</td>
+<td align="center">2^-4+2^0+2^3+2^4=25.0625</td>
+</tr>
+<tr>
+<td align="center">-55°C</td>
+<td align="center">1111 1100 1001 0000</td>
+<td align="center">FC90h</td>
+<td align="center">2^0+2^2+2^3+2^4+2^5+2^6=125</td>
+</tr>
+</tbody></table>
+<h3 id="3-寄存器指令"><a href="#3-寄存器指令" class="headerlink" title="3. 寄存器指令"></a>3. 寄存器指令</h3><p><strong>DS18B20的操作顺序为：</strong></p>
+<ol>
+<li><p>复位指令</p>
+</li>
+<li><p>ROM指令   </p>
+<img src="/upload_image/image-20201224163342870.png" alt="image-20201224163342870" style="zoom:67%;" />
+</li>
+<li><p>DS18B20功能指令</p>
+<img src="/upload_image/image-20201224163247580.png" alt="image-20201224163247580" style="zoom: 67%;" />
+
+</li>
+</ol>
+<p><strong>常用ROM指令：</strong></p>
+<p><strong>SKIP ROM [CCh]：</strong>主机可以使用该命令同时寻址总线上的所有设备，而无需发送任何ROM代码信息。</p>
+<p>​        用法1：通过允许主机从机读取而不发送设备的64位ROM代码来节省时间(只有在总线上只有一个从设备时可用)</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">ds_write_byte(bus,<span class="number">0xcc</span>);</span><br><span class="line">ds_write_byte(bus,<span class="number">0xbe</span>);</span><br><span class="line">   <span class="comment">//主机读取暂存器的信息，从字节0的最低有效位开始一直到暂存器直到读取第9个字节（8-0）</span></span><br><span class="line">   <span class="comment">//只有在总线上只有DS18B20的时候，[BEh]指令才能跟随在[CCh]指令之后；否则冲突</span></span><br><span class="line">   <span class="comment">//在这种情况下，可以允许主机从从机读取数据而不发送设备的64位ROM代码来节省时间</span></span><br></pre></td></tr></table></figure>
+<p>​        用法2：主机可以通过发出Skip ROM命令和随后的Convert T [44h]命令，使总线上的所有DS18B20都同时执行温度转换</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">ds_write_byte(bus,<span class="number">0xcc</span>);</span><br><span class="line">   <span class="comment">//跳过ROM代码信息的发送</span></span><br><span class="line">ds_write_byte(bus,<span class="number">0x44</span>);</span><br><span class="line">   <span class="comment">//使总线上所有DS18B20都同时执行温度转换</span></span><br></pre></td></tr></table></figure>
+<p><strong>常用功能指令：</strong></p>
+<p><strong>CONVERT T [44h]：</strong>该命令启动一次温度转换。 转换后，产生的热数据被存储在暂存器的2字节温度寄存器中，DS18B20返回其低功耗空闲状态。 </p>
+<p>**WRITE SCRATCHPAD  [4Eh]： **该命令允许主机将3个字节的数据写入DS18B20的暂存器。 第一个数据字节写入TH寄存器（暂存器的字节2），第二个字节写入TL寄存器（字节3），第三个字节写入配置寄存器（字节4）。</p>
+<p><strong>READ SCRATCHPAD [BEh] ：</strong>该命令允许主机读取暂存器的内容。 数据传输从字节0的最低有效位开始，一直到暂存器，直到读取第9个字节（字节8 – CRC）</p>
+<img src="/upload_image/image-20201224163128270.png" alt="image-20201224163128270" style="zoom: 67%;" />
+
+<h3 id="4-MSP430程序"><a href="#4-MSP430程序" class="headerlink" title="4. MSP430程序"></a>4. MSP430程序</h3><p>&lt;DS18B20.h&gt;：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">ifndef</span> WL_DS18B20_H</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> WL_DS18B20_H</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">enum</span> <span class="title">DS18B20_BUS_DEF</span>                                    //枚举</span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">	DS18B20_BUS_1,                                      <span class="comment">//枚举第一项默认为0</span></span><br><span class="line">	DS18B20_BUS_DEF_END                                 <span class="comment">//1</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">tem_change</span><span class="params">(uint8 bus)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">float</span> <span class="title">get_temperature</span><span class="params">(uint8 bus)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br></pre></td></tr></table></figure>
+<p>&lt;DS18B20.c&gt;：</p>
+<ol>
+<li><p>引脚操作函数</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">set_ds_output</span><span class="params">(uint8 bus)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">switch</span>(bus)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">case</span> DS18B20_BUS_1:</span><br><span class="line">			P7DIR |= BIT2;			<span class="comment">//P7.3设置为输出</span></span><br><span class="line">			<span class="keyword">break</span>; 						          </span><br><span class="line">		<span class="keyword">default</span>:</span><br><span class="line">			<span class="keyword">break</span>;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">set_ds_input</span><span class="params">(uint8 bus)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">switch</span>(bus)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">case</span> DS18B20_BUS_1:</span><br><span class="line">			P7DIR &amp;= ~BIT2;			<span class="comment">//P7.3设置为输入</span></span><br><span class="line">			<span class="keyword">break</span>;						          </span><br><span class="line">		<span class="keyword">default</span>:</span><br><span class="line">			<span class="keyword">break</span>;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">set_ds_high</span><span class="params">(uint8 bus)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">switch</span>(bus)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">case</span> DS18B20_BUS_1:</span><br><span class="line">			P7OUT |= BIT2;			<span class="comment">//P7.2拉高</span></span><br><span class="line">			<span class="keyword">break</span>;            </span><br><span class="line">		<span class="keyword">default</span>:</span><br><span class="line">			<span class="keyword">break</span>;</span><br><span class="line">	&#125;	</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">set_ds_low</span><span class="params">(uint8 bus)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">switch</span>(bus)</span><br><span class="line">	&#123; </span><br><span class="line">		<span class="keyword">case</span> DS18B20_BUS_1:</span><br><span class="line">			P7OUT &amp;= ~BIT2;			<span class="comment">//P7.2拉低</span></span><br><span class="line">			<span class="keyword">break</span>;            </span><br><span class="line">		<span class="keyword">default</span>:</span><br><span class="line">			<span class="keyword">break</span>;</span><br><span class="line">	&#125;	</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">uint8 <span class="title">read_ds</span><span class="params">(uint8 bus)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	uint8 data;</span><br><span class="line">	<span class="keyword">switch</span>(bus)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">case</span> DS18B20_BUS_1:</span><br><span class="line">			data=(P7IN &amp; BIT2)?<span class="number">1</span>:<span class="number">0</span>;</span><br><span class="line">			<span class="keyword">break</span>;						          </span><br><span class="line">		<span class="keyword">default</span>:</span><br><span class="line">			<span class="keyword">break</span>;</span><br><span class="line">	&#125;	</span><br><span class="line">    <span class="keyword">return</span> data;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Reset_18b20</span><span class="params">(uint8 bus)</span> </span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">   set_ds_output(bus);</span><br><span class="line">   set_ds_high(bus);</span><br><span class="line">   delay_us(<span class="number">1</span>);        <span class="comment">//1us</span></span><br><span class="line">   set_ds_low(bus);</span><br><span class="line">   delay_us(<span class="number">550</span>); 	  <span class="comment">//当总线停留在低电平超过480us，总线上所有器件都将被复位，这里</span></span><br><span class="line">					<span class="comment">//延时约530us总线停留在低电平超过480μs，总线上的所有器件都将被复位。</span></span><br><span class="line"></span><br><span class="line">   set_ds_high(bus);  <span class="comment">//产生复位脉冲后，微处理器释放总线,让总线处于空闲状态，原因查18b20中文资料</span></span><br><span class="line"></span><br><span class="line">   delay_us(<span class="number">45</span>);; 	  <span class="comment">//释放总线后，以便从机18b20通过拉低总线来指示其是否在线</span></span><br><span class="line">                 	  <span class="comment">//存在检测高电平时间:15~60us,所以延时44us,进行1-wire presence //detect（单线存在检测）</span></span><br><span class="line"></span><br><span class="line">   set_ds_input(bus);</span><br><span class="line">   <span class="keyword">if</span>(read_ds(bus)==<span class="number">0</span>)</span><br><span class="line">        ds18b20_flag=<span class="number">1</span>;     <span class="comment">//detect 18b20 success</span></span><br><span class="line">   <span class="keyword">else</span></span><br><span class="line">        ds18b20_flag=<span class="number">0</span>;     <span class="comment">//detect 18b20 fail</span></span><br><span class="line">   delay_us(<span class="number">28</span>);            <span class="comment">//存在检测低电平时间：60~240us，所以延时约140us</span></span><br><span class="line">   set_ds_output(bus);</span><br><span class="line">    </span><br><span class="line">   set_ds_high(bus);        <span class="comment">//再次拉高总线，让总线处于空闲状态	</span></span><br><span class="line">   delay_us(<span class="number">50</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+</li>
+</ol>
+<ol start="2">
+<li><p>读写操作函数</p>
+<p>读/写时间隙:DS1820 的数据读写是通过时间隙处理位和命令字来确认信息交换。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">uint8 <span class="title">ds_read_bit</span><span class="params">(uint8 bus)</span>    <span class="comment">//读一位</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	uint8 dat;</span><br><span class="line">    set_ds_output(bus);</span><br><span class="line">   	set_ds_low(bus);        	<span class="comment">//单片机（微处理器）将总线拉低</span></span><br><span class="line">	delay_us(<span class="number">1</span>);        	    <span class="comment">//读时隙起始于微处理器将总线拉低至少1us</span></span><br><span class="line">   	set_ds_high(bus);        	<span class="comment">//拉低总线后接着释放总线，让从机18b20能够接管总线，输出有效数据</span></span><br><span class="line">	delay_us(<span class="number">1</span>);</span><br><span class="line">	                		   <span class="comment">//小延时一下，读取18b20上的数据 ,因为从ds18b20上输出的数据</span></span><br><span class="line">							 <span class="comment">//在读&quot;时间隙&quot;下降沿出现15us内有效</span></span><br><span class="line">    set_ds_input(bus);</span><br><span class="line">	dat=read_ds(bus);         <span class="comment">//主机读从机18b20输出的数据，这些数据在读时隙的下降沿出现15us内有效</span></span><br><span class="line">	delay_us(<span class="number">77</span>);   		<span class="comment">//所有读&quot;时间隙&quot;必须60~120us，这里77us</span></span><br><span class="line">	<span class="keyword">return</span>(dat);   			<span class="comment">//返回有效数据</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">uint8 <span class="title">ds_read_byte</span><span class="params">(uint8 bus )</span> 	 <span class="comment">//读一字节</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	uint8 value,i,j;</span><br><span class="line">	value=<span class="number">0</span>;           			<span class="comment">//给初值</span></span><br><span class="line">	<span class="keyword">for</span>(i=<span class="number">0</span>;i&lt;<span class="number">8</span>;i++)</span><br><span class="line">	&#123;</span><br><span class="line">		j=ds_read_bit(bus);</span><br><span class="line">	    value=(j&lt;&lt;<span class="number">7</span>)|(value&gt;&gt;<span class="number">1</span>); <span class="comment">//这一步的说明在一个word文档里面</span></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span>(value);        		<span class="comment">//返回一个字节的数据</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">ds_write_bit</span><span class="params">(uint8 bus,uint8 dat)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">if</span>(dat)      			 <span class="comment">//写 1</span></span><br><span class="line">	&#123;</span><br><span class="line">		set_ds_low(bus);</span><br><span class="line">		delay_us(<span class="number">2</span>);     </span><br><span class="line">		<span class="comment">//asm(&quot;NOP&quot;);        //看时序图，至少延时1us，才产生写&quot;时间隙&quot; </span></span><br><span class="line">		set_ds_high(bus);    <span class="comment">//写时间隙开始后的15μs内允许数据线拉到高电平</span></span><br><span class="line">		delay_us(<span class="number">70</span>); 		<span class="comment">//所有写时间隙必须最少持续60us</span></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">else</span>         			<span class="comment">//写 0</span></span><br><span class="line">	&#123;</span><br><span class="line">		set_ds_low(bus);</span><br><span class="line">		delay_us(<span class="number">64</span>);    	<span class="comment">//主机要生成一个写0 时间隙，必须把数据线拉到低电平并保持至少60μs，这里64us</span></span><br><span class="line">		set_ds_high(bus);</span><br><span class="line">	&#125;	</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">ds_write_byte</span><span class="params">(uint8 bus,uint8 dat)</span> <span class="comment">//写一个字节</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">uint8 i;</span><br><span class="line">uint8 onebit;        <span class="comment">//一定不要忘了，onebit是一位</span></span><br><span class="line">	<span class="keyword">for</span>(i=<span class="number">1</span>;i&lt;=<span class="number">8</span>;i++) </span><br><span class="line">	&#123;</span><br><span class="line">	    onebit=dat&amp;<span class="number">0x01</span>;</span><br><span class="line">	    dat=dat&gt;&gt;<span class="number">1</span>;</span><br><span class="line">		<span class="keyword">if</span>(onebit)      <span class="comment">//写 1</span></span><br><span class="line">		&#123;</span><br><span class="line">			set_ds_low(bus);</span><br><span class="line">			delay_us(<span class="number">2</span>);     </span><br><span class="line">			<span class="comment">//asm(&quot;NOP&quot;);        //看时序图，至少延时1us，才产生写&quot;时间隙&quot; </span></span><br><span class="line">			set_ds_high(bus);     <span class="comment">//写时间隙开始后的15μs内允许数据线拉到高电平</span></span><br><span class="line">			delay_us(<span class="number">70</span>);       <span class="comment">//所有写时间隙必须最少持续60us</span></span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">else</span>         <span class="comment">//写 0</span></span><br><span class="line">		&#123;</span><br><span class="line">			set_ds_low(bus);</span><br><span class="line">			delay_us(<span class="number">64</span>);    <span class="comment">//主机要生成一个写0 时间隙，必须把数据线拉到低电平并保持至少60μs，这里64us</span></span><br><span class="line">			set_ds_high(bus);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+</li>
+</ol>
+<ol start="3">
+<li><p>温度功能函数</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">tem_change</span><span class="params">(uint8 bus)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	Reset_18b20(bus);</span><br><span class="line">	delay_us(<span class="number">100</span>);              <span class="comment">//约2ms</span></span><br><span class="line">	ds_write_byte(bus,<span class="number">0xcc</span>);</span><br><span class="line">    <span class="comment">//跳过ROM代码信息的发送</span></span><br><span class="line">	ds_write_byte(bus,<span class="number">0x44</span>);</span><br><span class="line">    <span class="comment">//使总线上所有DS18B20都同时执行温度转换</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>获取温度函数，返回值为一个十进制的温度值，精度为0.0625</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">float</span> <span class="title">get_temperature</span><span class="params">(uint8 bus)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    uint8 a,b;</span><br><span class="line">	Reset_18b20(bus);</span><br><span class="line">	delay_us(<span class="number">150</span>);              <span class="comment">//约2ms</span></span><br><span class="line">	ds_write_byte(bus,<span class="number">0xcc</span>);</span><br><span class="line">	ds_write_byte(bus,<span class="number">0xbe</span>);</span><br><span class="line">    <span class="comment">//主机读取暂存器的信息，从字节0的最低有效位开始一直到暂存器直到读取第9个字节（8-0）</span></span><br><span class="line">    <span class="comment">//只有在总线上只有DS18B20的时候，[BEh]指令才能跟随在[CCh]指令之后；否则冲突</span></span><br><span class="line">    <span class="comment">//在这种情况下，可以允许主机从从机读取数据而不发送设备的64位ROM代码来节省时间</span></span><br><span class="line">    </span><br><span class="line">	a=ds_read_byte(bus);</span><br><span class="line">	b=ds_read_byte(bus);</span><br><span class="line">	tempDS18B20=b;</span><br><span class="line">	tempDS18B20&lt;&lt;=<span class="number">8</span>;</span><br><span class="line">	tempDS18B20=tempDS18B20|a;</span><br><span class="line">	biaozhi=<span class="number">0</span>;</span><br><span class="line">	<span class="keyword">if</span>((tempDS18B20&amp;<span class="number">0x8000</span>))</span><br><span class="line">	&#123;</span><br><span class="line">	      biaozhi=<span class="number">1</span>;<span class="comment">//设置温度正负的标志</span></span><br><span class="line">	      tempDS18B20=(~tempDS18B20+<span class="number">1</span>);</span><br><span class="line">          tempDS18B20&amp;=<span class="number">0x07FF</span>;</span><br><span class="line">	&#125; </span><br><span class="line">	wendu=tempDS18B20*<span class="number">0.0625</span>;       <span class="comment">//得到真实十进制温度值，因为DS18B20</span></span><br><span class="line">                                 	<span class="comment">//可以精确到0.0625度，所以读回数据的最低位代表的是0.0625度</span></span><br><span class="line">	<span class="comment">//	wendu=wendu*10.0+0.5;       //放大十倍，这样做的目的将小数点后第一位</span></span><br><span class="line">	                         	    <span class="comment">//也转换为可显示数字，同时进行一个四舍五入操作。</span></span><br><span class="line">    <span class="comment">//tempDS18B20=(unsigned long int)(wendu*100+0.5);</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span>(biaozhi)</span><br><span class="line">        <span class="comment">//tempDS18B20 |= 0x8000;</span></span><br><span class="line">    	wendu*=(<span class="number">-1</span>);</span><br><span class="line">    Reset_18b20(bus);</span><br><span class="line">	<span class="keyword">return</span> wendu;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+
+</li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/" rel="tag"><i class="fa fa-tag"></i> 嵌入式</a>
+              <a href="/tags/%E9%A9%B1%E5%8A%A8%E5%BC%80%E5%8F%91/" rel="tag"><i class="fa fa-tag"></i> 驱动开发</a>
+              <a href="/tags/MSP430/" rel="tag"><i class="fa fa-tag"></i> MSP430</a>
+              <a href="/tags/C-C/" rel="tag"><i class="fa fa-tag"></i> C/C++</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/12/09/char%E5%92%8Cunsigned%20char/" rel="prev" title="char和指针的问题">
+      <i class="fa fa-chevron-left"></i> char和指针的问题
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/01/11/%E8%87%AA%E5%BB%BA%E5%8D%9A%E5%AE%A2(%E4%B8%80)%E2%80%94%E2%80%94%E6%90%AD%E5%BB%BA%E6%A0%91%E8%8E%93%E6%B4%BE%E6%89%98%E7%AE%A1%E5%B9%B3%E5%8F%B0/" rel="next" title="树莓派平台自建博客(一)——搭建树莓派托管平台">
+      树莓派平台自建博客(一)——搭建树莓派托管平台 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">1. 简介</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E6%B8%A9%E5%BA%A6%E6%B5%8B%E9%87%8F%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86"><span class="nav-number">2.</span> <span class="nav-text">2. 温度测量工作原理</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#2-1-%E5%AF%84%E5%AD%98%E5%99%A8%E6%A0%BC%E5%BC%8F"><span class="nav-number">2.1.</span> <span class="nav-text">2.1 寄存器格式</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-2-%E6%B8%A9%E5%BA%A6-DATA%E5%85%B3%E7%B3%BB%E8%A1%A8-%E7%A4%BA%E4%BE%8B"><span class="nav-number">2.2.</span> <span class="nav-text">2.2 温度&#x2F;DATA关系表(示例)</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E5%AF%84%E5%AD%98%E5%99%A8%E6%8C%87%E4%BB%A4"><span class="nav-number">3.</span> <span class="nav-text">3. 寄存器指令</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-MSP430%E7%A8%8B%E5%BA%8F"><span class="nav-number">4.</span> <span class="nav-text">4. MSP430程序</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Dzy"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">Dzy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">17</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">23</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/dzy404" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;dzy404" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:dzhiyuan529@gmail.com" title="E-Mail → mailto:dzhiyuan529@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i></a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Dzy</span>
+</div>
+
+<!--
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+-->
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

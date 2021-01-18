@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="1. 简介 DS3231，高精度I2C实时时钟器件； 具有电池输入，并在设备的主电源中断时保持准确的计时； RTC保留秒，分钟，小时，日期，日期，月份和年份的信息； 对于少于31天的月份，将自动调整月末的日期，包括闰年的更正； 带有AM &#x2F; PM指示器的时钟以24小时或12小时格式运行； 提供了两个可编程的日时钟警报和一个可编程的方波输出；  地址和数据通过I2C双向总线串行传输。 自带存储芯">
+<meta property="og:type" content="article">
+<meta property="og:title" content="DS3231外设驱动">
+<meta property="og:url" content="http://example.com/2020/01/07/DS3231/index.html">
+<meta property="og:site_name" content="Dzy404&#39;s Blog">
+<meta property="og:description" content="1. 简介 DS3231，高精度I2C实时时钟器件； 具有电池输入，并在设备的主电源中断时保持准确的计时； RTC保留秒，分钟，小时，日期，日期，月份和年份的信息； 对于少于31天的月份，将自动调整月末的日期，包括闰年的更正； 带有AM &#x2F; PM指示器的时钟以24小时或12小时格式运行； 提供了两个可编程的日时钟警报和一个可编程的方波输出；  地址和数据通过I2C双向总线串行传输。 自带存储芯">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/upload_image/image-20201231141212427.png">
+<meta property="og:image" content="http://example.com/upload_image/image-20201231141728544.png">
+<meta property="og:image" content="http://example.com/upload_image/image-20201231154044290.png">
+<meta property="og:image" content="http://example.com/upload_image/image-20201231165705458.png">
+<meta property="og:image" content="http://example.com/upload_image/image-20201231165345940.png">
+<meta property="og:image" content="http://example.com/upload_image/image-20201231165515422.png">
+<meta property="og:image" content="http://example.com/upload_image/image-20201231165515422.png">
+<meta property="og:image" content="http://example.com/upload_image/1309643-20180129202110453-1546154669.png">
+<meta property="og:image" content="http://example.com/upload_image/image-20210104112626698.png">
+<meta property="og:image" content="http://example.com/upload_image/1309643-20180129210833937-2127679015.png">
+<meta property="og:image" content="http://example.com/upload_image/image-20210105163356262.png">
+<meta property="og:image" content="http://example.com/upload_image/image-20210105164631330.png">
+<meta property="og:image" content="http://example.com/upload_image/image-20210105165208899.png">
+<meta property="og:image" content="http://example.com/upload_image/image-20210105164631330.png">
+<meta property="og:image" content="http://example.com/upload_image/image-20210105165208899.png">
+<meta property="article:published_time" content="2020-01-07T18:00:00.000Z">
+<meta property="article:modified_time" content="2021-01-18T06:10:11.000Z">
+<meta property="article:author" content="Dzy">
+<meta property="article:tag" content="嵌入式">
+<meta property="article:tag" content="驱动开发">
+<meta property="article:tag" content="MSP430">
+<meta property="article:tag" content="C&#x2F;C++">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/upload_image/image-20201231141212427.png">
+
+<link rel="canonical" href="http://example.com/2020/01/07/DS3231/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>DS3231外设驱动 | Dzy404's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Dzy404's Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">式遏寇虐  憯不畏明</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-commonweal">
+
+    <a href="/404/" rel="section"><i class="fa fa-heartbeat fa-fw"></i>公益 404</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2020/01/07/DS3231/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="Dzy">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Dzy404's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          DS3231外设驱动
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-01-07 18:00:00" itemprop="dateCreated datePublished" datetime="2020-01-07T18:00:00+00:00">2020-01-07</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-01-18 06:10:11" itemprop="dateModified" datetime="2021-01-18T06:10:11+00:00">2021-01-18</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F%E5%BC%80%E5%8F%91/" itemprop="url" rel="index"><span itemprop="name">嵌入式开发</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <a id="more"></a>
+
+<h3 id="1-简介"><a href="#1-简介" class="headerlink" title="1. 简介"></a>1. 简介</h3><ul>
+<li>DS3231，高精度I2C实时时钟器件；</li>
+<li>具有电池输入，并在设备的主电源中断时保持准确的计时；</li>
+<li>RTC保留秒，分钟，小时，日期，日期，月份和年份的信息；</li>
+<li>对于少于31天的月份，将自动调整月末的日期，包括闰年的更正；</li>
+<li>带有AM / PM指示器的时钟以24小时或12小时格式运行；</li>
+<li>提供了两个可编程的日时钟警报和一个可编程的方波输出；</li>
+<li> 地址和数据通过I2C双向总线串行传输。</li>
+<li>自带存储芯片：AT24C32 EEPROM芯片(存储容量32K)</li>
+</ul>
+<h3 id="2-引脚"><a href="#2-引脚" class="headerlink" title="2. 引脚"></a>2. 引脚</h3><p><img src="/upload_image/image-20201231141212427.png" alt="image-20201231141212427"></p>
+<p><strong>引脚说明：</strong></p>
+<ul>
+<li>Vcc—引脚电源；</li>
+<li>INT/SQW—低电平有效中断或方波输出，低电平复位引脚；</li>
+<li>32kV—32kHz输出。此漏极开路输出引脚要求外接上拉电阻。使能状态下，输出可工作在任意电源拿下；如不使用，保持开路。</li>
+<li>N.C.—表示无连接；外部必须接地</li>
+<li>GND—地；</li>
+<li>VBAT—备用电源输入；</li>
+<li>SDA—串行数据输入输出；</li>
+<li>SCL—串行时钟输入。</li>
+</ul>
+<p><strong>DS3231内部框图：</strong></p>
+<img src="/upload_image/image-20201231141728544.png" alt="image-20201231141728544" style="zoom: 50%;" />
+
+<h3 id="3-寄存器"><a href="#3-寄存器" class="headerlink" title="3. 寄存器"></a>3. 寄存器</h3><img src="/upload_image/image-20201231154044290.png" alt="image-20201231154044290" style="zoom: 33%;" />
+
+<p>​    (待详解)</p>
+<h3 id="4-程序"><a href="#4-程序" class="headerlink" title="4. 程序"></a>4. 程序</h3><p><strong>设计原理图：</strong></p>
+<p><img src="/upload_image/image-20201231165705458.png" alt="image-20201231165705458"></p>
+<p>​                                                        <img src="/upload_image/image-20201231165345940.png" alt="image-20201231165345940" style="zoom:67%;"  /><img src="/upload_image/image-20201231165515422.png" alt="image-20201231165515422" style="zoom:50%;" /></p>
+<img src="/upload_image/image-20201231165515422.png" alt="image-20201231165515422" style="zoom: 67%;" />
+
+<p><strong>宏定义说明：</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> DS3231_SCL_H 	P9OUT |= BIT2											  <span class="comment">//P9.2输出SCL高电平</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> DS3231_SCL_L 	P9OUT &amp;= ~BIT2											  <span class="comment">//P9.2输出SCL低电平</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> DS3231_SDA_IN	do &#123; P9DIR &amp;= ~BIT1;  delay_us(2);&#125; while(0)				<span class="comment">//P9.1设置为SDA输入</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> DS3231_SDA_OUT	do &#123; P9DIR |=  BIT1;  delay_us(2);&#125; while(0)				<span class="comment">//P9.1设置为SDA输出</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> DS3231_SDA_H	do &#123; DS3231_SDA_OUT;  P9OUT |=  BIT1;  delay_us(2);&#125; while(0)<span class="comment">//P9.1输出SDA高电平</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> DS3231_SDA_L	do &#123; DS3231_SDA_OUT;  P9OUT &amp;= ~BIT1;  delay_us(2);&#125; while(0)<span class="comment">//P9.1输出SDA低电平</span></span></span><br></pre></td></tr></table></figure>
+<p><strong>函数声明：</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">DS3231_Start</span><span class="params">(<span class="keyword">void</span>)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">DS3231_I2cError</span><span class="params">(<span class="keyword">void</span>)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">DS3231_Stop</span><span class="params">(<span class="keyword">void</span>)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">DS3231_ACK</span><span class="params">(<span class="keyword">void</span>)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">DS3231_NoAck</span><span class="params">(<span class="keyword">void</span>)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">unsigned</span> <span class="keyword">char</span> <span class="title">DS3231_ReadByte</span><span class="params">(<span class="keyword">unsigned</span> <span class="keyword">char</span> endbyte)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">DS3231_WriteByte</span><span class="params">(<span class="keyword">unsigned</span> <span class="keyword">char</span> ucData)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">int</span> F_DS3231_Ack;										<span class="comment">//应答信号有无标志</span></span><br></pre></td></tr></table></figure>
+<p>​        DS3231时钟芯片的管脚初始化: </p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">DS3231_Init_Pins</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;	</span><br><span class="line">    P9DIR |= (BIT1+BIT2);	<span class="comment">//选择P9.1和P9.2为SDA , SCK</span></span><br><span class="line">       </span><br><span class="line">	DS3231_SCL_H;</span><br><span class="line">	DS3231_SDA_H; </span><br><span class="line">    </span><br><span class="line">    P2DIR |= BIT5;          <span class="comment">//VTEM</span></span><br><span class="line">    P2OUT &amp;= ~BIT5;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>​        启动/关闭函数：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">DS3231_PowOn</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    P2OUT |= BIT5;</span><br><span class="line">    delay_us(<span class="number">20</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">DS3231_PowOff</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    delay_us(<span class="number">20</span>);</span><br><span class="line">    P2OUT &amp;= ~BIT5;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>基本功能函数：</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*   SDA低-SCL高-SDA高   */</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">DS3231_I2cError</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	DS3231_SDA_L;</span><br><span class="line">	delay_us(<span class="number">10</span>);</span><br><span class="line">	DS3231_SCL_H;</span><br><span class="line">	delay_us(<span class="number">10</span>);</span><br><span class="line">	DS3231_SDA_H;</span><br><span class="line">	delay_us(<span class="number">10</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>​        <strong>开始和结束信号</strong></p>
+<p><img src="/upload_image/1309643-20180129202110453-1546154669.png" alt="img" style="zoom: 70%;" />从时序图可知，开始信号为：SCL高时，SDA由高变低；结束信号为：SCL为低时，SDA由低变高。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"> <span class="comment">/*******************************************</span></span><br><span class="line"><span class="comment"> 函数名称：DS3231_Start</span></span><br><span class="line"><span class="comment"> 功    能：I2C起始数据</span></span><br><span class="line"><span class="comment"> 参    数：无</span></span><br><span class="line"><span class="comment"> 返 回 值：无</span></span><br><span class="line"><span class="comment"> *******************************************/</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">DS3231_Start</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;   </span><br><span class="line">	DS3231_SDA_H;			<span class="comment">//SCL和SDA先拉高</span></span><br><span class="line">	delay_us(<span class="number">10</span>);			<span class="comment">//Delay的最小时间要求</span></span><br><span class="line">	DS3231_SCL_H;</span><br><span class="line">  	delay_us(<span class="number">10</span>);</span><br><span class="line">	DS3231_SDA_L;			<span class="comment">//当SCL为高时，SDA由高变低表示开始</span></span><br><span class="line">	delay_us(<span class="number">10</span>);		</span><br><span class="line">	DS3231_SCL_L;			<span class="comment">//SCL拉低表示数据传输准备就绪</span></span><br><span class="line">  	delay_us(<span class="number">10</span>);	</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"> <span class="comment">/*******************************************</span></span><br><span class="line"><span class="comment"> 函数名称：DS3231_Stop</span></span><br><span class="line"><span class="comment"> 功    能：I2C终止数据</span></span><br><span class="line"><span class="comment"> 参    数：无</span></span><br><span class="line"><span class="comment"> 返 回 值：无</span></span><br><span class="line"><span class="comment"> ********************************************/</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">DS3231_Stop</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	DS3231_SCL_L;</span><br><span class="line">  	delay_us(<span class="number">10</span>);</span><br><span class="line">	DS3231_SDA_L;			<span class="comment">//SCL和SDA拉低为结束信号做准备</span></span><br><span class="line">	delay_us(<span class="number">10</span>);</span><br><span class="line">	DS3231_SCL_H;			<span class="comment">//SCL拉高，对照时序图前半部分[STOP]</span></span><br><span class="line">  	delay_us(<span class="number">10</span>);</span><br><span class="line">	DS3231_SDA_H;			<span class="comment">//当SCL为高时，SDA由低到高为结束信号</span></span><br><span class="line">	delay_us(<span class="number">10</span>);	</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>​            <strong>发送&amp;读写函数：</strong></p>
+<img src="/upload_image/image-20210104112626698.png" alt="image-20210104112626698" style="zoom: 50%;" />
+
+<p>​    由图可知，开始信号之后，将SCL拉低，准备数据传输，SDA电平变化后，再拉高SCL，发送数据(最高位先发送)，循环8次(一个字节)；</p>
+<p>​    读函数同理，过程与发送相反，SDA做输入，主机做接收端。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*******************************************</span></span><br><span class="line"><span class="comment">函数名称：DS3231_WriteByte</span></span><br><span class="line"><span class="comment">功    能：I2C发送/写入数据</span></span><br><span class="line"><span class="comment">参    数：ucData</span></span><br><span class="line"><span class="comment">返 回 值：ucData</span></span><br><span class="line"><span class="comment">********************************************/</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">DS3231_WriteByte</span><span class="params">(<span class="keyword">unsigned</span> <span class="keyword">char</span> ucData)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">unsigned</span> <span class="keyword">char</span> i;</span><br><span class="line">    DS3231_SDA_OUT;</span><br><span class="line">	<span class="keyword">for</span>(i=<span class="number">0</span>;i&lt;<span class="number">8</span>;i++)				<span class="comment">//循环8次，一个字节</span></span><br><span class="line">	&#123;</span><br><span class="line">		DS3231_SCL_L;</span><br><span class="line">		delay_us(<span class="number">10</span>);</span><br><span class="line">		<span class="keyword">if</span>(ucData &amp; <span class="number">0x80</span>)</span><br><span class="line">		&#123; </span><br><span class="line">			DS3231_SDA_H;			<span class="comment">//高位先发</span></span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">else</span></span><br><span class="line">		&#123;</span><br><span class="line">			DS3231_SDA_L;</span><br><span class="line">		&#125;</span><br><span class="line">		delay_us(<span class="number">10</span>);</span><br><span class="line">		DS3231_SCL_H;				<span class="comment">//SCL拉高，发送数据</span></span><br><span class="line">		delay_us(<span class="number">10</span>);</span><br><span class="line">		ucData &lt;&lt;= <span class="number">1</span>;				<span class="comment">//数据左移一位</span></span><br><span class="line">		DS3231_SCL_L;</span><br><span class="line">		delay_us(<span class="number">10</span>);</span><br><span class="line">	&#125;</span><br><span class="line">	DS3231_SDA_IN;</span><br><span class="line">	delay_us(<span class="number">10</span>);</span><br><span class="line">	F_DS3231_Ack = <span class="number">0</span>;</span><br><span class="line">	DS3231_SCL_H;</span><br><span class="line">	<span class="comment">//-------------------------------------</span></span><br><span class="line">	<span class="keyword">for</span>(i=<span class="number">0</span>;i&lt;<span class="number">20</span>;i++)</span><br><span class="line"> 	&#123;</span><br><span class="line">		<span class="keyword">if</span>(!DS3231_SDA()) &#123;F_DS3231_Ack = <span class="number">1</span>; <span class="keyword">break</span>;&#125;		<span class="comment">//循环20次，若I2C接收到应答信号，F_DS3231_Ack标志置1 </span></span><br><span class="line"> 	&#125;</span><br><span class="line"> 	<span class="comment">//-------------------------------------</span></span><br><span class="line"> 	delay_us(<span class="number">10</span>);</span><br><span class="line">	DS3231_SCL_L;</span><br><span class="line">	DS3231_SDA_OUT;</span><br><span class="line">	DS3231_SDA_H;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/*******************************************</span></span><br><span class="line"><span class="comment">函数名称：DS3231_ReadByte</span></span><br><span class="line"><span class="comment">功    能：I2C发送/写入数据</span></span><br><span class="line"><span class="comment">参    数：endbyte</span></span><br><span class="line"><span class="comment">返 回 值：ucValue</span></span><br><span class="line"><span class="comment">********************************************/</span></span><br><span class="line"><span class="function"><span class="keyword">unsigned</span> <span class="keyword">char</span> <span class="title">DS3231_ReadByte</span><span class="params">(<span class="keyword">unsigned</span> <span class="keyword">char</span> endbyte)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">unsigned</span> <span class="keyword">char</span> ucValue;</span><br><span class="line">	<span class="keyword">unsigned</span> <span class="keyword">char</span> ucIndex;</span><br><span class="line"></span><br><span class="line">	DS3231_SDA_IN;						<span class="comment">//P9.1设置为输入</span></span><br><span class="line">	ucValue=<span class="number">0</span>;</span><br><span class="line">	<span class="keyword">for</span>(ucIndex=<span class="number">0</span>;ucIndex&lt;<span class="number">8</span>;ucIndex++)</span><br><span class="line">	&#123;		</span><br><span class="line">		ucValue &lt;&lt;= <span class="number">1</span>;</span><br><span class="line">		DS3231_SCL_L;					<span class="comment">//P9.2输出低电平</span></span><br><span class="line">		delay_us(<span class="number">10</span>);</span><br><span class="line">		DS3231_SCL_H;					<span class="comment">//P9.2输出高电平，保证接收数据时SDA不改变</span></span><br><span class="line">		delay_us(<span class="number">10</span>);</span><br><span class="line">		<span class="keyword">if</span>(DS3231_SDA())				<span class="comment">//引脚状态检测</span></span><br><span class="line">		&#123;</span><br><span class="line">			ucValue |= <span class="number">1</span>;				<span class="comment">//高电平保留</span></span><br><span class="line">		&#125;</span><br><span class="line">		delay_us(<span class="number">10</span>);</span><br><span class="line">		DS3231_SCL_L;					<span class="comment">//SCL拉低，数据准备</span></span><br><span class="line">		delay_us(<span class="number">10</span>);</span><br><span class="line">	&#125;</span><br><span class="line">	DS3231_SDA_OUT;						<span class="comment">//P9.1设置为输入</span></span><br><span class="line">	<span class="keyword">if</span>(endbyte != <span class="number">0</span>)</span><br><span class="line"> 		DS3231_ACK();</span><br><span class="line"> 	<span class="keyword">else</span></span><br><span class="line">  		DS3231_NoAck();</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> ucValue;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>​    <strong>主机应答信号&amp;非应答信号</strong></p>
+<p><img src="/upload_image/1309643-20180129210833937-2127679015.png" alt="img" style="zoom:67%;" />主机接收完从机数据后，要发送应答或者非应答信号。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"> <span class="comment">/*******************************************</span></span><br><span class="line"><span class="comment"> 函数名称：DS3231_ACK</span></span><br><span class="line"><span class="comment"> 功    能：I2C发送应答信号</span></span><br><span class="line"><span class="comment"> 参    数：无</span></span><br><span class="line"><span class="comment"> 返回值  ：无</span></span><br><span class="line"><span class="comment"> ********************************************/</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">DS3231_ACK</span><span class="params">(<span class="keyword">void</span>)</span>		<span class="comment">//主机位接收端，发送应答信号</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="comment">//DS3231_SCL_L;			//SCL拉低，允许SDA改变电平</span></span><br><span class="line">	DS3231_SDA_L;			<span class="comment">//SCL低电平为应答</span></span><br><span class="line">	delay_us(<span class="number">10</span>);</span><br><span class="line">	DS3231_SCL_H;</span><br><span class="line">    delay_us(<span class="number">10</span>);</span><br><span class="line">	DS3231_SCL_L;</span><br><span class="line">    delay_us(<span class="number">10</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"> <span class="comment">/*******************************************</span></span><br><span class="line"><span class="comment"> 函数名称：DS3231_NoAck</span></span><br><span class="line"><span class="comment"> 功    能：I2C发送非应答信号</span></span><br><span class="line"><span class="comment"> 参    数：无</span></span><br><span class="line"><span class="comment"> 返回值  ：无</span></span><br><span class="line"><span class="comment"> ********************************************/</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">DS3231_NoAck</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">//DS3231_SCL_L;			//SCL拉低，允许SDA改变电平</span></span><br><span class="line">	DS3231_SDA_H;</span><br><span class="line">	delay_us(<span class="number">10</span>);</span><br><span class="line">	DS3231_SCL_H;</span><br><span class="line">  	delay_us(<span class="number">10</span>);</span><br><span class="line">	DS3231_SCL_L;</span><br><span class="line">  	delay_us(<span class="number">10</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"> <span class="comment">/*******************************************</span></span><br><span class="line"><span class="comment"> 函数名称：DS3231_SDA</span></span><br><span class="line"><span class="comment"> 功    能：状态检测，I2C接收应答信号</span></span><br><span class="line"><span class="comment"> 参    数：无</span></span><br><span class="line"><span class="comment"> 返 回 值：0/1</span></span><br><span class="line"><span class="comment"> *******************************************/</span></span><br><span class="line"><span class="function">uint8 <span class="title">DS3231_SDA</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	DS3231_SDA_IN;</span><br><span class="line">	<span class="keyword">if</span>(P9IN &amp; BIT1)</span><br><span class="line">		<span class="keyword">return</span> <span class="number">1</span>;				<span class="comment">//无应答信号</span></span><br><span class="line">	<span class="keyword">else</span></span><br><span class="line">		<span class="keyword">return</span> <span class="number">0</span>;				<span class="comment">//有应答信号</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>​        <strong>DS3231传输时序图</strong></p>
+<p>​        再发送开始信号之后，DS3231接收的第一个字节的前7位时从机地址(DS3231地址)，第八位为读/写操作。</p>
+<img src="/upload_image/image-20210105163356262.png" alt="image-20210105163356262" style="zoom: 33%;" />
+
+<p>​        读写地址如下图，可以看出DS3231的主机地址为1101000，所以主机的写操作地址为0xD1(1101 0000)，读操作地址为0xD0(1101 0001)</p>
+<img src="/upload_image/image-20210105164631330.png" alt="image-20210105164631330" style="zoom: 33%;" />
+
+<p><img src="/upload_image/image-20210105165208899.png" alt="image-20210105165208899"></p>
+<img src="/upload_image/image-20210105164631330.png" alt="image-20210105164631330" style="zoom: 33%;" />
+
+<p><img src="/upload_image/image-20210105165208899.png" alt="image-20210105165208899"></p>
+<p>​        <strong>DS3231写入模式工作流程：</strong></p>
+<table>
+<thead>
+<tr>
+<th align="center">程序步骤</th>
+<th align="center">主机</th>
+<th align="center">从机</th>
+<th align="center">DS3231</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">1</td>
+<td align="center">产生START信号</td>
+<td align="center"></td>
+<td align="center">接收从机地址字节1101 0000</td>
+</tr>
+<tr>
+<td align="center">2</td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center">确认从机地址+写位之后，在SDA上输出一个应答</td>
+</tr>
+<tr>
+<td align="center">3</td>
+<td align="center">将字地址发送到DS3231</td>
+<td align="center"></td>
+<td align="center">设置寄存器指针，确认传输</td>
+</tr>
+<tr>
+<td align="center">4</td>
+<td align="center">发送零个或多个字节的数据</td>
+<td align="center"></td>
+<td align="center">寄存器指针递增，接收每一个字节后都将发送一个确认位</td>
+</tr>
+<tr>
+<td align="center">5</td>
+<td align="center">产生一个STOP信号终止数据写入</td>
+<td align="center"></td>
+<td align="center"></td>
+</tr>
+</tbody></table>
+<p>​        <strong>DS3231读取模式工作流程：</strong></p>
+<table>
+<thead>
+<tr>
+<th align="center">程序步骤</th>
+<th align="center">主机</th>
+<th align="center">从机</th>
+<th align="center">DS3231</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">1</td>
+<td align="center">产生START信号</td>
+<td align="center"></td>
+<td align="center">接收从机地址字节1101 0001</td>
+</tr>
+<tr>
+<td align="center">2</td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center">确认之后，在SDA输出一个应答</td>
+</tr>
+<tr>
+<td align="center">3</td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center">从寄存器指针指向寄存器地址开始发送数据</td>
+</tr>
+<tr>
+<td align="center">4</td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center">收到非确认信息才能结束</td>
+</tr>
+</tbody></table>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"> <span class="comment">/*******************************************</span></span><br><span class="line"><span class="comment"> 函数名称：DS3231_write_byte</span></span><br><span class="line"><span class="comment"> 功    能：I2C总线给DS3231发送单字节</span></span><br><span class="line"><span class="comment"> 参    数：无</span></span><br><span class="line"><span class="comment"> 返回值  ：无</span></span><br><span class="line"><span class="comment"> ********************************************/</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">DS3231_write_byte</span><span class="params">(uint8 dev_add,uint8 reg,uint8 data)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	DS3231_Start();</span><br><span class="line">	DS3231_WriteByte(dev_add);</span><br><span class="line">	</span><br><span class="line">	DS3231_WriteByte(reg);</span><br><span class="line">	</span><br><span class="line">	DS3231_WriteByte(data);</span><br><span class="line">    </span><br><span class="line">	DS3231_Stop();</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"> <span class="comment">/*******************************************</span></span><br><span class="line"><span class="comment"> 函数名称：DS3231_read_byte</span></span><br><span class="line"><span class="comment"> 功    能：I2C总线给DS3231接收单字节</span></span><br><span class="line"><span class="comment"> 参    数：无</span></span><br><span class="line"><span class="comment"> 返回值  ：无</span></span><br><span class="line"><span class="comment"> ********************************************/</span></span><br><span class="line"><span class="function">uint8 <span class="title">DS3231_read_byte</span><span class="params">(uint8 dev_add,uint8 reg)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    uint8 ret;	</span><br><span class="line">	DS3231_Start();</span><br><span class="line">	DS3231_WriteByte(dev_add);	</span><br><span class="line">	DS3231_WriteByte(reg);	</span><br><span class="line">	DS3231_Start();</span><br><span class="line">	DS3231_WriteByte(dev_add+<span class="number">1</span>);	</span><br><span class="line">	ret=DS3231_ReadByte(<span class="number">0</span>);    </span><br><span class="line">	DS3231_Stop();</span><br><span class="line">	<span class="keyword">return</span> ret;</span><br><span class="line">&#125;	</span><br></pre></td></tr></table></figure>
+<p>​    读取字节之后需要进行转码读取。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"> <span class="comment">/*******************************************</span></span><br><span class="line"><span class="comment"> 函数名称：BCD2HEX</span></span><br><span class="line"><span class="comment"> 功    能：BCD转换为Byte</span></span><br><span class="line"><span class="comment"> 参    数：uint val</span></span><br><span class="line"><span class="comment"> 返回值  ：char i</span></span><br><span class="line"><span class="comment"> ********************************************/</span></span><br><span class="line"><span class="function">uint8 <span class="title">BCD2HEX</span><span class="params">(uint8 val)</span>   <span class="comment">//BCD转换为Byte </span></span></span><br><span class="line"><span class="function"></span>&#123; </span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">char</span> i; </span><br><span class="line">    i= val &amp; <span class="number">0x0f</span>; </span><br><span class="line">    val &gt;&gt;= <span class="number">4</span>; </span><br><span class="line">    val &amp;= <span class="number">0x0f</span>; </span><br><span class="line">    val *= <span class="number">10</span>; </span><br><span class="line">    i += val; </span><br><span class="line">     </span><br><span class="line">    <span class="keyword">return</span> i; </span><br><span class="line">&#125; </span><br><span class="line"></span><br><span class="line"> <span class="comment">/*******************************************</span></span><br><span class="line"><span class="comment"> 函数名称：B_BCD</span></span><br><span class="line"><span class="comment"> 功    能：B码转换为BCD码</span></span><br><span class="line"><span class="comment"> 参    数：uint val</span></span><br><span class="line"><span class="comment"> 返回值  ：uint i</span></span><br><span class="line"><span class="comment"> ********************************************/</span></span><br><span class="line"><span class="function">uint8 <span class="title">B_BCD</span><span class="params">(uint8 val)</span>     <span class="comment">//B码转换为BCD码 </span></span></span><br><span class="line"><span class="function"></span>&#123; </span><br><span class="line">  </span><br><span class="line">  uint8 i,j,k; </span><br><span class="line">  i=val/<span class="number">10</span>; </span><br><span class="line">  j=val%<span class="number">10</span>; </span><br><span class="line">  k=j+(i&lt;&lt;<span class="number">4</span>); </span><br><span class="line">  <span class="keyword">return</span> k; </span><br><span class="line">  </span><br><span class="line">&#125; </span><br></pre></td></tr></table></figure>
+<p>​    读取时间、计算、显示函数：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"> <span class="comment">/*******************************************</span></span><br><span class="line"><span class="comment"> 函数名称：DS3231_ModifyTime</span></span><br><span class="line"><span class="comment"> 功    能：修改时间</span></span><br><span class="line"><span class="comment"> 参    数：BCD码</span></span><br><span class="line"><span class="comment"> 返回值  ：</span></span><br><span class="line"><span class="comment"> ********************************************/</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">DS3231_ModifyTime</span><span class="params">(uint8 yea,uint8 mon,uint8 da,uint8 hou,uint8 min,uint8 sec)</span> </span></span><br><span class="line"><span class="function"></span>&#123; </span><br><span class="line">  uint8 temp=<span class="number">0</span>; </span><br><span class="line">  DS3231_PowOn();</span><br><span class="line">  temp=B_BCD(yea); </span><br><span class="line">  DS3231_write_byte(<span class="number">0xD0</span>,<span class="number">0x06</span>,temp);<span class="comment">//修改年 </span></span><br><span class="line">   </span><br><span class="line">  temp=B_BCD(mon); </span><br><span class="line">  DS3231_write_byte(<span class="number">0xD0</span>,<span class="number">0x05</span>,temp);<span class="comment">//修改月 </span></span><br><span class="line">    </span><br><span class="line">  temp=B_BCD(da); </span><br><span class="line">  DS3231_write_byte(<span class="number">0xD0</span>,<span class="number">0x04</span>,temp);<span class="comment">//修改日 </span></span><br><span class="line">   </span><br><span class="line">  temp=B_BCD(hou); </span><br><span class="line">  DS3231_write_byte(<span class="number">0xD0</span>,<span class="number">0x02</span>,temp);<span class="comment">//修改时 </span></span><br><span class="line">   </span><br><span class="line">  temp=B_BCD(min); </span><br><span class="line">  DS3231_write_byte(<span class="number">0xD0</span>,<span class="number">0x01</span>,temp);<span class="comment">//修改分 </span></span><br><span class="line">   </span><br><span class="line">  temp=B_BCD(sec); </span><br><span class="line">  DS3231_write_byte(<span class="number">0xD0</span>,<span class="number">0x00</span>,temp);<span class="comment">//修改秒 </span></span><br><span class="line">  DS3231_PowOff();</span><br><span class="line">&#125; </span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"> <span class="comment">/*******************************************</span></span><br><span class="line"><span class="comment"> 函数名称：DS3231_GetTime</span></span><br><span class="line"><span class="comment"> 功    能：获取、计算、显示时间</span></span><br><span class="line"><span class="comment"> 参    数：BCD码</span></span><br><span class="line"><span class="comment"> 返回值  ：</span></span><br><span class="line"><span class="comment"> ********************************************/</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">DS3231_GetTime</span><span class="params">(uint8 *yea,uint8 *mon,uint8 *da,uint8 *hou,uint8 *min,uint8 *sec)</span> </span></span><br><span class="line"><span class="function"></span>&#123; </span><br><span class="line">  </span><br><span class="line"> uint8 temp1; </span><br><span class="line"></span><br><span class="line"> DS3231_PowOn(); </span><br><span class="line">  </span><br><span class="line"> temp1=DS3231_read_byte(<span class="number">0xd0</span>,<span class="number">0x06</span>);  <span class="comment">//年 </span></span><br><span class="line"> *yea=BCD2HEX(temp1); </span><br><span class="line"></span><br><span class="line">  </span><br><span class="line"> temp1=DS3231_read_byte(<span class="number">0xd0</span>,<span class="number">0x05</span>);  <span class="comment">//月 </span></span><br><span class="line"> *mon=BCD2HEX(temp1); </span><br><span class="line"> </span><br><span class="line">  </span><br><span class="line"> temp1=DS3231_read_byte(<span class="number">0xd0</span>,<span class="number">0x04</span>);  <span class="comment">//日 </span></span><br><span class="line"> *da=BCD2HEX(temp1); </span><br><span class="line"> </span><br><span class="line">  </span><br><span class="line"> temp1=DS3231_read_byte(<span class="number">0xd0</span>,<span class="number">0x02</span>);  <span class="comment">//时 24小时制 </span></span><br><span class="line"> temp1&amp;=<span class="number">0x3f</span>;                    </span><br><span class="line"> *hou=BCD2HEX(temp1); </span><br><span class="line"></span><br><span class="line">  </span><br><span class="line"> temp1=DS3231_read_byte(<span class="number">0xd0</span>,<span class="number">0x01</span>);  <span class="comment">//分 </span></span><br><span class="line"> *min=BCD2HEX(temp1); </span><br><span class="line"> </span><br><span class="line">   </span><br><span class="line"> temp1=DS3231_read_byte(<span class="number">0xd0</span>,<span class="number">0x00</span>);  <span class="comment">//秒 </span></span><br><span class="line"> *sec=BCD2HEX(temp1); </span><br><span class="line"> </span><br><span class="line"> DS3231_PowOff();</span><br><span class="line">  </span><br><span class="line">&#125; </span><br></pre></td></tr></table></figure>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/" rel="tag"><i class="fa fa-tag"></i> 嵌入式</a>
+              <a href="/tags/%E9%A9%B1%E5%8A%A8%E5%BC%80%E5%8F%91/" rel="tag"><i class="fa fa-tag"></i> 驱动开发</a>
+              <a href="/tags/MSP430/" rel="tag"><i class="fa fa-tag"></i> MSP430</a>
+              <a href="/tags/C-C/" rel="tag"><i class="fa fa-tag"></i> C/C++</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item"></div>
+      <div class="post-nav-item">
+    <a href="/2020/06/15/hello-world/" rel="next" title="Hello World">
+      Hello World <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">1. 简介</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E5%BC%95%E8%84%9A"><span class="nav-number">2.</span> <span class="nav-text">2. 引脚</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E5%AF%84%E5%AD%98%E5%99%A8"><span class="nav-number">3.</span> <span class="nav-text">3. 寄存器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-%E7%A8%8B%E5%BA%8F"><span class="nav-number">4.</span> <span class="nav-text">4. 程序</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Dzy"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">Dzy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">17</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">23</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/dzy404" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;dzy404" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:dzhiyuan529@gmail.com" title="E-Mail → mailto:dzhiyuan529@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i></a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Dzy</span>
+</div>
+
+<!--
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+-->
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
