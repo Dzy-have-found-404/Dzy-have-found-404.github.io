@@ -3,7 +3,10 @@
   <entry>
     <title>DS18B20外设驱动</title>
     <url>/2020/12/30/DS18b20/</url>
-    <content><![CDATA[<a id="more"></a>
+    <content><![CDATA[<blockquote>
+<p>应用最广泛的测温传感器</p>
+</blockquote>
+<a id="more"></a>
 
 <h3 id="1-简介"><a href="#1-简介" class="headerlink" title="1. 简介"></a>1. 简介</h3><p>DS18B20通过1-Wire总线进行通信，根据定义，该总线仅需要一条数据线(和地线)即可与中央微处理器进行通信。它的工作温度范围为 -55°C 至 +125°C，在–10°C 至 +85°C 的范围内精确至 0.5°C。 此外，DS18B20可以直接从数据线获取电源（“寄生电源”），而无需外部电源。</p>
 <p>每个DS18B20都有一个唯一的64位串行代码，它允许多个DS18B20在同一条1线总线上工作。 因此，使用一个微处理器控制分布在大面积上的许多DS18B20就很简单，DS18B20也由此成为温控系统中最常用的传感器。</p>
@@ -212,8 +215,12 @@
   </entry>
   <entry>
     <title>DS3231外设驱动</title>
-    <url>/2020/01/07/DS3231/</url>
-    <content><![CDATA[<a id="more"></a>
+    <url>/2021/01/07/DS3231/</url>
+    <content><![CDATA[<blockquote>
+<p>软件：IAR<br>硬件：MSP4305419A，DS3231</p>
+</blockquote>
+<p>学习外围时钟模块DS3231并编写驱动.</p>
+<a id="more"></a>
 
 <h3 id="1-简介"><a href="#1-简介" class="headerlink" title="1. 简介"></a>1. 简介</h3><ul>
 <li>DS3231，高精度I2C实时时钟器件；</li>
@@ -378,7 +385,10 @@
   <entry>
     <title>MSP430 单片机(一)——概述</title>
     <url>/2020/11/01/MSP430%20%E5%8D%95%E7%89%87%E6%9C%BA%E5%85%A5%E9%97%A8(%E4%B8%80)%E2%80%94%E2%80%94%E6%A6%82%E8%BF%B0/</url>
-    <content><![CDATA[<a id="more"></a>
+    <content><![CDATA[<blockquote>
+<p>简要介绍一下MSP430单片机的特点和应用</p>
+</blockquote>
+<a id="more"></a>
 
 <h3 id="MSP430系列单片机的特点"><a href="#MSP430系列单片机的特点" class="headerlink" title="MSP430系列单片机的特点"></a>MSP430系列单片机的特点</h3><ul>
 <li><p><strong>超低功耗</strong></p>
@@ -426,7 +436,9 @@
 </ul>
 <p><strong>简单的控制：</strong></p>
 <ul>
-<li>接口功能</li>
+<li>丰富接口功能</li>
+<li>片选功能</li>
+<li>相当通俗易上手的库文件</li>
 </ul>
 ]]></content>
       <categories>
@@ -441,7 +453,10 @@
   <entry>
     <title>MSP430单片机(二)——开发环境IAR</title>
     <url>/2020/11/08/MSP430%E5%8D%95%E7%89%87%E6%9C%BA%E5%85%A5%E9%97%A8(%E4%BA%8C)%E2%80%94%E2%80%94%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83IAR/</url>
-    <content><![CDATA[<a id="more"></a>
+    <content><![CDATA[<blockquote>
+<p>初步接触IAR的开发环境.</p>
+</blockquote>
+<a id="more"></a>
 
 <h3 id="编程优化"><a href="#编程优化" class="headerlink" title="编程优化"></a>编程优化</h3><p>右击Project，选中【C/C++ Compiler】，【Optimizations】，【Level】，根据需求选择速度优先和大小优先，选择不同的等级【None】、【Low】、【Medium】、【High】</p>
 <hr>
@@ -495,6 +510,7 @@
         <tag>嵌入式</tag>
         <tag>MSP430</tag>
         <tag>IAR</tag>
+        <tag>编译软件</tag>
       </tags>
   </entry>
   <entry>
@@ -521,7 +537,7 @@
   </entry>
   <entry>
     <title>VMware-pro15安装CentOS</title>
-    <url>/2021/10/19/VMware-pro15%E5%AE%89%E8%A3%85CentOS/</url>
+    <url>/2020/10/19/VMware-pro15%E5%AE%89%E8%A3%85CentOS/</url>
     <content><![CDATA[<blockquote>
 <p>使用VMware-pro15安装CentOS-7.x</p>
 </blockquote>
@@ -1257,9 +1273,9 @@
         <category>通信</category>
       </categories>
       <tags>
+        <tag>嵌入式</tag>
         <tag>Linux</tag>
         <tag>通信</tag>
-        <tag>嵌入式开发</tag>
       </tags>
   </entry>
   <entry>
@@ -1592,6 +1608,7 @@
     <content><![CDATA[<blockquote>
 <p>开发工具： Keil 5<br>开发芯片：   STM32F103RCT6<br>文档编写工具： Markdown</p>
 </blockquote>
+<p>因为只有一个JTAG的下载器，所以在调试程序的时候想用IAP实现远程修改/升级程序.</p>
 <a id="more"></a>
 
 <h4 id="1-IAP的基础知识"><a href="#1-IAP的基础知识" class="headerlink" title="1    IAP的基础知识"></a>1    IAP的基础知识</h4><h5 id="1-1-STM32的编程方式"><a href="#1-1-STM32的编程方式" class="headerlink" title="1.1 STM32的编程方式"></a>1.1 STM32的编程方式</h5><ul>
@@ -1758,11 +1775,12 @@ ADC1_2_IRQn = 18, /*!&lt; ADC1 and ADC2 global Interrupt */
       </tags>
   </entry>
   <entry>
-    <title>墨水屏入门功能开发(一)</title>
+    <title>墨水屏入门功能开发(一)——驱动编写</title>
     <url>/2020/09/06/%E5%A2%A8%E6%B0%B4%E5%B1%8F%E5%85%A5%E9%97%A8%E5%8A%9F%E8%83%BD%E5%BC%80%E5%8F%91(%E4%B8%80)/</url>
-    <content><![CDATA[<h2 id="墨水屏入门功能开发-一"><a href="#墨水屏入门功能开发-一" class="headerlink" title="墨水屏入门功能开发(一)"></a>墨水屏入门功能开发(一)</h2><blockquote>
+    <content><![CDATA[<blockquote>
 <p>开发工具： Keil 5<br>开发芯片： STM32F1X<br>墨水屏型号：GooDisplay 2.7寸四阶灰度墨水屏(GDEW027W3)<br>文档编写工具： Markdown</p>
 </blockquote>
+<p>墨水屏入门功能开发，理解局刷、全刷和墨水屏LUT.</p>
 <a id="more"></a>
 
 <h3 id="1-墨水屏简介"><a href="#1-墨水屏简介" class="headerlink" title="1 墨水屏简介"></a>1 墨水屏简介</h3><h5 id="1-1-墨水屏特性"><a href="#1-1-墨水屏特性" class="headerlink" title="1.1 墨水屏特性"></a>1.1 墨水屏特性</h5><p><img src="/upload_image/%E5%8E%9F%E7%90%86.png" alt="原理"><br>        墨水屏下包含这很多黑白粒子，黑白例子都是带不同电荷的色素颗粒，初始状态下色素颗粒会在一个单位中漂浮(floating)；当施加过一定方向的电场后，相应的色素颗粒会被推到顶端，使得一个单位呈现相应的颜色，大量的显示单位通过这种显色方式同时工作组成了不同的图案和文字。</p>
@@ -2347,6 +2365,214 @@ ADC1_2_IRQn = 18, /*!&lt; ADC1 and ADC2 global Interrupt */
         <tag>Linux</tag>
         <tag>Github</tag>
         <tag>Hexo</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>树莓派平台自建博客(三)—— Hexo主题的优化</title>
+    <url>/2021/01/15/%E8%87%AA%E5%BB%BA%E5%8D%9A%E5%AE%A2(%E4%B8%89)%E2%80%94%E2%80%94-Hexo%E4%B8%BB%E9%A2%98%E7%9A%84%E4%BC%98%E5%8C%96/</url>
+    <content><![CDATA[<h2 id="0-前言"><a href="#0-前言" class="headerlink" title="0. 前言"></a>0. 前言</h2><p>先放上我的博客地址： <a href="dzyblog.site">Dzy404’s Blog</a></p>
+<p>基本以性冷淡风格为主；博客内容以技术记录和随笔为主，当然还少不了最后的功德箱（逃</p>
+<a id="more"></a>
+
+<p><strong>使用的工具：</strong></p>
+<p>​    软件：Git，Github Pages，Filezilla，Putty</p>
+<p>​    硬件：树莓派3B+，3.5寸树莓派触摸屏</p>
+<p><strong>前文：</strong></p>
+<p>​    树莓派的配置见 <a href="https://dzyblog.site/2021/01/11/%E8%87%AA%E5%BB%BA%E5%8D%9A%E5%AE%A2(%E4%B8%80)%E2%80%94%E2%80%94%E6%90%AD%E5%BB%BA%E6%A0%91%E8%8E%93%E6%B4%BE%E6%89%98%E7%AE%A1%E5%B9%B3%E5%8F%B0/">链接</a></p>
+<p>​    博客创建和上传见 链接</p>
+<p><strong>约束：</strong></p>
+<p>在 Hexo 中有<strong>两份</strong>主要的配置文件，其名称都是 <code>_config.yml</code> 。 其中，一份位于站点根目录下，主要包含 Hexo 本身的站点配置；</p>
+<p>另一份位于主<strong>题目录下</strong>，这份配置由主题作者提供，主要用于配置主题相关的选项。</p>
+<p>为了描述方便，在以下说明中，将前者称为 <strong><code>站点配置文件</code>**， 后者称为 **<code>主题配置文件</code></strong>;</p>
+<p>称呼灵感来自 <a href="https://theme-next.iissnan.com/getting-started.html">Next文档</a> 。</p>
+<h2 id="1-主题下载"><a href="#1-主题下载" class="headerlink" title="1. 主题下载"></a>1. 主题下载</h2><p>Hexo 安装主题的方式非常简单，只需要将主题文件拷贝至站点目录的 <code>themes</code> 目录下， 然后修改下配置文件即可。具体到 NexT 来说，安装步骤如下:</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">cd blog</span><br><span class="line">git clone https://github.com/iissnan/hexo-theme-next themes/next</span><br></pre></td></tr></table></figure>
+<p>在这个过程中你有很大概率会下载中断，如果出现下载中断的情况可以参考以下两种方法解决：</p>
+<p><strong>方法一</strong></p>
+<p>将上述命令行中的 <code>https://</code> 换成 <code>git://</code> ；</p>
+<p><strong>方法二</strong></p>
+<p>在电脑上下载 next的主题压缩包，然后通过 Filezilla 传到对应的目录下：</p>
+<img src="C:\Users\丁志远\AppData\Roaming\Typora\typora-user-images\image-20210115151027016.png" alt="image-20210115151027016" style="zoom: 33%;" />
+
+<p>如果遇到没有权限 <code>无权访问。错误码：3服务器返回的错误消息：Permission denied</code> 的报错信息，请参考 这里 。</p>
+<p>主题下载完毕后进入配置环节。</p>
+<h2 id="2-站点配置"><a href="#2-站点配置" class="headerlink" title="2. 站点配置"></a>2. 站点配置</h2><p>站点配置内容是在站点根目录(我的是 <code>/blog</code> )下进行的配置修改，约定站点配置文件为 <code>/blog/_config.yml</code> ，以下简称站点配置文件.</p>
+<h3 id="2-1-基本信息"><a href="#2-1-基本信息" class="headerlink" title="2.1 基本信息"></a>2.1 基本信息</h3><p>打开站点配置文件，在开头找到如下代码：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">Site</span></span><br><span class="line">title: #Blog主页标题</span><br><span class="line">subtitle: &#x27;&#x27;#副标题  (可以加点中二的东西</span><br><span class="line">description: &#x27;&#x27;#描述（可以加点更中二的东西...</span><br><span class="line">keywords: #关键词</span><br><span class="line">author: #作者昵称</span><br><span class="line">language: #语言</span><br><span class="line">timezone: &#x27;&#x27;#时区</span><br></pre></td></tr></table></figure>
+<p>出了个性化的内容自选以外，通用修改为</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">language: zh-CN</span><br></pre></td></tr></table></figure>
+<p>注意修改时一定要在冒号之后加一个空格！</p>
+<h3 id="2-2-更改主题"><a href="#2-2-更改主题" class="headerlink" title="2.2 更改主题"></a>2.2 更改主题</h3><p>下载完主题之后，需要在站点配置文件里面设置好确认的主题，打开站点文件搜索：<code>Extensions</code> </p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> Extensions</span></span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment"># Plugins: https://hexo.io/plugins/</span></span></span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment"># Themes: https://hexo.io/themes/</span></span></span><br><span class="line">theme: next</span><br></pre></td></tr></table></figure>
+<p>将 theme后面的修改为自选的主题名字，并确保 <code>/blog/themes</code> 目录下有对应的 <code>/主题</code>文件目录。</p>
+<h3 id="2-3-生成网站"><a href="#2-3-生成网站" class="headerlink" title="2.3 生成网站"></a>2.3 生成网站</h3><p>因为主题的美化涉及到很多有关前端的操作，对于前端不熟悉的人(比如我)最好是在做出每一步修改之后就进行生成和本地预览的操作，以免一次性更改太多难以debug.</p>
+<p>当然最简单的还是拿大佬的blog来fork一套（逃</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo hexo g</span><br><span class="line">sudo hexo s</span><br></pre></td></tr></table></figure>
+<p>打开浏览器输入：<code>localhost:4000</code> 即可本地预览。</p>
+<h2 id="3-主题配置"><a href="#3-主题配置" class="headerlink" title="3. 主题配置"></a>3. 主题配置</h2><h3 id="3-1-子主题选择"><a href="#3-1-子主题选择" class="headerlink" title="3.1 子主题选择"></a>3.1 子主题选择</h3><p>目前NexT这个大主题下还套娃了四个小主题：</p>
+<ul>
+<li>Muse - 默认 Scheme，这是 NexT 最初的版本，黑白主调，大量留白</li>
+<li>Mist - Muse 的紧凑版本，整洁有序的单栏外观</li>
+<li>Pisces - 双栏 Scheme，小家碧玉似的清新</li>
+<li>Gemini - 留白更少，结构更紧凑的外观</li>
+</ul>
+<p>Scheme 的切换通过更改 <strong>主题配置文件</strong>，搜索 scheme 关键字。 你会看到有三行 scheme 的配置，将你需要启用的 scheme 前面注释 <code>#</code> 去除即可；</p>
+<p>只能选一个,这里我选择的是Gemini</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> ---------------------------------------------------------------</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> Scheme Settings</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> ---------------------------------------------------------------</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> Schemes</span></span><br><span class="line"><span class="meta">#</span><span class="bash">scheme: Muse</span></span><br><span class="line"><span class="meta">#</span><span class="bash">scheme: Mist</span></span><br><span class="line"><span class="meta">#</span><span class="bash">scheme: Pisces</span></span><br><span class="line">scheme: Gemini</span><br></pre></td></tr></table></figure>
+<h3 id="3-2-设置菜单"><a href="#3-2-设置菜单" class="headerlink" title="3.2 设置菜单"></a>3.2 设置菜单</h3><p>打开主题配置文件，搜索 <code>menu</code>。菜单内容的设置格式是：<code>item name: link</code>。其中 <code>item name </code>是一个名称，这个名称并不直接显示在页面上，她将用于匹配图标以及翻译。</p>
+<p>NexT默认的菜单项如下(标 <code>!</code> 的表示需要手动创建这个页面)</p>
+<table>
+<thead>
+<tr>
+<th align="left">键值</th>
+<th align="left">设定值</th>
+<th align="left">显示文本（简体中文）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">home</td>
+<td align="left"><code>home: /</code></td>
+<td align="left">主页</td>
+</tr>
+<tr>
+<td align="left">archives</td>
+<td align="left"><code>archives: /archives</code></td>
+<td align="left">归档页</td>
+</tr>
+<tr>
+<td align="left">categories</td>
+<td align="left"><code>categories: /categories</code></td>
+<td align="left">分类页 ！</td>
+</tr>
+<tr>
+<td align="left">tags</td>
+<td align="left"><code>tags: /tags</code></td>
+<td align="left">标签页！</td>
+</tr>
+<tr>
+<td align="left">about</td>
+<td align="left"><code>about: /about</code></td>
+<td align="left">关于页面！</td>
+</tr>
+<tr>
+<td align="left">commonweal</td>
+<td align="left"><code>commonweal: /404.html</code></td>
+<td align="left">公益 404！</td>
+</tr>
+</tbody></table>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">menu:</span><br><span class="line">  home: / || fa fa-home</span><br><span class="line"><span class="meta">  #</span><span class="bash">about: /about/ || fa fa-user</span></span><br><span class="line">  tags: /tags/ || fa fa-tags</span><br><span class="line">  categories: /categories/ || fa fa-th</span><br><span class="line">  archives: /archives/ || fa fa-archive</span><br><span class="line"><span class="meta">  #</span><span class="bash">schedule: /schedule/ || fa fa-calendar</span></span><br><span class="line"><span class="meta">  #</span><span class="bash">sitemap: /sitemap.xml || fa fa-sitemap</span></span><br><span class="line"><span class="meta">  #</span><span class="bash">commonweal: /404/ || fa fa-heartbeat</span></span><br></pre></td></tr></table></figure>
+<p>根据自己的需要将前面的注释#删掉。</p>
+<h3 id="3-3-设置侧栏"><a href="#3-3-设置侧栏" class="headerlink" title="3.3 设置侧栏"></a>3.3 设置侧栏</h3><p>默认情况下，侧栏仅在文章页面（拥有目录列表）时才显示，并放置于右侧位置。 可以通过修改 <strong>主题配置文件</strong> 中的 <code>sidebar</code> 字段来控制侧栏的行为。侧栏的设置包括两个部分，其一是侧栏的位置， 其二是侧栏显示的时机。</p>
+<ul>
+<li><p>设置侧栏的位置，修改<code>sidebar.position</code> 的值：</p>
+<ul>
+<li><p>left - 靠左放置</p>
+</li>
+<li><p>right - 靠右放置</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">sidebar:</span><br><span class="line">  # Sidebar Position.</span><br><span class="line">  #position: left</span><br><span class="line">  position: right</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li><p>设置侧栏显示的时机，修改 <code>sidebar.display</code> 的值：</p>
+<ul>
+<li><p><code>post</code> - 默认行为，在文章页面（拥有目录列表）时显示</p>
+</li>
+<li><p><code>always</code> - 在所有页面中都显示</p>
+</li>
+<li><p><code>hide</code> - 在所有页面中都隐藏（可以手动展开）</p>
+</li>
+<li><p><code>remove</code> - 完全移除</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">sidebar:</span><br><span class="line">  display: post</span><br></pre></td></tr></table></figure>
+<h3 id="3-4-设置头像和网站icon"><a href="#3-4-设置头像和网站icon" class="headerlink" title="3.4 设置头像和网站icon"></a>3.4 设置头像和网站icon</h3></li>
+</ul>
+</li>
+</ul>
+<p>配置主题文件，搜索 <code>avatar</code> ，将值设置成头像的链接地址。链接地址格式：</p>
+<table>
+<thead>
+<tr>
+<th align="center">地址</th>
+<th align="left">值</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">互联网 URI</td>
+<td align="left"><code>http://example.com/avatar.png</code></td>
+</tr>
+<tr>
+<td align="center">本地目录</td>
+<td align="left">将头像放置主题目录下的 <code>source/uploads/</code> （若不存在新建 uploads 目录）配置为：<code>avatar: /uploads/avatar.png</code><br />或者 放置在 <code>source/images/</code> 目录下 配置为：<code>avatar: /images/avatar.png</code></td>
+</tr>
+</tbody></table>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"># Sidebar Avatar</span><br><span class="line">avatar: </span><br><span class="line">  # Replace the default image and set the url here.</span><br><span class="line">  url: <span class="regexp">/images/</span>avatar.png</span><br><span class="line">  # If true, the avatar will be dispalyed in circle.		#旋转头像</span><br><span class="line">  rounded: <span class="literal">false</span></span><br><span class="line">  # If true, the avatar will be rotated with the cursor.	#鼠标过头像旋转</span><br><span class="line">  rotated: <span class="literal">true</span></span><br></pre></td></tr></table></figure>
+<p>接着就是配置网站icon，所谓的icon就是浏览器中网页标签前的小图标，NexT 默认配的是黑底白字的N字，我们可以换成自己独特的标签</p>
+<p>这里推荐几款我觉得很不错的icon制作网站：<a href="https://brandmark.io/">基于AI的关键词生成icon：BRAND NAME</a> ，<a href="http://www.ico51.cn/">在线生成透明ICO图标</a> ，<a href="https://www.dute.org/ico-converter">ico 图标制作</a> </p>
+<p>制作一张（32 * 32）的 ico 图标，将图标名称改为 <code>favicon.ico</code> ，然后把图标放在 <code>/themes/next/source/images</code> 里，并且修改主题配置文件：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">Put your favicon.ico into `hexo-site/source/` directory.</span><br><span class="line">favicon: /favicon.ico</span><br></pre></td></tr></table></figure>
+<p>预览效果：</p>
+<p><img src="C:\Users\丁志远\AppData\Roaming\Typora\typora-user-images\image-20210116163807796.png" alt="image-20210116163807796"></p>
+<h3 id="3-5-设置标签"><a href="#3-5-设置标签" class="headerlink" title="3.5 设置标签"></a>3.5 设置标签</h3><ol>
+<li><p>将文章底部的 # 标签改为图标</p>
+<p> 修改 <code>/themes/next/layout/_macro/post.swig</code> ，搜索 <code>rel=&quot;tag&quot;</code> ，将全段修改为如下：</p>
+</li>
+</ol>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">&lt;footer <span class="class"><span class="keyword">class</span></span>=<span class="string">&quot;post-footer&quot;</span>&gt;</span><br><span class="line">  &#123;%- <span class="keyword">if</span> post.tags and post.tags.length %&#125;</span><br><span class="line">    &#123;%- <span class="keyword">if</span> theme.tag_icon %&#125;</span><br><span class="line">      &#123;%- set tag_indicate = <span class="string">&#x27;&lt;i class=&quot;fa fa-tag&quot;&gt;&lt;/i&gt;&#x27;</span> %&#125;</span><br><span class="line">    &#123;% <span class="keyword">else</span> %&#125;</span><br><span class="line">      &#123;%- set tag_indicate = <span class="string">&#x27;&lt;i class=&quot;fa fa-tag&quot;&gt;&lt;/i&gt;&#x27;</span> %&#125;</span><br><span class="line">    &#123;%- endif %&#125;</span><br><span class="line">    &lt;div <span class="class"><span class="keyword">class</span></span>=<span class="string">&quot;post-tags&quot;</span>&gt;</span><br><span class="line">      &#123;%- <span class="keyword">for</span> tag <span class="keyword">in</span> post.tags.toArray() %&#125;</span><br><span class="line">        &lt;a href=<span class="string">&quot;&#123;&#123; url_for(tag.path) &#125;&#125;&quot;</span> rel=<span class="string">&quot;tag&quot;</span>&gt;&#123;&#123; tag_indicate &#125;&#125; &#123;&#123; tag.name &#125;&#125;&lt;/a&gt;</span><br><span class="line">      &#123;%- endfor %&#125;</span><br><span class="line">    &lt;/div&gt;</span><br><span class="line">  &#123;%- endif %&#125;</span><br></pre></td></tr></table></figure>
+<ol start="2">
+<li>修改标签云</li>
+</ol>
+<p>在<code>/themes/next/layout/</code>目录下，新增<code>tag-color.swig</code>文件，加入下方代码：</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">&lt;script type=<span class="string">&quot;text/javascript&quot;</span>&gt;</span><br><span class="line">     <span class="keyword">var</span> alltags = <span class="built_in">document</span>.getElementsByClassName(<span class="string">&#x27;tag-cloud-tags&#x27;</span>);</span><br><span class="line">     <span class="keyword">var</span> tags = alltags[<span class="number">0</span>].getElementsByTagName(<span class="string">&#x27;a&#x27;</span>);</span><br><span class="line">     <span class="keyword">for</span> (<span class="keyword">var</span> i = tags.length - <span class="number">1</span>; i &gt;= <span class="number">0</span>; i--) &#123;</span><br><span class="line">       <span class="keyword">var</span> r=<span class="built_in">Math</span>.floor(<span class="built_in">Math</span>.random()*<span class="number">75</span>+<span class="number">130</span>);</span><br><span class="line">       <span class="keyword">var</span> g=<span class="built_in">Math</span>.floor(<span class="built_in">Math</span>.random()*<span class="number">75</span>+<span class="number">100</span>);</span><br><span class="line">       <span class="keyword">var</span> b=<span class="built_in">Math</span>.floor(<span class="built_in">Math</span>.random()*<span class="number">75</span>+<span class="number">80</span>);</span><br><span class="line">       tags[i].style.background = <span class="string">&quot;rgb(&quot;</span>+r+<span class="string">&quot;,&quot;</span>+g+<span class="string">&quot;,&quot;</span>+b+<span class="string">&quot;)&quot;</span>;</span><br><span class="line">     &#125;</span><br><span class="line">&lt;/script&gt;</span><br><span class="line"></span><br><span class="line">&lt;style&gt;</span><br><span class="line">  .tag-cloud-tags&#123;</span><br><span class="line">    <span class="comment">/*font-family: Helvetica, Tahoma, Arial;*/</span></span><br><span class="line">    <span class="comment">/*font-weight: 100;*/</span></span><br><span class="line">    text-align: center;</span><br><span class="line">    counter-reset: tags;</span><br><span class="line">  &#125;</span><br><span class="line">  .tag-cloud-tags a&#123;</span><br><span class="line">    border-radius: 6px;</span><br><span class="line">    padding-right: 5px;</span><br><span class="line">    padding-left: 5px;</span><br><span class="line">    margin: 8px 5px 0px 0px;</span><br><span class="line">  &#125;</span><br><span class="line">  .tag-cloud-tags a:before&#123;</span><br><span class="line">    content: <span class="string">&quot;  &quot;</span>;        <span class="comment">/*空格为标签的图*/</span></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  .tag-cloud-tags a:hover&#123;</span><br><span class="line">     box-shadow: 0px 5px 15px 0px rgba(<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">.4</span>);</span><br><span class="line">     transform: scale(<span class="number">1.1</span>);</span><br><span class="line">     <span class="comment">/*box-shadow: 10px 10px 15px 2px rgba(0,0,0,.12), 0 0 6px 0 rgba(104, 104, 105, 0.1);*/</span></span><br><span class="line">     transition-duration: <span class="number">0.</span>15s;</span><br><span class="line">  &#125;</span><br><span class="line">&lt;/style&gt;</span><br></pre></td></tr></table></figure>
+<p>接着修改 <code>/themes/next/layout/page.swig</code> 文件，找到page block部分，修改如下：</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">  &#123;#################&#125;</span><br><span class="line">   &#123;### PAGE BODY ###&#125;</span><br><span class="line">   &#123;#################&#125;</span><br><span class="line">   &lt;div <span class="class"><span class="keyword">class</span></span>=<span class="string">&quot;post-body&#123;%- if page.direction and page.direction.toLowerCase() === &#x27;rtl&#x27; %&#125; rtl&#123;%- endif %&#125;&quot;</span>&gt;</span><br><span class="line">     &#123;%- <span class="keyword">if</span> page.type === <span class="string">&#x27;tags&#x27;</span> %&#125;</span><br><span class="line">       &lt;div <span class="class"><span class="keyword">class</span></span>=<span class="string">&quot;tag-cloud&quot;</span>&gt;</span><br><span class="line">&lt;!--    <span class="xml"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;tag-cloud-title&quot;</span>&gt;</span></span></span><br><span class="line"><span class="xml">           &#123;&#123; _p(&#x27;counter.tag_cloud&#x27;, site.tags.length) &#125;&#125;</span></span><br><span class="line"><span class="xml">         <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span>	--&gt;</span><br><span class="line">         &lt;div <span class="class"><span class="keyword">class</span></span>=<span class="string">&quot;tag-cloud-tags&quot;</span>&gt;</span><br><span class="line">           &#123;&#123; tagcloud(&#123;</span><br><span class="line">             min_font   : theme.tagcloud.min,</span><br><span class="line">             max_font   : theme.tagcloud.max,</span><br><span class="line">             amount     : theme.tagcloud.amount,</span><br><span class="line">             color      : <span class="literal">true</span>,</span><br><span class="line">             start_color: <span class="string">&#x27;#FFF&#x27;</span>,</span><br><span class="line">             end_color  : <span class="string">&#x27;#FFF&#x27;</span>&#125;)</span><br><span class="line">           &#125;&#125;</span><br><span class="line">         &lt;/div&gt;</span><br><span class="line">       &lt;/div&gt;</span><br><span class="line">     &#123;% include <span class="string">&#x27;tag-color.swig&#x27;</span> %&#125;</span><br></pre></td></tr></table></figure>
+<p>接着将标签云添加到首页，修改 <code>/themes/next/layout/index.swig</code> 修改 <code>&#123;% block content %&#125;</code> 部分：</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">&#123;% block content %&#125;</span><br><span class="line"></span><br><span class="line">	&lt;div <span class="class"><span class="keyword">class</span></span>=<span class="string">&quot;tag-cloud&quot;</span>&gt;</span><br><span class="line">	  &lt;div <span class="class"><span class="keyword">class</span></span>=<span class="string">&quot;tag-cloud-tags&quot;</span> id=<span class="string">&quot;tags&quot;</span>&gt;</span><br><span class="line">		&#123;&#123; tagcloud(&#123;<span class="attr">min_font</span>: <span class="number">16</span>, <span class="attr">max_font</span>: <span class="number">16</span>, <span class="attr">amount</span>: <span class="number">300</span>, <span class="attr">color</span>: <span class="literal">true</span>, <span class="attr">start_color</span>: <span class="string">&#x27;#fff&#x27;</span>, <span class="attr">end_color</span>: <span class="string">&#x27;#fff&#x27;</span>&#125;) &#125;&#125;</span><br><span class="line">	  &lt;/div&gt;</span><br><span class="line">	&lt;/div&gt;</span><br><span class="line">	&lt;br&gt;</span><br><span class="line">	</span><br><span class="line">	&#123;% include <span class="string">&#x27;tag-color.swig&#x27;</span> %&#125;</span><br></pre></td></tr></table></figure>
+
+
+<h3 id="3-6-添加页面"><a href="#3-6-添加页面" class="headerlink" title="3.6 添加页面"></a>3.6 添加页面</h3><ol>
+<li><p>新建标签页面</p>
+<p> 新建 [标签] 页面</p>
+<p> 进入站点目录。使用 <code>hexo new page</code> 新建一个页面，命名为 <code>tags</code> ，命名的名称需要与 <code>主题配置文件</code> 中 menu 一致 </p>
+ <figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">cd blog</span><br><span class="line">sudo hexo new page tags</span><br></pre></td></tr></table></figure>
+<p> 编辑页面，将页面类型设置为 tags</p>
+ <figure class="highlight markdown"><table><tr><td class="code"><pre><span class="line">title: 标签</span><br><span class="line">date: 2014-12-22 12:39:04</span><br><span class="line">type: &quot;tags&quot;</span><br><span class="line">---</span><br></pre></td></tr></table></figure>
+<p> 新建分类页面步骤与上述相同，将其中的 tags 替换成 categories </p>
+</li>
+<li><p>页面美化</p>
+<p> 修改 <code>/themes/next/layout/_macro/post-collapse.swig</code> 的代码如下：</p>
+ <figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">&#123;% macro render(post) %&#125;</span><br><span class="line"></span><br><span class="line">  &lt;article <span class="class"><span class="keyword">class</span></span>=<span class="string">&quot;post post-type-&#123;&#123; post.type | default(&#x27;normal&#x27;) &#125;&#125;&quot;</span> itemscope itemtype=<span class="string">&quot;http://schema.org/Article&quot;</span>&gt;</span><br><span class="line">    &lt;header <span class="class"><span class="keyword">class</span></span>=<span class="string">&quot;post-header&quot;</span>&gt;</span><br><span class="line"></span><br><span class="line">      &lt;&#123;% <span class="keyword">if</span> theme.seo %&#125;h3&#123;% <span class="keyword">else</span> %&#125;h2&#123;% endif %&#125; <span class="class"><span class="keyword">class</span></span>=<span class="string">&quot;post-title&quot;</span>&gt;</span><br><span class="line">        &#123;% if post.link %&#125;&#123;# Link posts #&#125;</span><br><span class="line">          &lt;a <span class="class"><span class="keyword">class</span></span>=<span class="string">&quot;post-title-link post-title-link-external&quot;</span> target=<span class="string">&quot;_blank&quot;</span> href=<span class="string">&quot;&#123;&#123; url_for(post.link) &#125;&#125;&quot;</span> itemprop=<span class="string">&quot;url&quot;</span>&gt;</span><br><span class="line">            &#123;&#123; post.title or post.link &#125;&#125;</span><br><span class="line">            &lt;i <span class="class"><span class="keyword">class</span></span>=<span class="string">&quot;fa fa-external-link&quot;</span>&gt;&lt;/i&gt;</span><br><span class="line">          &lt;/a&gt;</span><br><span class="line">        &#123;% <span class="keyword">else</span> %&#125;</span><br><span class="line">            &lt;a <span class="class"><span class="keyword">class</span></span>=<span class="string">&quot;post-title-link&quot;</span> href=<span class="string">&quot;&#123;&#123; url_for(post.path) &#125;&#125;&quot;</span> itemprop=<span class="string">&quot;url&quot;</span>&gt;</span><br><span class="line">              &#123;% <span class="keyword">if</span> post.type === <span class="string">&#x27;picture&#x27;</span> %&#125;</span><br><span class="line">                &#123;&#123; post.content &#125;&#125;</span><br><span class="line">              &#123;% <span class="keyword">else</span> %&#125;</span><br><span class="line">                &lt;span itemprop=<span class="string">&quot;name&quot;</span>&gt;&#123;&#123; post.title | <span class="keyword">default</span>(__(<span class="string">&#x27;post.untitled&#x27;</span>)) &#125;&#125;&lt;/span&gt;</span><br><span class="line">              &#123;% endif %&#125;</span><br><span class="line">            &lt;/a&gt;</span><br><span class="line">        &#123;% endif %&#125;</span><br><span class="line">      &lt;/&#123;% <span class="keyword">if</span> theme.seo %&#125;h3&#123;% <span class="keyword">else</span> %&#125;h2&#123;% endif %&#125;&gt;</span><br><span class="line"></span><br><span class="line">      &lt;div <span class="class"><span class="keyword">class</span></span>=<span class="string">&quot;post-meta&quot;</span>&gt;</span><br><span class="line">        &lt;time <span class="class"><span class="keyword">class</span></span>=<span class="string">&quot;post-time&quot;</span> itemprop=<span class="string">&quot;dateCreated&quot;</span></span><br><span class="line">              datetime=<span class="string">&quot;&#123;&#123; moment(post.date).format() &#125;&#125;&quot;</span></span><br><span class="line">              content=<span class="string">&quot;&#123;&#123; date(post.date, config.date_format) &#125;&#125;&quot;</span> &gt;</span><br><span class="line">          &#123;&#123; date(post.date, <span class="string">&#x27;MM-DD&#x27;</span>) &#125;&#125;</span><br><span class="line">        &lt;/time&gt;</span><br><span class="line">      &lt;/div&gt;</span><br><span class="line"></span><br><span class="line">    &lt;/header&gt;</span><br><span class="line">  &lt;/article&gt;</span><br><span class="line"></span><br><span class="line">&#123;% endmacro %&#125;</span><br></pre></td></tr></table></figure>
+
+
+</li>
+</ol>
+<h3 id="3-7-设置代码高亮"><a href="#3-7-设置代码高亮" class="headerlink" title="3.7 设置代码高亮"></a>3.7 设置代码高亮</h3><p>修改 <code>主题配置文件</code> ，搜索 [Night] ，找到 <code>highlight_theme</code> ，NexT 提供了五种主题（实际上有七种），分别是 <code>normal</code>  <code>night</code>  <code>night eighties</code>  <code>night blue</code>  <code>night bright</code>  <code>solarized</code>  <code>solarized dark</code>  <code>galactic</code> </p>
+<figure class="highlight"><table><tr><td class="code"><pre><span class="line">highlight_theme: normal  #填入上述一种</span><br></pre></td></tr></table></figure>
+<h3 id="3-8-添加社交链接"><a href="#3-8-添加社交链接" class="headerlink" title="3.8 添加社交链接"></a>3.8 添加社交链接</h3><p> 侧栏社交链接的修改包含两个部分，第一是链接，第二是链接图标，都在 <code>主题配置文件</code> 中进行修改</p>
+<ol>
+<li><p>链接放置在 <code>social</code> 字段下，一行一个链接。其键值格式是 <code>显示文本: 链接地址</code>。</p>
+<p> 配置示例</p>
+ <figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> Social links</span></span><br><span class="line">social:</span><br><span class="line">  GitHub: https://github.com/your-user-name</span><br><span class="line">  E-Mail: mailto:yourname@gmail.com || fa fa-envelope</span><br><span class="line">  Twitter: https://twitter.com/your-user-name</span><br><span class="line">  Weibo: http://weibo.com/your-user-name</span><br><span class="line">  douban: http://douban.com/people/your-user-name</span><br><span class="line">  zhihu: http://www.zhihu.com/people/your-user-name</span><br><span class="line"><span class="meta">  #</span><span class="bash"> 等等</span></span><br></pre></td></tr></table></figure>
+<p> 微博的 user-name 需要网页登陆微博后，在[设置]的最下方找到私人域名更改，一经生成无法修改.</p>
+</li>
+<li><p>设定链接的图标，对应的字段是 <code>social_icons</code> .其键值格式是 <code>匹配键: Font Awesome 图标名称</code>， <code>匹配键</code> 与上一步所配置的链接的 <code>显示文本</code> 相同（大小写严格匹配），<code>图标名称</code> 是 Font Awesome 图标的名字（不必带 <code>fa-</code> 前缀）。 <code>enable</code> 选项用于控制是否显示图标，你可以设置成 <code>false</code> 来去掉图标。</p>
+ <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">social_icons:</span><br><span class="line">  enable: true</span><br><span class="line">  Github: github</span><br><span class="line">  E-mail: envelope</span><br><span class="line">  #Weibo: weibo</span><br><span class="line">  icons_only: true</span><br><span class="line">  transition: false</span><br></pre></td></tr></table></figure>
+<p> <a href="https://www.thinkcmf.com/font/search/index.html">Font Awesome 图标查询地址</a> </p>
+</li>
+</ol>
+<h2 id="4-文章配置"><a href="#4-文章配置" class="headerlink" title="4. 文章配置"></a>4. 文章配置</h2><h2 id="5-优化"><a href="#5-优化" class="headerlink" title="5. 优化"></a>5. 优化</h2><h3 id="5-1-博文压缩"><a href="#5-1-博文压缩" class="headerlink" title="5.1 博文压缩"></a>5.1 博文压缩</h3><p>在站点的根目录下执行命令：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo npm install gulp -g</span><br><span class="line">sudo npm install gulp-minify-css gulp-uglify gulp-htmlmin gulp-htmlclean gulp --save</span><br></pre></td></tr></table></figure>
+<p>在博客根目录下新建 gulpfile.js ，并填入以下内容：</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> gulp = <span class="built_in">require</span>(<span class="string">&#x27;gulp&#x27;</span>);</span><br><span class="line"><span class="keyword">var</span> minifycss = <span class="built_in">require</span>(<span class="string">&#x27;gulp-minify-css&#x27;</span>);</span><br><span class="line"><span class="keyword">var</span> uglify = <span class="built_in">require</span>(<span class="string">&#x27;gulp-uglify&#x27;</span>);</span><br><span class="line"><span class="keyword">var</span> htmlmin = <span class="built_in">require</span>(<span class="string">&#x27;gulp-htmlmin&#x27;</span>);</span><br><span class="line"><span class="keyword">var</span> htmlclean = <span class="built_in">require</span>(<span class="string">&#x27;gulp-htmlclean&#x27;</span>);</span><br><span class="line"><span class="comment">// 压缩 public 目录 css</span></span><br><span class="line">gulp.task(<span class="string">&#x27;minify-css&#x27;</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> gulp.src(<span class="string">&#x27;./public/**/*.css&#x27;</span>)</span><br><span class="line">        .pipe(minifycss())</span><br><span class="line">        .pipe(gulp.dest(<span class="string">&#x27;./public&#x27;</span>));</span><br><span class="line">&#125;);</span><br><span class="line"><span class="comment">// 压缩 public 目录 html</span></span><br><span class="line">gulp.task(<span class="string">&#x27;minify-html&#x27;</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> gulp.src(<span class="string">&#x27;./public/**/*.html&#x27;</span>)</span><br><span class="line">    .pipe(htmlclean())</span><br><span class="line">    .pipe(htmlmin(&#123;</span><br><span class="line">         removeComments: <span class="literal">true</span>,</span><br><span class="line">         minifyJS: <span class="literal">true</span>,</span><br><span class="line">         minifyCSS: <span class="literal">true</span>,</span><br><span class="line">         minifyURLs: <span class="literal">true</span>,</span><br><span class="line">    &#125;))</span><br><span class="line">    .pipe(gulp.dest(<span class="string">&#x27;./public&#x27;</span>))</span><br><span class="line">&#125;);</span><br><span class="line"><span class="comment">// 压缩 public/js 目录 js</span></span><br><span class="line">gulp.task(<span class="string">&#x27;minify-js&#x27;</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> gulp.src(<span class="string">&#x27;./public/**/*.js&#x27;</span>)</span><br><span class="line">        .pipe(uglify())</span><br><span class="line">        .pipe(gulp.dest(<span class="string">&#x27;./public&#x27;</span>));</span><br><span class="line">&#125;);</span><br><span class="line"><span class="comment">// 执行 gulp 命令时执行的任务</span></span><br><span class="line">gulp.task(<span class="string">&#x27;default&#x27;</span>, [</span><br><span class="line">    <span class="string">&#x27;minify-html&#x27;</span>,<span class="string">&#x27;minify-css&#x27;</span>,<span class="string">&#x27;minify-js&#x27;</span></span><br><span class="line">]);</span><br></pre></td></tr></table></figure>
+<p>生成博文是执行 hexo g &amp;&amp; gulp 就会根据 gulpfile.js 中的配置，对 public 目录中的静态资源文件进行压缩。</p>
+<h2 id="6-参考内容"><a href="#6-参考内容" class="headerlink" title="6. 参考内容"></a>6. 参考内容</h2><h2 id="7-资源"><a href="#7-资源" class="headerlink" title="7. 资源"></a>7. 资源</h2>]]></content>
+      <categories>
+        <category>前端</category>
+        <category>树莓派</category>
+      </categories>
+      <tags>
+        <tag>Linux</tag>
+        <tag>Github</tag>
+        <tag>Hexo</tag>
+        <tag>前端</tag>
+        <tag>Javascript</tag>
       </tags>
   </entry>
 </search>
