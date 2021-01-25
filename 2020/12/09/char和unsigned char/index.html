@@ -28,7 +28,7 @@
 <meta property="og:description" content="char和指针的问题一直是我学了又忘的东西，故写下这篇博客做一个备忘录.">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2020-12-09T18:00:00.000Z">
-<meta property="article:modified_time" content="2021-01-18T03:31:01.000Z">
+<meta property="article:modified_time" content="2021-01-25T12:25:02.000Z">
 <meta property="article:author" content="Dzy">
 <meta property="article:tag" content="C&#x2F;C++">
 <meta property="article:tag" content="编程语法">
@@ -203,7 +203,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-01-18 03:31:01" itemprop="dateModified" datetime="2021-01-18T03:31:01+00:00">2021-01-18</time>
+                <time title="修改时间：2021-01-25 12:25:02" itemprop="dateModified" datetime="2021-01-25T12:25:02+00:00">2021-01-25</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -232,11 +232,11 @@
 <a id="more"></a>
 
 <h3 id="1-char和unsigned-char之间的区别"><a href="#1-char和unsigned-char之间的区别" class="headerlink" title="1.char和unsigned char之间的区别"></a>1.char和unsigned char之间的区别</h3><p>unsigned char 是无符号字节型，char类型变量的大小通常为1个字节(1个字节=8个位)，且属于整型。</p>
-<p><strong>相同点：</strong>在内存中都是一个字节，8位（2^8=256），都能表示256个数字<br><strong>不同点：</strong>char的最高位为符号位，因此char能表示的数据范围是-128<del>127，unsigned char没有符号位，因此能表示的数据范围是0</del>255</p>
+<p><strong>相同点：</strong>在内存中都是一个字节，8位（2^8=256），都能表示256个数字<br><strong>不同点：</strong>char的最高位为符号位，因此char能表示的数据范围是-128 ~ 127，unsigned char没有符号位，因此能表示的数据范围是 0 ~ 255</p>
 <p>但是要把一个char类型的变量赋值给int、long等数据类型或进行类似的强制类型转换时时，系统会进行类型扩展，这时区别就大了。</p>
 <p>对于char类型的变量，系统会认为最高位为符号位，然后对最高位进行扩展，即符号扩展：若最高位为1，则扩展到int时高位都以1填充。对于unsigned char类型的变量，系统会直接进行无符号扩展，即0扩展。扩展的高位都以0填充。</p>
 <p>所以在进行类似的操作时，如果char和unsigned char最高位都是0，则结果是一样的；若char最高位为1，则结果会大相径庭。</p>
-<h3 id="2-unsigned-char-用法"><a href="#2-unsigned-char-用法" class="headerlink" title="2. unsigned char*用法"></a>2. unsigned char*用法</h3><p>char *是字符串，以’/0’为结束符,unsigned char *是普通的指针;</p>
+<h3 id="2-unsigned-char-的用法"><a href="#2-unsigned-char-的用法" class="headerlink" title="2. unsigned char* 的用法"></a>2. unsigned char* 的用法</h3><p>char *是字符串，以’/0’为结束符,unsigned char *是普通的指针;</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">unsigned</span> <span class="keyword">char</span> *p;</span><br><span class="line">p = (<span class="keyword">unsigned</span> <span class="keyword">char</span> *)ZiFuKuTable;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">unsigned</span> <span class="keyword">char</span> *ZiFuKuTable =</span><br><span class="line">&#123;</span><br><span class="line">	<span class="string">&quot;0123456789&quot;</span>\</span><br><span class="line">	<span class="string">&quot;TRHVI%:,mABCDEF.bat-&quot;</span>\</span><br><span class="line">	<span class="string">&quot; &quot;</span>\</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
 <p><code>p = (unsigned char *)ZiFuKuTable;</code>是指将ZiFuKuTable的地址值强制性转换为无符号字节类型；</p>
 <p><code>*p</code>是对该地址进行取值操作。</p>
@@ -259,7 +259,7 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2020/11/18/MSP430%E5%8D%95%E7%89%87%E6%9C%BA%E5%85%A5%E9%97%A8(%E4%B8%89)%E2%80%94%E2%80%94IO%E3%80%81WDT%E5%92%8C%E4%BD%8E%E5%8A%9F%E8%80%97/" rel="prev" title="MSP430单片机(三)——入门和低功耗">
+    <a href="/2020/11/18/MSP430%E5%8D%95%E7%89%87%E6%9C%BA%E5%85%A5%E9%97%A8(3)%E2%80%94%E2%80%94IO%E3%80%81WDT%E5%92%8C%E4%BD%8E%E5%8A%9F%E8%80%97/" rel="prev" title="MSP430单片机(三)——入门和低功耗">
       <i class="fa fa-chevron-left"></i> MSP430单片机(三)——入门和低功耗
     </a></div>
       <div class="post-nav-item">
@@ -324,7 +324,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-char%E5%92%8Cunsigned-char%E4%B9%8B%E9%97%B4%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="nav-number">1.</span> <span class="nav-text">1.char和unsigned char之间的区别</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-unsigned-char-%E7%94%A8%E6%B3%95"><span class="nav-number">2.</span> <span class="nav-text">2. unsigned char*用法</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-char%E5%92%8Cunsigned-char%E4%B9%8B%E9%97%B4%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="nav-number">1.</span> <span class="nav-text">1.char和unsigned char之间的区别</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-unsigned-char-%E7%9A%84%E7%94%A8%E6%B3%95"><span class="nav-number">2.</span> <span class="nav-text">2. unsigned char* 的用法</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -340,7 +340,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">17</span>
+          <span class="site-state-item-count">19</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -353,7 +353,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-count">23</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>

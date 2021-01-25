@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="PMM( Power Management Module )管理与电源有关的所有功能及其对设备的监控。它的主要功能是首先为内核逻辑生成电源电压，其次，为监视和监视施加到设备的电压（DVCC）和为内核生成的电压（VCORE）提供几种机制。本文以翻译数据手册为主，辅助理解；没什么大用，代码为Ti官方提供，直接使用即可">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Dzy404&#39;s Blog">
+<meta property="og:url" content="http://example.com/2021/01/22/MSP430%E5%8D%95%E7%89%87%E6%9C%BA%E5%85%A5%E9%97%A8(4)%E2%80%94%E2%80%94%E7%94%B5%E6%BA%90%E7%AE%A1%E7%90%86PMM/index.html">
+<meta property="og:site_name" content="Dzy404&#39;s Blog">
+<meta property="og:description" content="PMM( Power Management Module )管理与电源有关的所有功能及其对设备的监控。它的主要功能是首先为内核逻辑生成电源电压，其次，为监视和监视施加到设备的电压（DVCC）和为内核生成的电压（VCORE）提供几种机制。本文以翻译数据手册为主，辅助理解；没什么大用，代码为Ti官方提供，直接使用即可">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/upload_image/image-20210122091826335.png">
+<meta property="og:image" content="http://example.com/upload_image/image-20210122113703508.png">
+<meta property="og:image" content="http://example.com/upload_image/image-20210122115155072.png">
+<meta property="article:published_time" content="2021-01-22T19:00:00.000Z">
+<meta property="article:modified_time" content="2021-01-25T13:26:44.000Z">
+<meta property="article:author" content="Dzy">
+<meta property="article:tag" content="嵌入式">
+<meta property="article:tag" content="MSP430">
+<meta property="article:tag" content="C&#x2F;C++">
+<meta property="article:tag" content="IAR">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/upload_image/image-20210122091826335.png">
+
+<link rel="canonical" href="http://example.com/2021/01/22/MSP430%E5%8D%95%E7%89%87%E6%9C%BA%E5%85%A5%E9%97%A8(4)%E2%80%94%E2%80%94%E7%94%B5%E6%BA%90%E7%AE%A1%E7%90%86PMM/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title> | Dzy404's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Dzy404's Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">式遏寇虐  憯不畏明</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-commonweal">
+
+    <a href="/404/" rel="section"><i class="fa fa-heartbeat fa-fw"></i>公益 404</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/01/22/MSP430%E5%8D%95%E7%89%87%E6%9C%BA%E5%85%A5%E9%97%A8(4)%E2%80%94%E2%80%94%E7%94%B5%E6%BA%90%E7%AE%A1%E7%90%86PMM/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="Dzy">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Dzy404's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-01-22 19:00:00" itemprop="dateCreated datePublished" datetime="2021-01-22T19:00:00+00:00">2021-01-22</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-01-25 13:26:44" itemprop="dateModified" datetime="2021-01-25T13:26:44+00:00">2021-01-25</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F%E5%BC%80%E5%8F%91/" itemprop="url" rel="index"><span itemprop="name">嵌入式开发</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <blockquote>
+<p>PMM( Power Management Module )管理与电源有关的所有功能及其对设备的监控。<br>它的主要功能是首先为内核逻辑生成电源电压，其次，为监视和监视施加到设备的电压（DVCC）和为内核生成的电压（VCORE）提供几种机制。<br>本文以翻译数据手册为主，辅助理解；没什么大用，代码为Ti官方提供，直接使用即可</p>
+</blockquote>
+<a id="more"></a>
+
+<h3 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h3><h4 id="电源管理和电压监控"><a href="#电源管理和电压监控" class="headerlink" title="电源管理和电压监控"></a>电源管理和电压监控</h4><p>PMM使用集成的低压差稳压器（LDO）从施加在设备上的初级电压（DVcc）产生次级核心电压（Vcore）。通常，VCORE提供CPU，存储器（闪存/ RAM）和数字模块，而DVcc提供I/O和所有模拟模块（包括振荡器）。VCORE输出使用专用参考电压进行维护。</p>
+<p>内核所需的最小电压取决于所选的MCLK速率。下图显示了给定内核电压设置的系统频率与施加到器件的最低要求电压之间的关系。下图仅作为示例，应参考具体器件的数据手册来确定所支持的内核电压水平以及可能的系统性能水平。</p>
+<img src="/upload_image/image-20210122091826335.png" alt="image-20210122091826335" style="zoom:50%;" />
+
+<p>PMM模块提供了一种对DVCC和VCORE进行监督和监视的方法。这两个功能均可检测电压何时降至特定阈值以下。通常，区别在于监管导致上电复位（power-on reset，POR）事件，而监控导致产生软件可以处理的中断标志。这样，DVcc分别由高端监督（?乱翻的，和SVM作区别）器（high-side superviso，SVSH）和高端监控器（high-side monito，SVMH）进行监控。Vcore分别由低端监督器（low-side superviso，SVSL）和低端监控器（low-side monitor，SVML）进行监控。因此，有四个单独的监督/监视模块可以在任何给定时间处于活动状态。但可以使用相应的使能位（SVSHE / SVMHE / SVSLE / SVMLE）禁用每个模块，从而节省了一些功率。</p>
+<h4 id="原理框图"><a href="#原理框图" class="headerlink" title="原理框图"></a>原理框图</h4><p><strong>高端SVS和SVM：</strong></p>
+<img src="/upload_image/image-20210122113703508.png" alt="image-20210122113703508" style="zoom: 67%;" />
+
+<p><strong>低端SVS和SVM：</strong></p>
+<img src="/upload_image/image-20210122115155072.png" alt="image-20210122115155072" style="zoom: 67%;" />
+
+<h4 id="寄存器"><a href="#寄存器" class="headerlink" title="寄存器"></a>寄存器</h4><p>对照框图理解下文寄存器工作原理：）</p>
+<blockquote>
+<p>PMMCTL0寄存器中定义的密码控制对所有PMM，SVS和SVM寄存器的访问。<br>输入正确的密码后，将启用写访问权限。 通过在字节模式下将错误密码写入PMMCTL0高字节来禁用写访问。<br>Word使用错误的密码访问PMMCTL0会触发PUC。<br>未启用写访问权限时，对除PMMCTL0以外的寄存器的写访问都会导致PUC。</p>
+</blockquote>
+<h5 id="电源管理模块控制寄存器0-PMMCTL0（Power-Management-Module-Control-Register-0）："><a href="#电源管理模块控制寄存器0-PMMCTL0（Power-Management-Module-Control-Register-0）：" class="headerlink" title="电源管理模块控制寄存器0 PMMCTL0（Power Management Module Control Register 0）："></a>电源管理模块控制寄存器0 PMMCTL0（Power Management Module Control Register 0）：</h5><table>
+<thead>
+<tr>
+<th align="center">15</th>
+<th align="center">14</th>
+<th align="center">13</th>
+<th align="center">12</th>
+<th align="center">11</th>
+<th align="center">10</th>
+<th align="center">9</th>
+<th align="center">8</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">rw-1</td>
+<td align="center">rw-0</td>
+<td align="center">rw-0</td>
+<td align="center">rw-1</td>
+<td align="center">rw-0</td>
+<td align="center">rw-1</td>
+<td align="center">rw-1</td>
+<td align="center">rw-0</td>
+</tr>
+</tbody></table>
+<p><strong>PMMPW</strong>              15-8位        PMM密码，始终读为096h，必须写入0A5h或生成PUC。</p>
+<table>
+<thead>
+<tr>
+<th align="center">7</th>
+<th align="center">6</th>
+<th align="center">5</th>
+<th align="center">4</th>
+<th align="center">3</th>
+<th align="center">2</th>
+<th align="center">1</th>
+<th align="center">0</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">PMMHPMRE</td>
+<td align="center">Reserved</td>
+<td align="center">Reserved</td>
+<td align="center">PMMREGOFF</td>
+<td align="center">PMMSWPOR</td>
+<td align="center">PMMSWBOR</td>
+<td align="center">PMMCOREV</td>
+<td align="center">PMMCOREV</td>
+</tr>
+<tr>
+<td align="center">rw-0</td>
+<td align="center">r-0</td>
+<td align="center">r-0</td>
+<td align="center">rw-0</td>
+<td align="center">rw-0</td>
+<td align="center">rw-0</td>
+<td align="center">rw-[0]</td>
+<td align="center">rw-[0]</td>
+</tr>
+</tbody></table>
+<p><strong>PMMHPMRE</strong>         位7            全局大功率模块请求使能。如果PMMHPMRE置1，则任何模块都可以请求PMM高功率模式。<br><strong>Reserved</strong>              位6-5         保留。始终读取0。<br><strong>PMMREGOFF</strong>       位4            稳压器关闭（有关更多详细信息，参考SYS章）<br><strong>PMMSWPOR</strong>        位3            软件上电复位。将该位置1将触发POR。这一点是自我清除。<br><strong>PMMSWBOR</strong>        位2            软件掉电复位。将该位置1可触发BOR。这一点是自我清除。<br><strong>PMMCOREV</strong>         位1-0         内核电压（有关支持的电平和相应电压，请参见器件特定的数据手册）<br>​                                                00 VCORE电平0<br>​                                                01 VCORE电平1<br>​                                                10 VCORE电平2<br>​                                                11 VCORE电平3</p>
+<h5 id="高端监控寄存器-SVSMHCTL（Supply-Voltage-Supervisor-and-Monitor-High-Side-Control-Register）："><a href="#高端监控寄存器-SVSMHCTL（Supply-Voltage-Supervisor-and-Monitor-High-Side-Control-Register）：" class="headerlink" title="高端监控寄存器 SVSMHCTL（Supply Voltage Supervisor and Monitor High-Side Control Register）："></a>高端监控寄存器 SVSMHCTL（Supply Voltage Supervisor and Monitor High-Side Control Register）：</h5><table>
+<thead>
+<tr>
+<th align="center">15</th>
+<th align="center">14</th>
+<th align="center">13</th>
+<th align="center">12</th>
+<th align="center">11</th>
+<th align="center">10</th>
+<th align="center">9</th>
+<th align="center">8</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">SVMHFP</td>
+<td align="center">SVMHE</td>
+<td align="center">Reserved</td>
+<td align="center">SVMHOVPE</td>
+<td align="center">SVSHFP</td>
+<td align="center">SVSHE</td>
+<td align="center">SVSHRVL</td>
+<td align="center"></td>
+</tr>
+<tr>
+<td align="center">rw-0</td>
+<td align="center">rw-1</td>
+<td align="center">rw-0</td>
+<td align="center">rw-0</td>
+<td align="center">rw-0</td>
+<td align="center">rw-1</td>
+<td align="center">rw-0</td>
+<td align="center">rw-0</td>
+</tr>
+</tbody></table>
+<p><strong>SVMHFP</strong>             位15             SVM高端全性能模式。如果该位置1，则SVMH以全性能模式运行。<br>                                                       0-正常模式。<br>                                                       1-全性能模式。<br><strong>SVMHE</strong>               位14             SVM高端使能。如果该位置1，则启用SVMH。<br><strong>Reserved</strong>            位13             保留。始终读取0。<br><strong>SVMHOVPE</strong>       位12             SVM高端过压使能。如果该位置1，则启用SVMH过压检测。如果还设置了SVMHVLRPE，则在过压条件下会发生POR。<br><strong>SVSHFP</strong>             位11             SVS高端全性能模式。如果该位置1，则SVSH处于全性能模式。<br>                                                       0-正常模式。<br>                                                       1-全性能模式。<br><strong>SVSHE</strong>                位10             SVS高端使能。如果该位置1，则启用SVSH。<br><strong>SVSHRVL</strong>           位9-8            SVS高端复位电压电平。如果DVcc低于SVSHRVL选择的SVSH电压电平，则触发复位（如果SVSHPE = 1）。电压等级见手册。</p>
+<table>
+<thead>
+<tr>
+<th align="center">7</th>
+<th align="center">6</th>
+<th align="center">5</th>
+<th align="center">4</th>
+<th align="center">3</th>
+<th align="center">2</th>
+<th align="center">1</th>
+<th align="center">0</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">SVSMHACE</td>
+<td align="center">SVSMHEVM</td>
+<td align="center">Reserved</td>
+<td align="center">SVSHMD</td>
+<td align="center">SVSMHDLYST</td>
+<td align="center">SVSMHRRL</td>
+<td align="center"></td>
+<td align="center"></td>
+</tr>
+<tr>
+<td align="center">rw-0</td>
+<td align="center">rw-0</td>
+<td align="center">rw-0</td>
+<td align="center">rw-0</td>
+<td align="center">rw-0</td>
+<td align="center">rw-0</td>
+<td align="center">rw-0</td>
+<td align="center">rw-0</td>
+</tr>
+</tbody></table>
+<p><strong>SVSMHACE</strong>         位7             SVS和SVM高端自动控制使能。 如果该位置1，则SVSH和SVMH电路的低功耗模式处于硬件控制之下。<br><strong>SVSMHEVM</strong>         位6             SVS和SVM高端事件掩码。 如果该位置1，则SVSH和SVMH事件被屏蔽。<br>                                                       0-没有任何事件被屏蔽。<br>                                                       1-所有事件均被屏蔽。<br><strong>Reserved</strong>             位5             保留。 始终读取0。<br><strong>SVSHMD</strong>              位4             SVS高端模式。 如果该位置1，则在掉电情况下，在LPM2，LPM3和LPM4中设置SVSH中断标志。 如果未设置此位，则不会在LPM2，LPM3和LPM4中设置SVSH中断。<br><strong>SVSMHDLYST</strong>     位3             SVS和SVM高端延迟状态。该位置1则SVSH和SVMH事件将被屏蔽一段时间。 延迟时间取决于SVSH和SVMH的电源模式。 如果SVMHFP = 1和SVSHFP = 1，即全性能模式，则延迟会更短。如果延迟已过期，则该位将由硬件清除。<br><strong>SVSMHRRL</strong>         位2-0          SVS和SVM高端复位释放电压电平，这些位定义了SVSH的复位释放电压电平。SVMH还可以使用它来定义达到的电压水平。</p>
+<h5 id="低端监控寄存器-SVSMLCTL（Supply-Voltage-Supervisor-and-Monitor-Low-Side-Control-Register-）："><a href="#低端监控寄存器-SVSMLCTL（Supply-Voltage-Supervisor-and-Monitor-Low-Side-Control-Register-）：" class="headerlink" title="低端监控寄存器 SVSMLCTL（Supply Voltage Supervisor and Monitor Low-Side Control Register ）："></a>低端监控寄存器 SVSMLCTL（Supply Voltage Supervisor and Monitor Low-Side Control Register ）：</h5><table>
+<thead>
+<tr>
+<th align="center">15</th>
+<th align="center">14</th>
+<th align="center">13</th>
+<th align="center">12</th>
+<th align="center">11</th>
+<th align="center">10</th>
+<th align="center">9</th>
+<th align="center">8</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">SVMLFP</td>
+<td align="center">SVMLE</td>
+<td align="center">Reserved</td>
+<td align="center">SVMLOVPE</td>
+<td align="center">SVSLFP</td>
+<td align="center">SVSLE</td>
+<td align="center">SVSLRVL</td>
+<td align="center"></td>
+</tr>
+<tr>
+<td align="center">rw-0</td>
+<td align="center">rw-1</td>
+<td align="center">rw-0</td>
+<td align="center">rw-0</td>
+<td align="center">rw-0</td>
+<td align="center">rw-1</td>
+<td align="center">rw-0</td>
+<td align="center">rw-0</td>
+</tr>
+</tbody></table>
+<p><strong>SVMLFP</strong>             位15             SVM低端全性能模式。如果该位置1，则SVML以全性能模式运行。<br>                                                       0-正常模式。<br>                                                       1-全性能模式。<br><strong>SVMLE</strong>               位14             SVM低端使能。如果该位置1，则启用SVML。<br><strong>Reserved</strong>           位13             保留。始终读取0。<br><strong>SVMLOVPE</strong>       位12             SVM低端过压使能。如果该位置1，则启用SVML过压检测。<br><strong>SVSLFP</strong>             位11             SVS低端全性能模式。如果该位置1，则SVSL处于全性能模式。<br>                                                       0-正常模式。<br>                                                       1-全性能模式。<br><strong>SVSLE</strong>                位10             SVS低端使能。如果该位置1，则启用SVSL。<br><strong>SVSLRVL</strong>           位9-8            SVS低端复位电压电平。如果DVcc低于SVSHRVL选择的SVSL电压电平，则触发复位（如果SVSLPE = 1）。 </p>
+<table>
+<thead>
+<tr>
+<th align="center">7</th>
+<th align="center">6</th>
+<th align="center">5</th>
+<th align="center">4</th>
+<th align="center">3</th>
+<th align="center">2</th>
+<th align="center">1</th>
+<th align="center">0</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">SVSMLACE</td>
+<td align="center">SVSMLEVM</td>
+<td align="center">Reserved</td>
+<td align="center">SVSLMD</td>
+<td align="center">SVSMLDLYST</td>
+<td align="center">SVSMLRRL</td>
+<td align="center"></td>
+<td align="center"></td>
+</tr>
+<tr>
+<td align="center">rw-0</td>
+<td align="center">rw-0</td>
+<td align="center">rw-0</td>
+<td align="center">rw-0</td>
+<td align="center">rw-0</td>
+<td align="center">rw-0</td>
+<td align="center">rw-0</td>
+<td align="center">rw-0</td>
+</tr>
+</tbody></table>
+<p><strong>SVSMLACE</strong>         位7             SVS和SVM低端自动控制使能。 如果该位置1，则SVSL和SVML电路的低功耗模式处于硬件控制之下。<br><strong>SVSMLEVM</strong>         位6             SVS和SVM低端事件掩码。 如果该位置1，则SVSL和SVML事件被屏蔽。<br>                                                       0-没有任何事件被屏蔽。<br>                                                       1-所有事件均被屏蔽。<br><strong>Reserved</strong>             位5             保留。始终读取0。<br><strong>SVSLMD</strong>              位4             SVS低端模式。如果该位置1，则在掉电情况下，在LPM2，LPM3和LPM4中设置SVSL中断标志。 如果未设置此位，则不会在LPM2，LPM3和LPM4中设置SVSL中断。<br><strong>SVSMLDLYST</strong>     位3             SVS和SVM低端延迟状态。如果该位置1，则SVSL和SVML事件将被屏蔽一段时间。 延迟时间取决于SVSL和SVML的电源模式。 如果SVMLFP = 1和SVSLFP = 1，即全性能模式，则延迟会更短。如果延迟已过期，则该位将由硬件清除。<br><strong>SVSMLRRL</strong>         位2-0          SVS和SVM低端复位释放电压电平，这些位定义了SVSL的复位释放电压电平。SVML还可以使用它来定义达到的电压水平。 </p>
+<h5 id="电源管理模块中断标志寄存器-PMMIFG（Power-Management-Module-Interrupt-Flag-Register）"><a href="#电源管理模块中断标志寄存器-PMMIFG（Power-Management-Module-Interrupt-Flag-Register）" class="headerlink" title="电源管理模块中断标志寄存器 PMMIFG（Power Management Module Interrupt Flag Register）"></a>电源管理模块中断标志寄存器 PMMIFG（Power Management Module Interrupt Flag Register）</h5><table>
+<thead>
+<tr>
+<th align="center">15</th>
+<th align="center">14</th>
+<th align="center">13</th>
+<th align="center">12</th>
+<th align="center">11</th>
+<th align="center">10</th>
+<th align="center">9</th>
+<th align="center">8</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">PMMLPM5IFG</td>
+<td align="center">Reserved</td>
+<td align="center">SVSLIFG</td>
+<td align="center">SVSHFG</td>
+<td align="center">Reserved</td>
+<td align="center">PMMPORIFG</td>
+<td align="center">PMMRSTIFG</td>
+<td align="center">PMMBORIFG</td>
+</tr>
+<tr>
+<td align="center">rw-0</td>
+<td align="center">rw-0</td>
+<td align="center">rw-0</td>
+<td align="center">rw-0</td>
+<td align="center">rw-0</td>
+<td align="center">rw-0</td>
+<td align="center">rw-0</td>
+<td align="center">rw-0</td>
+</tr>
+</tbody></table>
+<p><strong>PMMLPM5IFG</strong>        位15        LPM5标志。如果系统以前在LPM5中，则该位置1。该位可通过软件或通过读取复位向量字来清除。DVcc域上的电源故障将清除该位。<br>                                                           0-没有待处理的中断<br>                                                           1-待处理的中断<br><strong>Reserved</strong>                位14        始终读取0。<br><strong>SVSLIFG</strong>                位13         SVS低端中断标志。该位可通过软件或通过读取复位向量字来清除。<br>                                                           0-没有待处理的中断<br>                                                           1-待处理的中断<br><strong>SVSHIFG</strong>                位12         SVS高侧中断标志。该位可通过软件或通过读取复位向量字来清除。<br>                                                           0-没有待处理的中断<br>                                                           1-待处理的中断<br><strong>Reserved</strong>                 位11        保留。始终读取0。<br><strong>PMMPORIFG</strong>            位10       PMM软件上电复位中断标志。如果触发了软件POR，则设置该中断标志。该位可通过软件或通过读取复位向量字来清除。<br>                                                           0-没有待处理的中断<br>                                                           1-待处理的中断<br><strong>PMMRSTIFG</strong>            位9         PMM复位引脚中断标志。 如果RST / NMI引脚为复位源，则设置该中断标志。 该位可通过软件或通过读取复位向量字来清除。<br>                                                           0-没有待处理的中断<br>                                                           1-待处理的中断<br><strong>PMMBORIFG</strong>            位8         PMM软件掉电复位中断标志。如果触发了软件BOR(PMMSWBOR)，则设置该中断标志。该位可通过软件或通过读取复位向量字来清除。<br>                                                           0-无中断待决<br>                                                           1-中断待决</p>
+<table>
+<thead>
+<tr>
+<th align="center">7</th>
+<th align="center">6</th>
+<th align="center">5</th>
+<th align="center">4</th>
+<th align="center">3</th>
+<th align="center">2</th>
+<th align="center">1</th>
+<th align="center">0</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">Reserved</td>
+<td align="center">SVMHVLRIFG</td>
+<td align="center">SVMHIFG</td>
+<td align="center">SVSMHDLYIFG</td>
+<td align="center">Reserved</td>
+<td align="center">SVMLVLRIFG</td>
+<td align="center">SVMLIFG</td>
+<td align="center">SVSMLDLYIFG</td>
+</tr>
+<tr>
+<td align="center">rw-0</td>
+<td align="center">rw-0</td>
+<td align="center">rw-0</td>
+<td align="center">rw-0</td>
+<td align="center">rw-0</td>
+<td align="center">rw-0</td>
+<td align="center">rw-0</td>
+<td align="center">rw-0</td>
+</tr>
+</tbody></table>
+<p><strong>Reserved</strong>            位7            保留。始终读取0。<br><strong>SVMHVLRIFG</strong>    位6             SVM高端电压电平达到中断标志。该位可通过软件或通过读取复位向量（SVSHPE = 1）字或通过读取中断向量（SVSHPE = 0）字来清除。<br>                                                       0-没有待处理的中断<br>                                                       1-待处理的中断<br><strong>SVMHIFG</strong>               位5          SVM高侧中断标志。 该位由软件清除。<br>                                                       0-没有待处理的中断<br>                                                       1-待处理的中断<br><strong>SVSMHDLYIFG</strong>      位4          SVS和SVM高侧延迟已到期的中断标志。如果延迟元素过期，则设置该中断标志。该位通过软件或读取中断向量字清除。<br>                                                       0-没有待处理的中断<br>                                                       1-待处理的中断<br><strong>Reserved</strong>                位3         保留。始终读取0。<br><strong>SVMLVLRIFG</strong>         位2         SVM低侧电压电平已达到中断标志。该位可通过软件或通过读取复位向量（SVSLPE = 1）字或通过读取中断向量（SVSLPE = 0）字来清除。<br>                                                       0-无中断待决<br>                                                       1-中断待决<br><strong>SVMLIFG</strong>                 位1         SVM低端中断标志。 该位由软件清除。<br>                                                       0-无待处理的中断<br>                                                       1-待处理的中断<br><strong>SVSMLDLYIFG</strong>        位0         SVS和SVM低端延迟已过期的中断标志。 如果延迟元素过期，则设置该中断标志。该位通过软件或读取中断向量字清除。<br>                                                       0-无中断待决<br>                                                       1-中断待决</p>
+<hr>
+<h3 id="PMM-操作"><a href="#PMM-操作" class="headerlink" title="PMM 操作"></a>PMM 操作</h3><h4 id="PMM操作流程"><a href="#PMM操作流程" class="headerlink" title="PMM操作流程"></a>PMM操作流程</h4><p>至关重要的是，<strong>VCORE级别一次只能增加一个级别</strong>，以下步骤1至4显示了将VCORE增加一级的过程。重复此顺序以更改VCORE级别，直到获得目标级别为止：</p>
+<ol>
+<li>将SVMH和SVSH编程到下一个级别，以确保DVCC对于下一个VCORE级别足够高。</li>
+<li>将SVML编程到下一个级别，然后等待（SVSMLDLYIFG）设置；</li>
+<li>将PMMCOREV编程到下一个VCORE级别；</li>
+<li>等待达到电压电平（SVMLVLRIFG）标志；</li>
+<li>将SVSL编程到下一个级别。</li>
+</ol>
+<h4 id="代码实现"><a href="#代码实现" class="headerlink" title="代码实现"></a>代码实现</h4><p>寄存器的结果见注释，//开头的注释为官方注释，/* */注释为添加的解释</p>
+<p>总结：<strong>直接用即可…</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*              TI官方VCORE升级函数         */</span></span><br><span class="line"><span class="comment">/*          VCORE级别一次只能增加一个级别    */</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">SetVcoreUp</span> <span class="params">(<span class="keyword">unsigned</span> <span class="keyword">int</span> level)</span>            </span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">if</span> 1  <span class="comment">//仿真时修改为0，否则会卡在死循环里</span></span></span><br><span class="line">  <span class="comment">// Open PMM registers for write</span></span><br><span class="line">  <span class="comment">/*	PMMCTL0高八位设0xA5设置电源管理模块控制寄存器为写入模式		*/</span></span><br><span class="line">  PMMCTL0_H = PMMPW_H;</span><br><span class="line">  <span class="comment">// Set SVS/SVM high side new level</span></span><br><span class="line">  <span class="comment">/*0X0400u + 0x0100u*level + 0x4000u + 0x0001u*level*/</span></span><br><span class="line">  <span class="comment">/*level 1：0100 0101 0000 0001 启用SVMH，启用SVSH，SVS高端复位电平设置01，SVSH复位释放电压电平为01*/</span></span><br><span class="line">  <span class="comment">/*level 2：0100 0110 0000 0010 启用SVMH，启用SVSH，SVS高端复位电平设置10，SVSH复位释放电压电平为10*/</span></span><br><span class="line">  <span class="comment">/*level 3：0100 0111 0000 0011 启用SVMH，启用SVSH，SVS高端复位电平设置11，SVSH复位释放电压电平为11*/</span></span><br><span class="line">  SVSMHCTL = SVSHE + SVSHRVL0 * level + SVMHE + SVSMHRRL0 * level;</span><br><span class="line">  <span class="comment">// Set SVM low side to new level</span></span><br><span class="line">  <span class="comment">/*	0x400u + 0x4000u + 0x0001u*level	*/</span></span><br><span class="line">  <span class="comment">/*level 1：0100 0100 0000 0001 启用SVML，启用SVSL，SVS高端复位电平设置01，SVSH复位释放电压电平为01*/</span></span><br><span class="line">  <span class="comment">/*level 2：0100 0100 0000 0010 启用SVML，启用SVSL，SVS高端复位电平设置10，SVSH复位释放电压电平为10*/</span></span><br><span class="line">  <span class="comment">/*level 3：0100 0100 0000 0011 启用SVML，启用SVSL，SVS高端复位电平设置11，SVSH复位释放电压电平为11*/</span>  </span><br><span class="line">  SVSMLCTL = SVSLE + SVMLE + SVSMLRRL0 * level;</span><br><span class="line">  <span class="comment">// Wait till SVM is settled</span></span><br><span class="line">  <span class="keyword">while</span> ((PMMIFG &amp; SVSMLDLYIFG) == <span class="number">0</span>);</span><br><span class="line">  <span class="comment">// Clear already set flags</span></span><br><span class="line">  PMMIFG &amp;= ~(SVMLVLRIFG + SVMLIFG);</span><br><span class="line">  <span class="comment">// Set VCore to new level</span></span><br><span class="line">  <span class="comment">/*	PMMCTL0低八位设置	*/</span></span><br><span class="line">  PMMCTL0_L = PMMCOREV0 * level;</span><br><span class="line">  <span class="comment">// Wait till new level reached</span></span><br><span class="line">  <span class="keyword">if</span> ((PMMIFG &amp; SVMLIFG))</span><br><span class="line">    <span class="keyword">while</span> ((PMMIFG &amp; SVMLVLRIFG) == <span class="number">0</span>);</span><br><span class="line">  <span class="comment">// Set SVS/SVM low side to new level</span></span><br><span class="line">  SVSMLCTL = SVSLE + SVSLRVL0 * level + SVMLE + SVSMLRRL0 * level;</span><br><span class="line">  <span class="comment">// Lock PMM registers for write access</span></span><br><span class="line">  PMMCTL0_H = <span class="number">0x00</span>;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>​    上述代码为Ti官方提供的PMM代码，除了打开SVM / SVS和控制Vcore以外其余都是默认，在电源控制寄存器里还有其他有意思的设置，如下：</p>
+<table>
+<thead>
+<tr>
+<th align="center">功能</th>
+<th align="center">寄存器( *表示H/L )</th>
+<th align="center">Bit</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">SVM全性能模式</td>
+<td align="center">SVSM * CTL</td>
+<td align="center">Bit 15</td>
+</tr>
+<tr>
+<td align="center">SVS全性能模式</td>
+<td align="center">SVSM * CTL</td>
+<td align="center">Bit 11</td>
+</tr>
+<tr>
+<td align="center">SVS和SVM自动控制使能(低功耗由硬件控制)</td>
+<td align="center">SVSM * ACE</td>
+<td align="center">Bit7</td>
+</tr>
+</tbody></table>
+<p>调用时注意只能一级一级地升：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">SetVcoreUp(<span class="number">1</span>);</span><br><span class="line">SetVcoreUp(<span class="number">2</span>);</span><br><span class="line">SetVcoreUp(<span class="number">3</span>);</span><br></pre></td></tr></table></figure>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/" rel="tag"><i class="fa fa-tag"></i> 嵌入式</a>
+              <a href="/tags/MSP430/" rel="tag"><i class="fa fa-tag"></i> MSP430</a>
+              <a href="/tags/C-C/" rel="tag"><i class="fa fa-tag"></i> C/C++</a>
+              <a href="/tags/IAR/" rel="tag"><i class="fa fa-tag"></i> IAR</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/01/13/%E8%87%AA%E5%BB%BA%E5%8D%9A%E5%AE%A2(%E4%BA%8C)%E2%80%94%E2%80%94%E5%8D%9A%E5%AE%A2%E4%B8%8A%E4%BC%A0&%E5%9F%9F%E5%90%8D%E7%BB%91%E5%AE%9A/" rel="prev" title="树莓派平台自建博客(二)——博客上传&域名绑定">
+      <i class="fa fa-chevron-left"></i> 树莓派平台自建博客(二)——博客上传&域名绑定
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/01/25/MSP430%E5%8D%95%E7%89%87%E6%9C%BA%E5%85%A5%E9%97%A8(5)%E2%80%94%E2%80%94USCI-UART%E6%A8%A1%E5%BC%8F/" rel="next" title="">
+       <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%94%B5%E6%BA%90%E7%AE%A1%E7%90%86%E5%92%8C%E7%94%B5%E5%8E%8B%E7%9B%91%E6%8E%A7"><span class="nav-number">1.1.</span> <span class="nav-text">电源管理和电压监控</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8E%9F%E7%90%86%E6%A1%86%E5%9B%BE"><span class="nav-number">1.2.</span> <span class="nav-text">原理框图</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AF%84%E5%AD%98%E5%99%A8"><span class="nav-number">1.3.</span> <span class="nav-text">寄存器</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E7%94%B5%E6%BA%90%E7%AE%A1%E7%90%86%E6%A8%A1%E5%9D%97%E6%8E%A7%E5%88%B6%E5%AF%84%E5%AD%98%E5%99%A80-PMMCTL0%EF%BC%88Power-Management-Module-Control-Register-0%EF%BC%89%EF%BC%9A"><span class="nav-number">1.3.1.</span> <span class="nav-text">电源管理模块控制寄存器0 PMMCTL0（Power Management Module Control Register 0）：</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E9%AB%98%E7%AB%AF%E7%9B%91%E6%8E%A7%E5%AF%84%E5%AD%98%E5%99%A8-SVSMHCTL%EF%BC%88Supply-Voltage-Supervisor-and-Monitor-High-Side-Control-Register%EF%BC%89%EF%BC%9A"><span class="nav-number">1.3.2.</span> <span class="nav-text">高端监控寄存器 SVSMHCTL（Supply Voltage Supervisor and Monitor High-Side Control Register）：</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E4%BD%8E%E7%AB%AF%E7%9B%91%E6%8E%A7%E5%AF%84%E5%AD%98%E5%99%A8-SVSMLCTL%EF%BC%88Supply-Voltage-Supervisor-and-Monitor-Low-Side-Control-Register-%EF%BC%89%EF%BC%9A"><span class="nav-number">1.3.3.</span> <span class="nav-text">低端监控寄存器 SVSMLCTL（Supply Voltage Supervisor and Monitor Low-Side Control Register ）：</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E7%94%B5%E6%BA%90%E7%AE%A1%E7%90%86%E6%A8%A1%E5%9D%97%E4%B8%AD%E6%96%AD%E6%A0%87%E5%BF%97%E5%AF%84%E5%AD%98%E5%99%A8-PMMIFG%EF%BC%88Power-Management-Module-Interrupt-Flag-Register%EF%BC%89"><span class="nav-number">1.3.4.</span> <span class="nav-text">电源管理模块中断标志寄存器 PMMIFG（Power Management Module Interrupt Flag Register）</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#PMM-%E6%93%8D%E4%BD%9C"><span class="nav-number">2.</span> <span class="nav-text">PMM 操作</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#PMM%E6%93%8D%E4%BD%9C%E6%B5%81%E7%A8%8B"><span class="nav-number">2.1.</span> <span class="nav-text">PMM操作流程</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81%E5%AE%9E%E7%8E%B0"><span class="nav-number">2.2.</span> <span class="nav-text">代码实现</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Dzy"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">Dzy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">19</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">23</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/dzy404" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;dzy404" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:dzhiyuan529@gmail.com" title="E-Mail → mailto:dzhiyuan529@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i></a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Dzy</span>
+</div>
+
+<!--
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+-->
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
