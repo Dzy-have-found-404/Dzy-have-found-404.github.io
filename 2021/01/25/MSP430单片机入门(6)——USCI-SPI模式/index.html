@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="在墨水屏入门功能开发(一)中写到了SPI的应用，但对SPI并没有做深入的了解，正好借开发墨水屏的机会，从原理到墨水屏开发的实际应用来全面学习SPI。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MSP430单片机(六)——USCI-SPI模式">
+<meta property="og:url" content="http://example.com/2021/01/25/MSP430%E5%8D%95%E7%89%87%E6%9C%BA%E5%85%A5%E9%97%A8(6)%E2%80%94%E2%80%94USCI-SPI%E6%A8%A1%E5%BC%8F/index.html">
+<meta property="og:site_name" content="Dzy404&#39;s Blog">
+<meta property="og:description" content="在墨水屏入门功能开发(一)中写到了SPI的应用，但对SPI并没有做深入的了解，正好借开发墨水屏的机会，从原理到墨水屏开发的实际应用来全面学习SPI。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/upload_image/SPI时序图.png">
+<meta property="og:image" content="http://example.com/upload_image/image-20210126160915298.png">
+<meta property="og:image" content="http://example.com/upload_image/image-20210126161129878.png">
+<meta property="og:image" content="http://example.com/upload_image/image-20210126163147114.png">
+<meta property="og:image" content="http://example.com/upload_image/image-20210126163537402.png">
+<meta property="og:image" content="http://example.com/upload_image/image-20210126163925932.png">
+<meta property="article:published_time" content="2021-01-25T18:00:00.000Z">
+<meta property="article:modified_time" content="2021-01-28T03:05:44.000Z">
+<meta property="article:author" content="Dzy404">
+<meta property="article:tag" content="嵌入式">
+<meta property="article:tag" content="通信协议">
+<meta property="article:tag" content="SPI">
+<meta property="article:tag" content="E-paper">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/upload_image/SPI时序图.png">
+
+<link rel="canonical" href="http://example.com/2021/01/25/MSP430%E5%8D%95%E7%89%87%E6%9C%BA%E5%85%A5%E9%97%A8(6)%E2%80%94%E2%80%94USCI-SPI%E6%A8%A1%E5%BC%8F/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>MSP430单片机(六)——USCI-SPI模式 | Dzy404's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Dzy404's Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">式遏寇虐  憯不畏明</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-commonweal">
+
+    <a href="/404/" rel="section"><i class="fa fa-heartbeat fa-fw"></i>公益 404</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/01/25/MSP430%E5%8D%95%E7%89%87%E6%9C%BA%E5%85%A5%E9%97%A8(6)%E2%80%94%E2%80%94USCI-SPI%E6%A8%A1%E5%BC%8F/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="Dzy404">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Dzy404's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          MSP430单片机(六)——USCI-SPI模式
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-01-25 18:00:00" itemprop="dateCreated datePublished" datetime="2021-01-25T18:00:00+00:00">2021-01-25</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F%E5%BC%80%E5%8F%91/" itemprop="url" rel="index"><span itemprop="name">嵌入式开发</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <blockquote>
+<p>在墨水屏入门功能开发(一)中写到了SPI的应用，但对SPI并没有做深入的了解，正好借开发墨水屏的机会，从原理到墨水屏开发的实际应用来全面学习SPI。</p>
+</blockquote>
+<a id="more"></a>
+
+<h3 id="SPI"><a href="#SPI" class="headerlink" title="SPI"></a>SPI</h3><h4 id="SPI接口简介"><a href="#SPI接口简介" class="headerlink" title="SPI接口简介"></a>SPI接口简介</h4><p>SPI，是一种高速的，全双工(通信允许数据在两个方向上同时传输)，同步的通信总线，在芯片的管脚上只占用四根线，节约了芯片的管脚，为PCB的布局节省空间。主要应用与实时时钟，AD转换器，还有数字信号处理器和数字信号解码器之间。</p>
+<h4 id="SPI内部结构"><a href="#SPI内部结构" class="headerlink" title="SPI内部结构"></a>SPI内部结构</h4><p>SPI接口一般使用4条线通信：</p>
+<blockquote>
+<p>MISO主设备数据输入，从设备数据输出；<br>MOSI主设备数据输出，从设备数据输入；<br>SCLK时钟信号，由主设备产生；<br>CS从设备片选信号，由主设备控制。</p>
+</blockquote>
+<p><strong>MISO做主机时作为输入，作为从机时作为输出，MOSI则相反。</strong></p>
+<p>例：移位寄存器A数据为 <code>10101010</code> ，移位寄存器B为 <code>01010101</code> ，若进行信息传输，移位寄存器A作为主机，B作为从机，移位寄存器A的最高位“1”移至移位寄存器B的最高位，B的数据左移，将末位的 0 移至移位寄存器A。最终，移位寄存器A的数据变为 <code>01010101</code>，B的数据变为 <code>10101010</code>，实现了两个寄存器数据的互换。</p>
+<p><strong>移位寄存器在进行数据传输时，主机给从机传输N个字节，从机也会给主机传输回N个字节。</strong>所以SPI会有read()和write()函数，这是因为寄存器在进行字节传输时同时有接受和发送。</p>
+<h4 id="SPI工作原理总结"><a href="#SPI工作原理总结" class="headerlink" title="SPI工作原理总结"></a>SPI工作原理总结</h4><p>​        ① 硬件上为四根线；<br>​        ② 主机和从机都有一个串行移位寄存器，主机通过向它的SPI传销寄存器写入一个字节来发起一次传输；<br>​        ③ 串行移位寄存器通过MOSI信号线将字节传送给从机，从机也将自己的串行移位寄存器中的内容通过MISO信号线返回给主机，这样，两个移位寄存器中的内容就被交换；<br>​        ④外设的写操作和读操作是同步完成的，如果只进行写操作，主机只需忽略接收到的字节；反之，若主机要读取从机的一个字节，就必须发送一个空字节来引发从机的传输。</p>
+<h4 id="SPI特征"><a href="#SPI特征" class="headerlink" title="SPI特征"></a>SPI特征</h4><ul>
+<li>3线全双工同步传输</li>
+<li>8位或者16位传输帧格式选择</li>
+<li>主或从操作</li>
+<li>支持多主模式</li>
+<li><strong>可编程的时钟极性和相位</strong></li>
+<li><strong>可编程的数据顺序</strong>，MSB在前或者LSB在前</li>
+<li>可触发终端的专用发送和接受标志</li>
+<li><strong>SPI总线忙状态标志</strong></li>
+<li>支持可靠通信的硬件CRC<ul>
+<li>在发送模式下,CRC的值可以作为最后一个字节发送</li>
+<li>在全双工模式中对接收到的最后一个字节自动进行CRC校验</li>
+</ul>
+</li>
+<li>支持DMA功能的1字节发送和接受缓冲器，产生发送和接受请求</li>
+</ul>
+<h5 id="时钟信号的相位和极性"><a href="#时钟信号的相位和极性" class="headerlink" title="时钟信号的相位和极性"></a>时钟信号的相位和极性</h5><p>在墨水屏的开发中，数据采样和时钟沿是绕不开的一个点，这两点与CPOL时钟极性和CPHA时钟相位的组合有关。</p>
+<img src="/upload_image/SPI时序图.png" alt="SPI时序图" style="zoom: 40%;" />
+
+<p>SPI CR寄存器的CPOL和CPHA位，能够 <code>0 1</code> 组合成四种可能的时序关系。CPOL(时钟极性)位控制在没有数据传输时时钟的空闲状态电平，此位对主模式和从模式下的设备都有效。如果CPOL被清 <code>0</code> ，SCK引脚在空状态保持低电平；如果CPOL被置 <code>1</code> ，SCK引脚在空闲状态保持高电平。如果CPHA(时钟相位)位被置 <code>1</code>，SCK时钟的第二个边沿(CPOL位为0时就是下降沿，CPOL位为 <code>1</code> 时就是上升沿)进行数据位的采样，数据在第二个时钟边沿被锁存。如果CPHA位被清 <code>0</code>，SCK时钟的第一边沿(CPOL位位‘0’时就是下降沿，CPOL位为 <code>1</code> 时就是上升沿)进行数据位采样，数据在第一个时钟边沿被锁存。</p>
+<p>以表格形式总结以上文字：</p>
+<table>
+<thead>
+<tr>
+<th align="center">CPHA</th>
+<th align="center">CPOL</th>
+<th align="center">采样时刻</th>
+<th align="center">SCK时钟</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">1</td>
+<td align="center">0</td>
+<td align="center">第二个时钟沿</td>
+<td align="center">上升沿</td>
+</tr>
+<tr>
+<td align="center">1</td>
+<td align="center">1</td>
+<td align="center">第二个时钟沿</td>
+<td align="center">下降沿</td>
+</tr>
+<tr>
+<td align="center">0</td>
+<td align="center">1</td>
+<td align="center">第一个时钟沿</td>
+<td align="center">下降沿</td>
+</tr>
+<tr>
+<td align="center">0</td>
+<td align="center">0</td>
+<td align="center">第一个时钟沿</td>
+<td align="center">上升</td>
+</tr>
+</tbody></table>
+<h5 id="状态标志"><a href="#状态标志" class="headerlink" title="状态标志"></a>状态标志</h5><p>应用程序通过3个状态标志可以完全监控SPI总线的状态。</p>
+<p><strong>发送缓冲器空闲标志(TXE)</strong></p>
+<p>此标志为“1”时表明发送缓冲器为空，下一个待发送的数据可进入缓冲器中。当写入SPI_DR时，TXE标志被清除。</p>
+<p><strong>接收缓冲器非空(RXNE)</strong></p>
+<p>此标志位为“1”时表明在接收缓冲器中包含有效的接收数据。读SPI数据寄存器可以清除此标志。</p>
+<p><strong>忙(BUSY)标志</strong></p>
+<p>BUSY标志由硬件设置与清除(写入此位无效果)，此标志表明SPI通信层的状态。</p>
+<h5 id="SPI中断"><a href="#SPI中断" class="headerlink" title="SPI中断"></a>SPI中断</h5><table>
+<thead>
+<tr>
+<th align="center">中断事件</th>
+<th align="center">事件标志</th>
+<th align="center">使能控制位</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">发送缓冲器空标志</td>
+<td align="center">TXE</td>
+<td align="center">TXEIE</td>
+</tr>
+<tr>
+<td align="center">接收缓冲器非空标志</td>
+<td align="center">RXNE</td>
+<td align="center">RXNEIE</td>
+</tr>
+<tr>
+<td align="center">主模式失效事件</td>
+<td align="center">MODF</td>
+<td align="center">ERRIE</td>
+</tr>
+<tr>
+<td align="center">溢出错误</td>
+<td align="center">OVR</td>
+<td align="center">ERRIE</td>
+</tr>
+<tr>
+<td align="center">CRC错误标志</td>
+<td align="center">CRCERR</td>
+<td align="center">ERRIE</td>
+</tr>
+</tbody></table>
+<h3 id="USCI-SPI-模式"><a href="#USCI-SPI-模式" class="headerlink" title="USCI-SPI 模式"></a>USCI-SPI 模式</h3><h4 id="USCI-SPI模式简介"><a href="#USCI-SPI模式简介" class="headerlink" title="USCI-SPI模式简介"></a>USCI-SPI模式简介</h4><p>在同步模式下，USCI通过三个或四个引脚将设备连接到外部系统： <code>UCxSIMO</code>， <code>UCxSOMI</code>， <code>UCxCLK</code> 和 <code>UCxSTE</code> 。 当 <code>UCSYNC</code>位置1时选择SPI模式，并通过 <code>UCMODEx</code>位选择SPI模式（3针或4针）。</p>
+<p>在SPI模式下，串行数据通过主机提供的共享时钟由多个设备发送和接收。提供了一个额外的引脚UCxSTE，以使设备能够接收和发送数据，并由主机控制。</p>
+<p>三个或四个信号用于SPI数据交换：</p>
+<ul>
+<li><code>UCxSIMO</code> 从机输入，主机输出主机模式： <code>UCxSIMO</code> 是数据输出线。从模式： <code>UCxSIMO</code> 是数据输入线。</li>
+<li><code>UCxSOMI</code> 从机输出，主机处于主机模式： <code>UCxSOMI</code> 是数据输入线。从模式： <code>UCxSOMI</code> 是数据输出线。</li>
+<li><code>UCxCLK</code>   USCI SPI时钟主模式： <code>UCxCLK</code> 是输出。从模式： <code>UCxCLK</code> 是输入。</li>
+<li><code>UCxSTE</code>   从机发送使能。在4引脚模式下使用，以允许单个总线上有多个主机。在3针模式下不使用。见表17-1。</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th align="center">UCMODEx</th>
+<th align="center">UCxSTE Active State</th>
+<th align="center">UCxSTE</th>
+<th align="center">Slave</th>
+<th align="center">Master</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">01</td>
+<td align="center">High</td>
+<td align="center">0</td>
+<td align="center">Inactive</td>
+<td align="center">Active</td>
+</tr>
+<tr>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center">1</td>
+<td align="center">Active</td>
+<td align="center">Inactive</td>
+</tr>
+<tr>
+<td align="center">10</td>
+<td align="center">Low</td>
+<td align="center">0</td>
+<td align="center">Active</td>
+<td align="center">Inactive</td>
+</tr>
+<tr>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center">1</td>
+<td align="center">Inactive</td>
+<td align="center">Active</td>
+</tr>
+</tbody></table>
+<h4 id="主从模式"><a href="#主从模式" class="headerlink" title="主从模式"></a>主从模式</h4><p><strong>主机模式：</strong></p>
+<p>要在主机模式下将数据接收到 <code>USCI</code>，必须将数据写入 <code>UCxTXBUF</code> ，因为接收和发送的操作是同时进行的。</p>
+<img src="/upload_image/image-20210126160915298.png" alt="image-20210126160915298" style="zoom: 50%;" />
+
+<p>看图说话，工作流程如下：</p>
+<p>数据移至 <code>Transmit Buffer UCxTXBUF(TX数据缓冲区)</code> ，<code>USCI</code> 启动数据传输 -&gt; 数据被发送至 <code>Transmit Shift Register(TX移位寄存器)</code> -&gt;  从 <code>MSB</code> 或 <code>LSB</code> 开始在 <code>UCxSIMO</code> 上启动数据传输 -&gt; 数据进入 <code>Data Shift Register(DSR)</code> 之后通过 <code>UCxSOMI</code> 将数据传至 <code>Receive Shift Register(RX移位寄存器)</code> -&gt; 数据被传至 <code>Receive Buffer UCxRXBUF</code> ，同时接收中断标志 <code>UCRXIFG</code> 被置位(指示RX/TX操作已完成)</p>
+<p><code>UCxSTE</code> 的作用是防止与另一个主机冲突：</p>
+<p>主机在SET为高电平时正常操作，SET为低电平时(另一台设备申请成为主机)，当前主机驱动总线的MOSI和UCLK的引脚变为输入；</p>
+<p>如果在主机被 <code>UCxSTE</code> 保持非活动状态时将数据写入 <code>UCxTXBUF</code> ，则一旦 <code>UCxSTE</code> 转换为主机活动状态，就会立即发送数据；</p>
+<p>如果主机在活动状态被 <code>UCxTXBUF</code> 转换为非活动状态导致了传输终止，则必须将数据重写到 <code>UCxTXBUF</code> 中， <code>UCxSTE</code> 转换回主机活动状态时将重新进行传输</p>
+<p><strong>从机模式：</strong></p>
+<img src="/upload_image/image-20210126161129878.png" alt="image-20210126161129878" style="zoom: 50%;" />
+
+<p>工作流程如下：</p>
+<p>在 <code>UCxCLK</code> 之前，数据被写入 <code>UCxTXBUF</code> -&gt; 送至 <code>TX Shift Register</code> -&gt; 在 <code>UXcSOMI</code> 上传输至 <code>DSR</code> -&gt; 接收到设置的位数后，数据经 <code>UCxSIMO</code> 移至相对边缘的 <code>RX Shift Register</code> -&gt; 最后送入 <code>UCxRXBUF</code> -&gt; <code>UCRXIFG</code> 中断标志被置1，数据接收完成。</p>
+<p><code>UCxSTE</code> 的作用是当作发送和接受允许信号：</p>
+<p>当SET为1时该从机禁止发送和接受数据；</p>
+<p><em>注：1. <code>UCxCLK</code> 用作 SPI 时钟的输入，必须由外部主机提供，传输速率由该时钟决定而不由内部时钟发生器决定；2.若新数据移至 <code>UCxRXBUF</code> 之前没有将其中的旧数据读取的话，将会导致溢出错误位UCOE</em></p>
+<h4 id="寄存器"><a href="#寄存器" class="headerlink" title="寄存器"></a>寄存器</h4><p><strong>USCI_Ax Control Register 0 (UCAxCTL0)</strong></p>
+<p><strong>USCI_Bx Control Register 0 (UCBxCTL0)</strong></p>
+<img src="/upload_image/image-20210126163147114.png" alt="image-20210126163147114" style="zoom: 67%;" />
+
+<p><strong>USCI_Ax Control Register 1 (UCAxCTL1)</strong></p>
+<p><strong>USCI_Bx Control Register 1 (UCBxCTL1)</strong></p>
+<p><img src="/upload_image/image-20210126163537402.png" alt="image-20210126163537402"></p>
+<p><strong>USCI_Ax Bit Rate Control Register 0 (UCAxBR0)</strong> / <strong>USCI_Ax Bit Rate Control Register 0 (UCAxBR0)</strong></p>
+<p><strong>USCI_Ax Bit Rate Control Register 1 (UCAxBR1)</strong> / <strong>USCI_Bx Bit Rate Control Register 1 (UCBxBR1)</strong></p>
+<p><img src="/upload_image/image-20210126163925932.png" alt="image-20210126163925932"></p>
+<h3 id="程序"><a href="#程序" class="headerlink" title="程序"></a>程序</h3><p>SPI初始化：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> HAL_EPAPER_SPI_PRESCALER 	((uint8)(HAL_CPU_CLOCK_MHZ / 8.1) + 1)</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">SPI_INIT</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    UCB1CTL1 = UCSSEL1 | UCSWRST;              <span class="comment">//SMCLK、启用软复位</span></span><br><span class="line">    UCB1CTL0 = UCCKPL | UCMSB | UCMST | UCSYNC; <span class="comment">//时钟极性高、MSB优先、UCMODE同步模式、同步模式打开</span></span><br><span class="line">    UCB1BR0 = HAL_EPAPER_SPI_PRESCALER;         <span class="comment">//设置频率</span></span><br><span class="line">    UCA0BR1 = <span class="number">0</span>;                                <span class="comment">//</span></span><br><span class="line">    UCB1CTL1 &amp;= ~UCSWRST;                       <span class="comment">//关闭软复位</span></span><br><span class="line">&#125;        </span><br></pre></td></tr></table></figure>
+<p>管脚初始化：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">IO_Init</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    P2DIR &amp;= ~BIT1; <span class="comment">//LBUSY</span></span><br><span class="line">	P2REN |= BIT1;</span><br><span class="line">    P2OUT &amp;= ~BIT1; <span class="comment">//BUSY引脚上拉电阻</span></span><br><span class="line">    P2DIR |= BIT3;  <span class="comment">//RESET</span></span><br><span class="line">    P3DIR |= BIT6;  <span class="comment">//LCS</span></span><br><span class="line">    P5DIR |= BIT4;  <span class="comment">//LDC</span></span><br><span class="line">    P5SEL |= BIT5;  <span class="comment">//LSCK</span></span><br><span class="line">    P3SEL |= BIT7;  <span class="comment">//LSDA</span></span><br><span class="line"></span><br><span class="line">    HAL_EPAPER_SPI_INIT();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/" rel="tag"><i class="fa fa-tag"></i> 嵌入式</a>
+              <a href="/tags/%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE/" rel="tag"><i class="fa fa-tag"></i> 通信协议</a>
+              <a href="/tags/SPI/" rel="tag"><i class="fa fa-tag"></i> SPI</a>
+              <a href="/tags/E-paper/" rel="tag"><i class="fa fa-tag"></i> E-paper</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/01/22/MSP430%E5%8D%95%E7%89%87%E6%9C%BA%E5%85%A5%E9%97%A8(5)%E2%80%94%E2%80%94USCI-UART%E6%A8%A1%E5%BC%8F/" rel="prev" title="MSP430单片机(五)——USCI-UART模式">
+      <i class="fa fa-chevron-left"></i> MSP430单片机(五)——USCI-UART模式
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/01/27/%E8%A7%A3%E5%86%B3%E6%A0%91%E8%8E%93%E6%B4%BE%E5%AE%89%E8%A3%85motion%E7%9A%84%E4%BE%9D%E8%B5%96%E9%97%AE%E9%A2%98/" rel="next" title="树莓派安装motion的问题">
+      树莓派安装motion的问题 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#SPI"><span class="nav-number">1.</span> <span class="nav-text">SPI</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#SPI%E6%8E%A5%E5%8F%A3%E7%AE%80%E4%BB%8B"><span class="nav-number">1.1.</span> <span class="nav-text">SPI接口简介</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#SPI%E5%86%85%E9%83%A8%E7%BB%93%E6%9E%84"><span class="nav-number">1.2.</span> <span class="nav-text">SPI内部结构</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#SPI%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86%E6%80%BB%E7%BB%93"><span class="nav-number">1.3.</span> <span class="nav-text">SPI工作原理总结</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#SPI%E7%89%B9%E5%BE%81"><span class="nav-number">1.4.</span> <span class="nav-text">SPI特征</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%97%B6%E9%92%9F%E4%BF%A1%E5%8F%B7%E7%9A%84%E7%9B%B8%E4%BD%8D%E5%92%8C%E6%9E%81%E6%80%A7"><span class="nav-number">1.4.1.</span> <span class="nav-text">时钟信号的相位和极性</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E7%8A%B6%E6%80%81%E6%A0%87%E5%BF%97"><span class="nav-number">1.4.2.</span> <span class="nav-text">状态标志</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#SPI%E4%B8%AD%E6%96%AD"><span class="nav-number">1.4.3.</span> <span class="nav-text">SPI中断</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#USCI-SPI-%E6%A8%A1%E5%BC%8F"><span class="nav-number">2.</span> <span class="nav-text">USCI-SPI 模式</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#USCI-SPI%E6%A8%A1%E5%BC%8F%E7%AE%80%E4%BB%8B"><span class="nav-number">2.1.</span> <span class="nav-text">USCI-SPI模式简介</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%BB%E4%BB%8E%E6%A8%A1%E5%BC%8F"><span class="nav-number">2.2.</span> <span class="nav-text">主从模式</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AF%84%E5%AD%98%E5%99%A8"><span class="nav-number">2.3.</span> <span class="nav-text">寄存器</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A8%8B%E5%BA%8F"><span class="nav-number">3.</span> <span class="nav-text">程序</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Dzy404"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">Dzy404</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">20</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">24</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/dzy404" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;dzy404" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:dzhiyuan529@gmail.com" title="E-Mail → mailto:dzhiyuan529@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i></a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Dzy404</span>
+</div>
+
+<!--
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+-->
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

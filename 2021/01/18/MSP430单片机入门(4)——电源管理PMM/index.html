@@ -17,22 +17,22 @@
 
 <script id="hexo-configurations">
     var NexT = window.NexT || {};
-    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
   <meta name="description" content="PMM( Power Management Module )管理与电源有关的所有功能及其对设备的监控。它的主要功能是首先为内核逻辑生成电源电压，其次，为监视和监视施加到设备的电压（DVCC）和为内核生成的电压（VCORE）提供几种机制。本文以翻译数据手册为主，辅助理解；没什么大用，代码为Ti官方提供，直接使用即可">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Dzy404&#39;s Blog">
-<meta property="og:url" content="http://example.com/2021/01/22/MSP430%E5%8D%95%E7%89%87%E6%9C%BA%E5%85%A5%E9%97%A8(4)%E2%80%94%E2%80%94%E7%94%B5%E6%BA%90%E7%AE%A1%E7%90%86PMM/index.html">
+<meta property="og:title" content="MSP430单片机(四)——电源管理和监控">
+<meta property="og:url" content="http://example.com/2021/01/18/MSP430%E5%8D%95%E7%89%87%E6%9C%BA%E5%85%A5%E9%97%A8(4)%E2%80%94%E2%80%94%E7%94%B5%E6%BA%90%E7%AE%A1%E7%90%86PMM/index.html">
 <meta property="og:site_name" content="Dzy404&#39;s Blog">
 <meta property="og:description" content="PMM( Power Management Module )管理与电源有关的所有功能及其对设备的监控。它的主要功能是首先为内核逻辑生成电源电压，其次，为监视和监视施加到设备的电压（DVCC）和为内核生成的电压（VCORE）提供几种机制。本文以翻译数据手册为主，辅助理解；没什么大用，代码为Ti官方提供，直接使用即可">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/upload_image/image-20210122091826335.png">
 <meta property="og:image" content="http://example.com/upload_image/image-20210122113703508.png">
 <meta property="og:image" content="http://example.com/upload_image/image-20210122115155072.png">
-<meta property="article:published_time" content="2021-01-22T19:00:00.000Z">
-<meta property="article:modified_time" content="2021-01-25T13:26:44.000Z">
-<meta property="article:author" content="Dzy">
+<meta property="article:published_time" content="2021-01-18T19:00:00.000Z">
+<meta property="article:modified_time" content="2021-01-28T03:03:04.000Z">
+<meta property="article:author" content="Dzy404">
 <meta property="article:tag" content="嵌入式">
 <meta property="article:tag" content="MSP430">
 <meta property="article:tag" content="C&#x2F;C++">
@@ -40,7 +40,7 @@
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="http://example.com/upload_image/image-20210122091826335.png">
 
-<link rel="canonical" href="http://example.com/2021/01/22/MSP430%E5%8D%95%E7%89%87%E6%9C%BA%E5%85%A5%E9%97%A8(4)%E2%80%94%E2%80%94%E7%94%B5%E6%BA%90%E7%AE%A1%E7%90%86PMM/">
+<link rel="canonical" href="http://example.com/2021/01/18/MSP430%E5%8D%95%E7%89%87%E6%9C%BA%E5%85%A5%E9%97%A8(4)%E2%80%94%E2%80%94%E7%94%B5%E6%BA%90%E7%AE%A1%E7%90%86PMM/">
 
 
 <script id="page-configurations">
@@ -53,7 +53,7 @@
   };
 </script>
 
-  <title> | Dzy404's Blog</title>
+  <title>MSP430单片机(四)——电源管理和监控 | Dzy404's Blog</title>
   
 
 
@@ -112,6 +112,7 @@
 
   <div class="site-nav-right">
     <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
     </div>
   </div>
 </div>
@@ -151,11 +152,38 @@
     <a href="/404/" rel="section"><i class="fa fa-heartbeat fa-fw"></i>公益 404</a>
 
   </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
   </ul>
 </nav>
 
 
 
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
 
 </div>
     </header>
@@ -179,11 +207,11 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/01/22/MSP430%E5%8D%95%E7%89%87%E6%9C%BA%E5%85%A5%E9%97%A8(4)%E2%80%94%E2%80%94%E7%94%B5%E6%BA%90%E7%AE%A1%E7%90%86PMM/">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/01/18/MSP430%E5%8D%95%E7%89%87%E6%9C%BA%E5%85%A5%E9%97%A8(4)%E2%80%94%E2%80%94%E7%94%B5%E6%BA%90%E7%AE%A1%E7%90%86PMM/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.png">
-      <meta itemprop="name" content="Dzy">
+      <meta itemprop="name" content="Dzy404">
       <meta itemprop="description" content="">
     </span>
 
@@ -192,7 +220,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          
+          MSP430单片机(四)——电源管理和监控
         </h1>
 
         <div class="post-meta">
@@ -202,15 +230,8 @@
               </span>
               <span class="post-meta-item-text">发表于</span>
 
-              <time title="创建时间：2021-01-22 19:00:00" itemprop="dateCreated datePublished" datetime="2021-01-22T19:00:00+00:00">2021-01-22</time>
+              <time title="创建时间：2021-01-18 19:00:00" itemprop="dateCreated datePublished" datetime="2021-01-18T19:00:00+00:00">2021-01-18</time>
             </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-01-25 13:26:44" itemprop="dateModified" datetime="2021-01-25T13:26:44+00:00">2021-01-25</time>
-              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -312,6 +333,7 @@
 </tr>
 </tbody></table>
 <p><strong>PMMHPMRE</strong>         位7            全局大功率模块请求使能。如果PMMHPMRE置1，则任何模块都可以请求PMM高功率模式。<br><strong>Reserved</strong>              位6-5         保留。始终读取0。<br><strong>PMMREGOFF</strong>       位4            稳压器关闭（有关更多详细信息，参考SYS章）<br><strong>PMMSWPOR</strong>        位3            软件上电复位。将该位置1将触发POR。这一点是自我清除。<br><strong>PMMSWBOR</strong>        位2            软件掉电复位。将该位置1可触发BOR。这一点是自我清除。<br><strong>PMMCOREV</strong>         位1-0         内核电压（有关支持的电平和相应电压，请参见器件特定的数据手册）<br>​                                                00 VCORE电平0<br>​                                                01 VCORE电平1<br>​                                                10 VCORE电平2<br>​                                                11 VCORE电平3</p>
+<hr>
 <h5 id="高端监控寄存器-SVSMHCTL（Supply-Voltage-Supervisor-and-Monitor-High-Side-Control-Register）："><a href="#高端监控寄存器-SVSMHCTL（Supply-Voltage-Supervisor-and-Monitor-High-Side-Control-Register）：" class="headerlink" title="高端监控寄存器 SVSMHCTL（Supply Voltage Supervisor and Monitor High-Side Control Register）："></a>高端监控寄存器 SVSMHCTL（Supply Voltage Supervisor and Monitor High-Side Control Register）：</h5><table>
 <thead>
 <tr>
@@ -382,6 +404,7 @@
 </tr>
 </tbody></table>
 <p><strong>SVSMHACE</strong>         位7             SVS和SVM高端自动控制使能。 如果该位置1，则SVSH和SVMH电路的低功耗模式处于硬件控制之下。<br><strong>SVSMHEVM</strong>         位6             SVS和SVM高端事件掩码。 如果该位置1，则SVSH和SVMH事件被屏蔽。<br>                                                       0-没有任何事件被屏蔽。<br>                                                       1-所有事件均被屏蔽。<br><strong>Reserved</strong>             位5             保留。 始终读取0。<br><strong>SVSHMD</strong>              位4             SVS高端模式。 如果该位置1，则在掉电情况下，在LPM2，LPM3和LPM4中设置SVSH中断标志。 如果未设置此位，则不会在LPM2，LPM3和LPM4中设置SVSH中断。<br><strong>SVSMHDLYST</strong>     位3             SVS和SVM高端延迟状态。该位置1则SVSH和SVMH事件将被屏蔽一段时间。 延迟时间取决于SVSH和SVMH的电源模式。 如果SVMHFP = 1和SVSHFP = 1，即全性能模式，则延迟会更短。如果延迟已过期，则该位将由硬件清除。<br><strong>SVSMHRRL</strong>         位2-0          SVS和SVM高端复位释放电压电平，这些位定义了SVSH的复位释放电压电平。SVMH还可以使用它来定义达到的电压水平。</p>
+<hr>
 <h5 id="低端监控寄存器-SVSMLCTL（Supply-Voltage-Supervisor-and-Monitor-Low-Side-Control-Register-）："><a href="#低端监控寄存器-SVSMLCTL（Supply-Voltage-Supervisor-and-Monitor-Low-Side-Control-Register-）：" class="headerlink" title="低端监控寄存器 SVSMLCTL（Supply Voltage Supervisor and Monitor Low-Side Control Register ）："></a>低端监控寄存器 SVSMLCTL（Supply Voltage Supervisor and Monitor Low-Side Control Register ）：</h5><table>
 <thead>
 <tr>
@@ -452,6 +475,7 @@
 </tr>
 </tbody></table>
 <p><strong>SVSMLACE</strong>         位7             SVS和SVM低端自动控制使能。 如果该位置1，则SVSL和SVML电路的低功耗模式处于硬件控制之下。<br><strong>SVSMLEVM</strong>         位6             SVS和SVM低端事件掩码。 如果该位置1，则SVSL和SVML事件被屏蔽。<br>                                                       0-没有任何事件被屏蔽。<br>                                                       1-所有事件均被屏蔽。<br><strong>Reserved</strong>             位5             保留。始终读取0。<br><strong>SVSLMD</strong>              位4             SVS低端模式。如果该位置1，则在掉电情况下，在LPM2，LPM3和LPM4中设置SVSL中断标志。 如果未设置此位，则不会在LPM2，LPM3和LPM4中设置SVSL中断。<br><strong>SVSMLDLYST</strong>     位3             SVS和SVM低端延迟状态。如果该位置1，则SVSL和SVML事件将被屏蔽一段时间。 延迟时间取决于SVSL和SVML的电源模式。 如果SVMLFP = 1和SVSLFP = 1，即全性能模式，则延迟会更短。如果延迟已过期，则该位将由硬件清除。<br><strong>SVSMLRRL</strong>         位2-0          SVS和SVM低端复位释放电压电平，这些位定义了SVSL的复位释放电压电平。SVML还可以使用它来定义达到的电压水平。 </p>
+<hr>
 <h5 id="电源管理模块中断标志寄存器-PMMIFG（Power-Management-Module-Interrupt-Flag-Register）"><a href="#电源管理模块中断标志寄存器-PMMIFG（Power-Management-Module-Interrupt-Flag-Register）" class="headerlink" title="电源管理模块中断标志寄存器 PMMIFG（Power Management Module Interrupt Flag Register）"></a>电源管理模块中断标志寄存器 PMMIFG（Power Management Module Interrupt Flag Register）</h5><table>
 <thead>
 <tr>
@@ -522,7 +546,6 @@
 </tr>
 </tbody></table>
 <p><strong>Reserved</strong>            位7            保留。始终读取0。<br><strong>SVMHVLRIFG</strong>    位6             SVM高端电压电平达到中断标志。该位可通过软件或通过读取复位向量（SVSHPE = 1）字或通过读取中断向量（SVSHPE = 0）字来清除。<br>                                                       0-没有待处理的中断<br>                                                       1-待处理的中断<br><strong>SVMHIFG</strong>               位5          SVM高侧中断标志。 该位由软件清除。<br>                                                       0-没有待处理的中断<br>                                                       1-待处理的中断<br><strong>SVSMHDLYIFG</strong>      位4          SVS和SVM高侧延迟已到期的中断标志。如果延迟元素过期，则设置该中断标志。该位通过软件或读取中断向量字清除。<br>                                                       0-没有待处理的中断<br>                                                       1-待处理的中断<br><strong>Reserved</strong>                位3         保留。始终读取0。<br><strong>SVMLVLRIFG</strong>         位2         SVM低侧电压电平已达到中断标志。该位可通过软件或通过读取复位向量（SVSLPE = 1）字或通过读取中断向量（SVSLPE = 0）字来清除。<br>                                                       0-无中断待决<br>                                                       1-中断待决<br><strong>SVMLIFG</strong>                 位1         SVM低端中断标志。 该位由软件清除。<br>                                                       0-无待处理的中断<br>                                                       1-待处理的中断<br><strong>SVSMLDLYIFG</strong>        位0         SVS和SVM低端延迟已过期的中断标志。 如果延迟元素过期，则设置该中断标志。该位通过软件或读取中断向量字清除。<br>                                                       0-无中断待决<br>                                                       1-中断待决</p>
-<hr>
 <h3 id="PMM-操作"><a href="#PMM-操作" class="headerlink" title="PMM 操作"></a>PMM 操作</h3><h4 id="PMM操作流程"><a href="#PMM操作流程" class="headerlink" title="PMM操作流程"></a>PMM操作流程</h4><p>至关重要的是，<strong>VCORE级别一次只能增加一个级别</strong>，以下步骤1至4显示了将VCORE增加一级的过程。重复此顺序以更改VCORE级别，直到获得目标级别为止：</p>
 <ol>
 <li>将SVMH和SVSH编程到下一个级别，以确保DVCC对于下一个VCORE级别足够高。</li>
@@ -586,8 +609,8 @@
       <i class="fa fa-chevron-left"></i> 树莓派平台自建博客(二)——博客上传&域名绑定
     </a></div>
       <div class="post-nav-item">
-    <a href="/2021/01/25/MSP430%E5%8D%95%E7%89%87%E6%9C%BA%E5%85%A5%E9%97%A8(5)%E2%80%94%E2%80%94USCI-UART%E6%A8%A1%E5%BC%8F/" rel="next" title="">
-       <i class="fa fa-chevron-right"></i>
+    <a href="/2021/01/22/MSP430%E5%8D%95%E7%89%87%E6%9C%BA%E5%85%A5%E9%97%A8(5)%E2%80%94%E2%80%94USCI-UART%E6%A8%A1%E5%BC%8F/" rel="next" title="MSP430单片机(五)——USCI-UART模式">
+      MSP430单片机(五)——USCI-UART模式 <i class="fa fa-chevron-right"></i>
     </a></div>
     </div>
       </footer>
@@ -653,9 +676,9 @@
 
       <div class="site-overview-wrap sidebar-panel">
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
-    <img class="site-author-image" itemprop="image" alt="Dzy"
+    <img class="site-author-image" itemprop="image" alt="Dzy404"
       src="/images/avatar.png">
-  <p class="site-author-name" itemprop="name">Dzy</p>
+  <p class="site-author-name" itemprop="name">Dzy404</p>
   <div class="site-description" itemprop="description"></div>
 </div>
 <div class="site-state-wrap motion-element">
@@ -663,7 +686,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">19</span>
+          <span class="site-state-item-count">20</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -676,7 +699,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">23</span>
+        <span class="site-state-item-count">24</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -715,7 +738,7 @@
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>
-  <span class="author" itemprop="copyrightHolder">Dzy</span>
+  <span class="author" itemprop="copyrightHolder">Dzy404</span>
 </div>
 
 <!--
@@ -757,6 +780,10 @@
   
 
 
+
+
+  
+<script src="/js/local-search.js"></script>
 
 
 

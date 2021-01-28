@@ -17,7 +17,7 @@
 
 <script id="hexo-configurations">
     var NexT = window.NexT || {};
-    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
   <meta property="og:type" content="website">
@@ -25,7 +25,7 @@
 <meta property="og:url" content="http://example.com/index.html">
 <meta property="og:site_name" content="Dzy404&#39;s Blog">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:author" content="Dzy">
+<meta property="article:author" content="Dzy404">
 <meta name="twitter:card" content="summary">
 
 <link rel="canonical" href="http://example.com/">
@@ -100,6 +100,7 @@
 
   <div class="site-nav-right">
     <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
     </div>
   </div>
 </div>
@@ -139,11 +140,38 @@
     <a href="/404/" rel="section"><i class="fa fa-heartbeat fa-fw"></i>公益 404</a>
 
   </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
   </ul>
 </nav>
 
 
 
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
 
 </div>
     </header>
@@ -165,7 +193,7 @@
 
 	<div class="tag-cloud">
 	  <div class="tag-cloud-tags" id="tags">
-		<a href="/tags/C-C/" style="font-size: 16px; color: #fff">C/C++</a> <a href="/tags/E-paper/" style="font-size: 16px; color: #fff">E-paper</a> <a href="/tags/Github/" style="font-size: 16px; color: #fff">Github</a> <a href="/tags/Hexo/" style="font-size: 16px; color: #fff">Hexo</a> <a href="/tags/IAP/" style="font-size: 16px; color: #fff">IAP</a> <a href="/tags/IAR/" style="font-size: 16px; color: #fff">IAR</a> <a href="/tags/Keil/" style="font-size: 16px; color: #fff">Keil</a> <a href="/tags/Linux/" style="font-size: 16px; color: #fff">Linux</a> <a href="/tags/MSP430/" style="font-size: 16px; color: #fff">MSP430</a> <a href="/tags/SPI/" style="font-size: 16px; color: #fff">SPI</a> <a href="/tags/STM32/" style="font-size: 16px; color: #fff">STM32</a> <a href="/tags/VC6-0/" style="font-size: 16px; color: #fff">VC6.0</a> <a href="/tags/%E4%BD%8E%E5%8A%9F%E8%80%97/" style="font-size: 16px; color: #fff">低功耗</a> <a href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/" style="font-size: 16px; color: #fff">嵌入式</a> <a href="/tags/%E5%BA%93/" style="font-size: 16px; color: #fff">库</a> <a href="/tags/%E6%84%9F%E6%83%B3/" style="font-size: 16px; color: #fff">感想</a> <a href="/tags/%E6%A0%91%E8%8E%93%E6%B4%BE/" style="font-size: 16px; color: #fff">树莓派</a> <a href="/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E6%B3%95/" style="font-size: 16px; color: #fff">编程语法</a> <a href="/tags/%E7%BC%96%E8%AF%91%E8%BD%AF%E4%BB%B6/" style="font-size: 16px; color: #fff">编译软件</a> <a href="/tags/%E8%99%9A%E6%8B%9F%E6%9C%BA/" style="font-size: 16px; color: #fff">虚拟机</a> <a href="/tags/%E9%80%9A%E4%BF%A1/" style="font-size: 16px; color: #fff">通信</a> <a href="/tags/%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE/" style="font-size: 16px; color: #fff">通信协议</a> <a href="/tags/%E9%A9%B1%E5%8A%A8%E5%BC%80%E5%8F%91/" style="font-size: 16px; color: #fff">驱动开发</a>
+		<a href="/tags/ARM/" style="font-size: 16px; color: #fff">ARM</a> <a href="/tags/C-C/" style="font-size: 16px; color: #fff">C/C++</a> <a href="/tags/E-paper/" style="font-size: 16px; color: #fff">E-paper</a> <a href="/tags/Github/" style="font-size: 16px; color: #fff">Github</a> <a href="/tags/Hexo/" style="font-size: 16px; color: #fff">Hexo</a> <a href="/tags/IAP/" style="font-size: 16px; color: #fff">IAP</a> <a href="/tags/IAR/" style="font-size: 16px; color: #fff">IAR</a> <a href="/tags/Keil/" style="font-size: 16px; color: #fff">Keil</a> <a href="/tags/Linux/" style="font-size: 16px; color: #fff">Linux</a> <a href="/tags/MSP430/" style="font-size: 16px; color: #fff">MSP430</a> <a href="/tags/SPI/" style="font-size: 16px; color: #fff">SPI</a> <a href="/tags/STM32/" style="font-size: 16px; color: #fff">STM32</a> <a href="/tags/VC6-0/" style="font-size: 16px; color: #fff">VC6.0</a> <a href="/tags/shell/" style="font-size: 16px; color: #fff">shell</a> <a href="/tags/%E4%BD%8E%E5%8A%9F%E8%80%97/" style="font-size: 16px; color: #fff">低功耗</a> <a href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/" style="font-size: 16px; color: #fff">嵌入式</a> <a href="/tags/%E5%BA%93/" style="font-size: 16px; color: #fff">库</a> <a href="/tags/%E6%A0%91%E8%8E%93%E6%B4%BE/" style="font-size: 16px; color: #fff">树莓派</a> <a href="/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E6%B3%95/" style="font-size: 16px; color: #fff">编程语法</a> <a href="/tags/%E7%BC%96%E8%AF%91%E8%BD%AF%E4%BB%B6/" style="font-size: 16px; color: #fff">编译软件</a> <a href="/tags/%E8%99%9A%E6%8B%9F%E6%9C%BA/" style="font-size: 16px; color: #fff">虚拟机</a> <a href="/tags/%E9%80%9A%E4%BF%A1/" style="font-size: 16px; color: #fff">通信</a> <a href="/tags/%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE/" style="font-size: 16px; color: #fff">通信协议</a> <a href="/tags/%E9%A9%B1%E5%8A%A8%E5%BC%80%E5%8F%91/" style="font-size: 16px; color: #fff">驱动开发</a>
 	  </div>
 	</div>
 	<br>
@@ -195,7 +223,7 @@
     margin: 8px 5px 0px 0px;
   }
   .tag-cloud-tags a:before{
-    content: "🏷";
+    content: "🔖";
   }
 
   .tag-cloud-tags a:hover{
@@ -209,11 +237,11 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/01/25/MSP430%E5%8D%95%E7%89%87%E6%9C%BA%E5%85%A5%E9%97%A8(5)%E2%80%94%E2%80%94USCI-UART%E6%A8%A1%E5%BC%8F/">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/01/27/%E8%A7%A3%E5%86%B3%E6%A0%91%E8%8E%93%E6%B4%BE%E5%AE%89%E8%A3%85motion%E7%9A%84%E4%BE%9D%E8%B5%96%E9%97%AE%E9%A2%98/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.png">
-      <meta itemprop="name" content="Dzy">
+      <meta itemprop="name" content="Dzy404">
       <meta itemprop="description" content="">
     </span>
 
@@ -223,7 +251,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/2021/01/25/MSP430%E5%8D%95%E7%89%87%E6%9C%BA%E5%85%A5%E9%97%A8(5)%E2%80%94%E2%80%94USCI-UART%E6%A8%A1%E5%BC%8F/" class="post-title-link" itemprop="url">未命名</a>
+            <a href="/2021/01/27/%E8%A7%A3%E5%86%B3%E6%A0%91%E8%8E%93%E6%B4%BE%E5%AE%89%E8%A3%85motion%E7%9A%84%E4%BE%9D%E8%B5%96%E9%97%AE%E9%A2%98/" class="post-title-link" itemprop="url">树莓派安装motion的问题</a>
         </h2>
 
         <div class="post-meta">
@@ -232,9 +260,158 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
-              
 
-              <time title="创建时间：2021-01-25 19:00:00 / 修改时间：13:25:35" itemprop="dateCreated datePublished" datetime="2021-01-25T19:00:00+00:00">2021-01-25</time>
+              <time title="创建时间：2021-01-27 17:00:00" itemprop="dateCreated datePublished" datetime="2021-01-27T17:00:00+00:00">2021-01-27</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Linux/" itemprop="url" rel="index"><span itemprop="name">Linux</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>在安装motion的时候出现了依赖错误的问题</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2021/01/27/%E8%A7%A3%E5%86%B3%E6%A0%91%E8%8E%93%E6%B4%BE%E5%AE%89%E8%A3%85motion%E7%9A%84%E4%BE%9D%E8%B5%96%E9%97%AE%E9%A2%98/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/01/25/MSP430%E5%8D%95%E7%89%87%E6%9C%BA%E5%85%A5%E9%97%A8(6)%E2%80%94%E2%80%94USCI-SPI%E6%A8%A1%E5%BC%8F/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="Dzy404">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Dzy404's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/01/25/MSP430%E5%8D%95%E7%89%87%E6%9C%BA%E5%85%A5%E9%97%A8(6)%E2%80%94%E2%80%94USCI-SPI%E6%A8%A1%E5%BC%8F/" class="post-title-link" itemprop="url">MSP430单片机(六)——USCI-SPI模式</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-01-25 18:00:00" itemprop="dateCreated datePublished" datetime="2021-01-25T18:00:00+00:00">2021-01-25</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F%E5%BC%80%E5%8F%91/" itemprop="url" rel="index"><span itemprop="name">嵌入式开发</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <blockquote>
+<p>在墨水屏入门功能开发(一)中写到了SPI的应用，但对SPI并没有做深入的了解，正好借开发墨水屏的机会，从原理到墨水屏开发的实际应用来全面学习SPI。</p>
+</blockquote>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2021/01/25/MSP430%E5%8D%95%E7%89%87%E6%9C%BA%E5%85%A5%E9%97%A8(6)%E2%80%94%E2%80%94USCI-SPI%E6%A8%A1%E5%BC%8F/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/01/22/MSP430%E5%8D%95%E7%89%87%E6%9C%BA%E5%85%A5%E9%97%A8(5)%E2%80%94%E2%80%94USCI-UART%E6%A8%A1%E5%BC%8F/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="Dzy404">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Dzy404's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/01/22/MSP430%E5%8D%95%E7%89%87%E6%9C%BA%E5%85%A5%E9%97%A8(5)%E2%80%94%E2%80%94USCI-UART%E6%A8%A1%E5%BC%8F/" class="post-title-link" itemprop="url">MSP430单片机(五)——USCI-UART模式</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-01-22 19:00:00" itemprop="dateCreated datePublished" datetime="2021-01-22T19:00:00+00:00">2021-01-22</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -260,7 +437,7 @@
           <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>USCI模块不仅支持UART模式，还支持SPI模式，在单片机的应用中十分重要。</p>
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/2021/01/25/MSP430%E5%8D%95%E7%89%87%E6%9C%BA%E5%85%A5%E9%97%A8(5)%E2%80%94%E2%80%94USCI-UART%E6%A8%A1%E5%BC%8F/#more" rel="contents">
+              <a class="btn" href="/2021/01/22/MSP430%E5%8D%95%E7%89%87%E6%9C%BA%E5%85%A5%E9%97%A8(5)%E2%80%94%E2%80%94USCI-UART%E6%A8%A1%E5%BC%8F/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -284,11 +461,11 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/01/22/MSP430%E5%8D%95%E7%89%87%E6%9C%BA%E5%85%A5%E9%97%A8(4)%E2%80%94%E2%80%94%E7%94%B5%E6%BA%90%E7%AE%A1%E7%90%86PMM/">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/01/18/MSP430%E5%8D%95%E7%89%87%E6%9C%BA%E5%85%A5%E9%97%A8(4)%E2%80%94%E2%80%94%E7%94%B5%E6%BA%90%E7%AE%A1%E7%90%86PMM/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.png">
-      <meta itemprop="name" content="Dzy">
+      <meta itemprop="name" content="Dzy404">
       <meta itemprop="description" content="">
     </span>
 
@@ -298,7 +475,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/2021/01/22/MSP430%E5%8D%95%E7%89%87%E6%9C%BA%E5%85%A5%E9%97%A8(4)%E2%80%94%E2%80%94%E7%94%B5%E6%BA%90%E7%AE%A1%E7%90%86PMM/" class="post-title-link" itemprop="url">未命名</a>
+            <a href="/2021/01/18/MSP430%E5%8D%95%E7%89%87%E6%9C%BA%E5%85%A5%E9%97%A8(4)%E2%80%94%E2%80%94%E7%94%B5%E6%BA%90%E7%AE%A1%E7%90%86PMM/" class="post-title-link" itemprop="url">MSP430单片机(四)——电源管理和监控</a>
         </h2>
 
         <div class="post-meta">
@@ -308,15 +485,8 @@
               </span>
               <span class="post-meta-item-text">发表于</span>
 
-              <time title="创建时间：2021-01-22 19:00:00" itemprop="dateCreated datePublished" datetime="2021-01-22T19:00:00+00:00">2021-01-22</time>
+              <time title="创建时间：2021-01-18 19:00:00" itemprop="dateCreated datePublished" datetime="2021-01-18T19:00:00+00:00">2021-01-18</time>
             </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-01-25 13:26:44" itemprop="dateModified" datetime="2021-01-25T13:26:44+00:00">2021-01-25</time>
-              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -343,7 +513,7 @@
 </blockquote>
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/2021/01/22/MSP430%E5%8D%95%E7%89%87%E6%9C%BA%E5%85%A5%E9%97%A8(4)%E2%80%94%E2%80%94%E7%94%B5%E6%BA%90%E7%AE%A1%E7%90%86PMM/#more" rel="contents">
+              <a class="btn" href="/2021/01/18/MSP430%E5%8D%95%E7%89%87%E6%9C%BA%E5%85%A5%E9%97%A8(4)%E2%80%94%E2%80%94%E7%94%B5%E6%BA%90%E7%AE%A1%E7%90%86PMM/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -371,7 +541,7 @@
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.png">
-      <meta itemprop="name" content="Dzy">
+      <meta itemprop="name" content="Dzy404">
       <meta itemprop="description" content="">
     </span>
 
@@ -393,13 +563,6 @@
 
               <time title="创建时间：2021-01-13 21:00:00" itemprop="dateCreated datePublished" datetime="2021-01-13T21:00:00+00:00">2021-01-13</time>
             </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-01-25 11:58:26" itemprop="dateModified" datetime="2021-01-25T11:58:26+00:00">2021-01-25</time>
-              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -454,7 +617,7 @@
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.png">
-      <meta itemprop="name" content="Dzy">
+      <meta itemprop="name" content="Dzy404">
       <meta itemprop="description" content="">
     </span>
 
@@ -476,13 +639,6 @@
 
               <time title="创建时间：2021-01-11 21:00:00" itemprop="dateCreated datePublished" datetime="2021-01-11T21:00:00+00:00">2021-01-11</time>
             </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-01-25 12:11:55" itemprop="dateModified" datetime="2021-01-25T12:11:55+00:00">2021-01-25</time>
-              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -537,7 +693,7 @@
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.png">
-      <meta itemprop="name" content="Dzy">
+      <meta itemprop="name" content="Dzy404">
       <meta itemprop="description" content="">
     </span>
 
@@ -559,13 +715,6 @@
 
               <time title="创建时间：2021-01-07 18:00:00" itemprop="dateCreated datePublished" datetime="2021-01-07T18:00:00+00:00">2021-01-07</time>
             </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-01-25 12:21:01" itemprop="dateModified" datetime="2021-01-25T12:21:01+00:00">2021-01-25</time>
-              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -621,7 +770,7 @@
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.png">
-      <meta itemprop="name" content="Dzy">
+      <meta itemprop="name" content="Dzy404">
       <meta itemprop="description" content="">
     </span>
 
@@ -643,13 +792,6 @@
 
               <time title="创建时间：2020-12-30 18:00:00" itemprop="dateCreated datePublished" datetime="2020-12-30T18:00:00+00:00">2020-12-30</time>
             </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-01-25 12:44:16" itemprop="dateModified" datetime="2021-01-25T12:44:16+00:00">2021-01-25</time>
-              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -704,7 +846,7 @@
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.png">
-      <meta itemprop="name" content="Dzy">
+      <meta itemprop="name" content="Dzy404">
       <meta itemprop="description" content="">
     </span>
 
@@ -726,13 +868,6 @@
 
               <time title="创建时间：2020-12-09 18:00:00" itemprop="dateCreated datePublished" datetime="2020-12-09T18:00:00+00:00">2020-12-09</time>
             </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-01-25 12:25:02" itemprop="dateModified" datetime="2021-01-25T12:25:02+00:00">2021-01-25</time>
-              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -787,7 +922,7 @@
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.png">
-      <meta itemprop="name" content="Dzy">
+      <meta itemprop="name" content="Dzy404">
       <meta itemprop="description" content="">
     </span>
 
@@ -809,13 +944,6 @@
 
               <time title="创建时间：2020-11-18 18:00:00" itemprop="dateCreated datePublished" datetime="2020-11-18T18:00:00+00:00">2020-11-18</time>
             </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-01-25 12:51:59" itemprop="dateModified" datetime="2021-01-25T12:51:59+00:00">2021-01-25</time>
-              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -843,172 +971,6 @@
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2020/11/18/MSP430%E5%8D%95%E7%89%87%E6%9C%BA%E5%85%A5%E9%97%A8(3)%E2%80%94%E2%80%94IO%E3%80%81WDT%E5%92%8C%E4%BD%8E%E5%8A%9F%E8%80%97/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2020/11/08/MSP430%E5%8D%95%E7%89%87%E6%9C%BA%E5%85%A5%E9%97%A8(2)%E2%80%94%E2%80%94%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83IAR/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.png">
-      <meta itemprop="name" content="Dzy">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Dzy404's Blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/11/08/MSP430%E5%8D%95%E7%89%87%E6%9C%BA%E5%85%A5%E9%97%A8(2)%E2%80%94%E2%80%94%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83IAR/" class="post-title-link" itemprop="url">MSP430单片机(二)——开发环境IAR</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2020-11-08 18:00:00" itemprop="dateCreated datePublished" datetime="2020-11-08T18:00:00+00:00">2020-11-08</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-01-25 12:42:41" itemprop="dateModified" datetime="2021-01-25T12:42:41+00:00">2021-01-25</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E5%B7%A5%E5%85%B7%E5%BA%94%E7%94%A8/" itemprop="url" rel="index"><span itemprop="name">工具应用</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <blockquote>
-<p>初步接触IAR的开发环境.<br>版本：Embedded Workbench 8.0 IAR for 430</p>
-</blockquote>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/11/08/MSP430%E5%8D%95%E7%89%87%E6%9C%BA%E5%85%A5%E9%97%A8(2)%E2%80%94%E2%80%94%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83IAR/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2020/11/01/MSP430%E5%8D%95%E7%89%87%E6%9C%BA%E5%85%A5%E9%97%A8(1)%E2%80%94%E2%80%94%E6%A6%82%E8%BF%B0/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.png">
-      <meta itemprop="name" content="Dzy">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Dzy404's Blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/11/01/MSP430%E5%8D%95%E7%89%87%E6%9C%BA%E5%85%A5%E9%97%A8(1)%E2%80%94%E2%80%94%E6%A6%82%E8%BF%B0/" class="post-title-link" itemprop="url">MSP430 单片机(一)——概述</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2020-11-01 18:00:00" itemprop="dateCreated datePublished" datetime="2020-11-01T18:00:00+00:00">2020-11-01</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-01-25 12:43:15" itemprop="dateModified" datetime="2021-01-25T12:43:15+00:00">2021-01-25</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F%E5%BC%80%E5%8F%91/" itemprop="url" rel="index"><span itemprop="name">嵌入式开发</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <blockquote>
-<p>简要介绍(水)一下MSP430单片机的特点和应用</p>
-</blockquote>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/11/01/MSP430%E5%8D%95%E7%89%87%E6%9C%BA%E5%85%A5%E9%97%A8(1)%E2%80%94%E2%80%94%E6%A6%82%E8%BF%B0/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -1089,9 +1051,9 @@
 
       <div class="site-overview-wrap sidebar-panel">
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
-    <img class="site-author-image" itemprop="image" alt="Dzy"
+    <img class="site-author-image" itemprop="image" alt="Dzy404"
       src="/images/avatar.png">
-  <p class="site-author-name" itemprop="name">Dzy</p>
+  <p class="site-author-name" itemprop="name">Dzy404</p>
   <div class="site-description" itemprop="description"></div>
 </div>
 <div class="site-state-wrap motion-element">
@@ -1099,7 +1061,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">19</span>
+          <span class="site-state-item-count">20</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -1112,7 +1074,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">23</span>
+        <span class="site-state-item-count">24</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -1151,7 +1113,7 @@
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>
-  <span class="author" itemprop="copyrightHolder">Dzy</span>
+  <span class="author" itemprop="copyrightHolder">Dzy404</span>
 </div>
 
 <!--
@@ -1193,6 +1155,10 @@
   
 
 
+
+
+  
+<script src="/js/local-search.js"></script>
 
 
 
