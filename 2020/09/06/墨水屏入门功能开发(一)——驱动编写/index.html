@@ -36,7 +36,7 @@
 <meta property="og:image" content="http://example.com/upload_image/磁滞效应.jpg">
 <meta property="og:image" content="http://example.com/upload_image/20200715160631675.jpg">
 <meta property="article:published_time" content="2020-09-06T18:00:00.000Z">
-<meta property="article:modified_time" content="2021-01-25T13:13:38.000Z">
+<meta property="article:modified_time" content="2021-02-07T13:35:14.000Z">
 <meta property="article:author" content="Dzy404">
 <meta property="article:tag" content="嵌入式">
 <meta property="article:tag" content="驱动开发">
@@ -152,6 +152,16 @@
         <li class="menu-item menu-item-archives">
 
     <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-books">
+
+    <a href="/books/" rel="section"><i class="fa fa-book fa-fw"></i>books</a>
+
+  </li>
+        <li class="menu-item menu-item-movies">
+
+    <a href="/movies/" rel="section"><i class="fa fa-calenda fa-fw"></i>movies</a>
 
   </li>
         <li class="menu-item menu-item-commonweal">
@@ -301,7 +311,47 @@
 <hr>
 <h3 id="SPI寄存器工作"><a href="#SPI寄存器工作" class="headerlink" title="SPI寄存器工作"></a>SPI寄存器工作</h3><p>SDA以D7、D6、…D0的顺序移位到8位移位寄存器中。移位寄存器中的数据字节在同一时钟内写入图形显示数据RAM(RAM)或命令寄存器。在串行模式下，仅允许写入操作。<br>SDA写入移位寄存器，先Command(发送寄存器指令)再parameter(write Data)，实现大多数的命令+数据写入。</p>
 <p>在刷新和初始设置中有一部分指令比较重要，对以下指令作着重介绍。</p>
-<h4 id="面板设置指令-R00H-："><a href="#面板设置指令-R00H-：" class="headerlink" title="面板设置指令(R00H)："></a>面板设置指令(<strong>R00H</strong>)：</h4><p>面板设置是执行所有操作之前必须设置的一项，通过面板设置我们可以改变墨水屏的分辨率、灰度初始设置、显示模式切换、调整扫描方向(包括左右扫描方向和上下扫描方向)等，理解这一指令对墨水屏的开发有着关键的意义。<br>| W/R  | C/D  |  D7  |  D6  |  D5  |  D4  |  D3  |  D2  |  D1  |  D0  |<br>| :–: | :–: | :–: | :–: | :–: | :–: | :–: | :–: | :–: | :–: |<br>|  0   |  0   |  0   |  0   |  0   |  0   |  0   |  0   |  0   |  0   |<br>|  0   |  1   | RES1 | RES0 | LUT  | BWR  |  UD  | SHL  |  SH  | RST  |</p>
+<h4 id="面板设置指令-R00H-："><a href="#面板设置指令-R00H-：" class="headerlink" title="面板设置指令(R00H)："></a>面板设置指令(<strong>R00H</strong>)：</h4><p>面板设置是执行所有操作之前必须设置的一项，通过面板设置我们可以改变墨水屏的分辨率、灰度初始设置、显示模式切换、调整扫描方向(包括左右扫描方向和上下扫描方向)等，理解这一指令对墨水屏的开发有着关键的意义。</p>
+<table>
+<thead>
+<tr>
+<th align="center">W/R</th>
+<th align="center">C/D</th>
+<th align="center">D7</th>
+<th align="center">D6</th>
+<th align="center">D5</th>
+<th align="center">D4</th>
+<th align="center">D3</th>
+<th align="center">D2</th>
+<th align="center">D1</th>
+<th align="center">D0</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">0</td>
+<td align="center">0</td>
+<td align="center">0</td>
+<td align="center">0</td>
+<td align="center">0</td>
+<td align="center">0</td>
+<td align="center">0</td>
+<td align="center">0</td>
+<td align="center">0</td>
+<td align="center">0</td>
+</tr>
+<tr>
+<td align="center">0</td>
+<td align="center">1</td>
+<td align="center">RES1</td>
+<td align="center">RES0</td>
+<td align="center">LUT</td>
+<td align="center">BWR</td>
+<td align="center">UD</td>
+<td align="center">SHL</td>
+<td align="center">SH</td>
+<td align="center">RST</td>
+</tr>
+</tbody></table>
 <blockquote>
 <p><strong>RES[1:0]: 显示分辨率设置 (source×gate)</strong><br>00b: 320×300 (default)  , 01b: 300×200<br>10b: 296×160 , 11b: 296×128 </p>
 </blockquote>
@@ -529,7 +579,7 @@
 </blockquote>
 <h5 id="LUT函数的实现"><a href="#LUT函数的实现" class="headerlink" title="LUT函数的实现"></a>LUT函数的实现</h5><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">lut</span><span class="params">(<span class="keyword">void</span>)</span><span class="comment">//改变画面的曝光与色彩，增强图像的光对比度的作用      </span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">unsigned</span> <span class="keyword">int</span> count;</span><br><span class="line">	EPD_W21_WriteCMD(<span class="number">0x20</span>);    <span class="comment">//使用该指令为VCOM建立一个显示查找表（Look-Up-Table)</span></span><br><span class="line">	<span class="keyword">for</span>(count=<span class="number">0</span>;count&lt;<span class="number">44</span>;count++)	     </span><br><span class="line">		&#123;EPD_W21_WriteDATA(lut_vcomDC[count]);&#125;</span><br><span class="line"></span><br><span class="line">	EPD_W21_WriteCMD(<span class="number">0x21</span>);    <span class="comment">//使用该指令建立一个白色-白色的显示查找表</span></span><br><span class="line">	<span class="keyword">for</span>(count=<span class="number">0</span>;count&lt;<span class="number">42</span>;count++)	     </span><br><span class="line">		&#123;EPD_W21_WriteDATA(lut_ww[count]);&#125;   </span><br><span class="line">	</span><br><span class="line">	EPD_W21_WriteCMD(<span class="number">0x22</span>);    <span class="comment">//使用该指令建立一个黑色-白色的显示查找表</span></span><br><span class="line">	<span class="keyword">for</span>(count=<span class="number">0</span>;count&lt;<span class="number">42</span>;count++)	     </span><br><span class="line">		&#123;EPD_W21_WriteDATA(lut_bw[count]);&#125; </span><br><span class="line"></span><br><span class="line">	EPD_W21_WriteCMD(<span class="number">0x23</span>);    <span class="comment">//使用该指令建立一个白色-黑色的显示查找表</span></span><br><span class="line">	<span class="keyword">for</span>(count=<span class="number">0</span>;count&lt;<span class="number">42</span>;count++)	     </span><br><span class="line">		&#123;EPD_W21_WriteDATA(lut_wb[count]);&#125; </span><br><span class="line"></span><br><span class="line">	EPD_W21_WriteCMD(<span class="number">0x24</span>);    <span class="comment">//使用该指令建立一个黑色-黑色的显示查找表</span></span><br><span class="line">	<span class="keyword">for</span>(count=<span class="number">0</span>;count&lt;<span class="number">42</span>;count++)	     </span><br><span class="line">		&#123;EPD_W21_WriteDATA(lut_bb[count]);&#125; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>手册中并没有告诉我lut_ww，lut_bw，lut_wb，lut_bb这些数组的作用，也并不清楚IC(驱动芯片)是如何工作的，因此我翻了国内外一些关于墨水屏开发的视频，<a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=MsbiO8EAsGw&t=1113s">E-paper hacking: fastest possible refresh rate-YouTube</a>中详细讲解了各个数组和波形的用途。</p>
-<p>查询GooDisplay墨水屏手册我了解到该型号墨水屏的驱动芯片(IC)为IL91874。在搜集了国外微雪的资料再结合视频中的知识之后，发现IL91874的波形与微雪的IC的波形在数据格式上是基本一致的，主要的区别在于GooDisplay中设置时钟频率和门电路的Byte放在前两位，而微雪则是放在最后两位 **(这一点在做不同厂家墨水屏开发程序之间的迁移时需要格外注意)**。</p>
+<p>查询GooDisplay墨水屏手册我了解到该型号墨水屏的驱动芯片(IC)为IL91874。在搜集了国外微雪的资料再结合视频中的知识之后，发现IL91874的波形与微雪的IC的波形在数据格式上是基本一致的，主要的区别在于GooDisplay中设置时钟频率和门电路的Byte放在前两位，而微雪则是放在最后两位 <em>(这一点在做不同厂家墨水屏开发程序之间的迁移时需要格外注意)</em> 。</p>
 <blockquote>
 <p>微雪墨水屏数据手册：<br><img src="/upload_image/20200715160631675.jpg" alt="img"></p>
 </blockquote>
@@ -595,7 +645,7 @@
 <p>代码实现：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">lcd_chkstatus</span><span class="params">(<span class="keyword">void</span>)</span>    <span class="comment">//Check BUSY_N </span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">unsigned</span> <span class="keyword">char</span> busy;</span><br><span class="line">	<span class="keyword">do</span></span><br><span class="line">	&#123;</span><br><span class="line">		EPD_W21_WriteCMD(<span class="number">0x71</span>);     <span class="comment">//读取IC状态</span></span><br><span class="line">		busy = isEPD_W21_BUSY;</span><br><span class="line">		busy =!(busy &amp; <span class="number">0x01</span>);       <span class="comment">//    xxxx xxxx&amp;0000 0001    </span></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">while</span>(busy);           <span class="comment">//若BUSN_N为低电平，则循环查询</span></span><br><span class="line">	driver_delay_xms(<span class="number">200</span>);                       </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <hr>
-<h3 id="4-墨水屏开发小结"><a href="#4-墨水屏开发小结" class="headerlink" title="4 墨水屏开发小结"></a>4 墨水屏开发小结</h3><p>读懂墨水屏的英文开发文档之后再结合相关知识，我发现墨水屏的低功耗、局部快速刷新功能具有相当的实用价值。如果在实际应用中能够接受偶尔全局刷新的闪屏(约5-10次局部刷新之后)和墨水屏的成本较高等缺陷，那么墨水屏就可以作为工业显示仪表中传统LED屏幕的有力替代方案。</p>
+<h3 id="墨水屏开发小结"><a href="#墨水屏开发小结" class="headerlink" title="墨水屏开发小结"></a>墨水屏开发小结</h3><p>读懂墨水屏的英文开发文档之后再结合相关知识，我发现墨水屏的低功耗、局部快速刷新功能具有相当的实用价值。如果在实际应用中能够接受偶尔全局刷新的闪屏(约5-10次局部刷新之后)和墨水屏的成本较高等缺陷，那么墨水屏就可以作为工业显示仪表中传统LED屏幕的有力替代方案。</p>
 <p>第一阶段的开发过程有很多不足，需要在下一阶段继续调试和研究：</p>
 <ol>
 <li>项目开发的最终目标为在更低功耗的MSP430上运行，目前开发环境为STM32F1X芯片，需要重新比对两者区别，后续完成程序的移植；</li>
@@ -690,7 +740,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A2%A8%E6%B0%B4%E5%B1%8F%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">墨水屏简介</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%A2%A8%E6%B0%B4%E5%B1%8F%E7%89%B9%E6%80%A7"><span class="nav-number">1.1.</span> <span class="nav-text">墨水屏特性</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%A2%A8%E6%B0%B4%E5%B1%8F%E5%85%89%E6%BA%90%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88"><span class="nav-number">1.2.</span> <span class="nav-text">墨水屏光源解决方案</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%A2%A8%E6%B0%B4%E5%B1%8F%E5%8A%9F%E8%80%97%E5%AE%9E%E6%B5%8B"><span class="nav-number">1.3.</span> <span class="nav-text">墨水屏功耗实测</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%A2%A8%E6%B0%B4%E5%B1%8F%E7%9A%84%E5%BA%94%E7%94%A8%E9%97%AE%E9%A2%98"><span class="nav-number">1.4.</span> <span class="nav-text">墨水屏的应用问题</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SPI%E5%AF%84%E5%AD%98%E5%99%A8%E5%B7%A5%E4%BD%9C"><span class="nav-number">2.</span> <span class="nav-text">SPI寄存器工作</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%9D%A2%E6%9D%BF%E8%AE%BE%E7%BD%AE%E6%8C%87%E4%BB%A4-R00H-%EF%BC%9A"><span class="nav-number">2.1.</span> <span class="nav-text">面板设置指令(R00H)：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%98%BE%E7%A4%BA%E5%88%B7%E6%96%B0%E5%91%BD%E4%BB%A4-R12H"><span class="nav-number">2.2.</span> <span class="nav-text">显示刷新命令(R12H)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%83%A8%E5%88%86%E6%95%B0%E6%8D%AE%E4%BC%A0%E8%BE%93%E8%87%B3%E5%AF%84%E5%AD%98%E5%99%A81-R14H"><span class="nav-number">2.3.</span> <span class="nav-text">部分数据传输至寄存器1(R14H)</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A2%A8%E6%B0%B4%E5%B1%8F%E4%B8%BB%E8%A6%81%E5%8A%9F%E8%83%BD%E5%AE%9E%E7%8E%B0"><span class="nav-number">3.</span> <span class="nav-text">墨水屏主要功能实现</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%B1%80%E9%83%A8%E5%88%B7%E6%96%B0"><span class="nav-number">3.1.</span> <span class="nav-text">局部刷新</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%81%B0%E5%BA%A6%E8%B0%83%E8%8A%82"><span class="nav-number">3.2.</span> <span class="nav-text">灰度调节</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E7%81%B0%E5%BA%A6%E5%8A%9F%E8%83%BD%E7%AE%80%E4%BB%8B"><span class="nav-number">3.2.1.</span> <span class="nav-text">灰度功能简介</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#LUT%E5%87%BD%E6%95%B0%E7%9A%84%E5%AE%9E%E7%8E%B0"><span class="nav-number">3.2.2.</span> <span class="nav-text">LUT函数的实现</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%88%86%E6%9E%90lut%E5%87%BD%E6%95%B0%E7%9A%84%E6%84%8F%E4%B9%89"><span class="nav-number">3.2.3.</span> <span class="nav-text">分析lut函数的意义</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#BUSY%E7%8A%B6%E6%80%81%E6%A3%80%E6%9F%A5"><span class="nav-number">3.3.</span> <span class="nav-text">BUSY状态检查</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-%E5%A2%A8%E6%B0%B4%E5%B1%8F%E5%BC%80%E5%8F%91%E5%B0%8F%E7%BB%93"><span class="nav-number">4.</span> <span class="nav-text">4 墨水屏开发小结</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A2%A8%E6%B0%B4%E5%B1%8F%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">墨水屏简介</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%A2%A8%E6%B0%B4%E5%B1%8F%E7%89%B9%E6%80%A7"><span class="nav-number">1.1.</span> <span class="nav-text">墨水屏特性</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%A2%A8%E6%B0%B4%E5%B1%8F%E5%85%89%E6%BA%90%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88"><span class="nav-number">1.2.</span> <span class="nav-text">墨水屏光源解决方案</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%A2%A8%E6%B0%B4%E5%B1%8F%E5%8A%9F%E8%80%97%E5%AE%9E%E6%B5%8B"><span class="nav-number">1.3.</span> <span class="nav-text">墨水屏功耗实测</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%A2%A8%E6%B0%B4%E5%B1%8F%E7%9A%84%E5%BA%94%E7%94%A8%E9%97%AE%E9%A2%98"><span class="nav-number">1.4.</span> <span class="nav-text">墨水屏的应用问题</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SPI%E5%AF%84%E5%AD%98%E5%99%A8%E5%B7%A5%E4%BD%9C"><span class="nav-number">2.</span> <span class="nav-text">SPI寄存器工作</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%9D%A2%E6%9D%BF%E8%AE%BE%E7%BD%AE%E6%8C%87%E4%BB%A4-R00H-%EF%BC%9A"><span class="nav-number">2.1.</span> <span class="nav-text">面板设置指令(R00H)：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%98%BE%E7%A4%BA%E5%88%B7%E6%96%B0%E5%91%BD%E4%BB%A4-R12H"><span class="nav-number">2.2.</span> <span class="nav-text">显示刷新命令(R12H)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%83%A8%E5%88%86%E6%95%B0%E6%8D%AE%E4%BC%A0%E8%BE%93%E8%87%B3%E5%AF%84%E5%AD%98%E5%99%A81-R14H"><span class="nav-number">2.3.</span> <span class="nav-text">部分数据传输至寄存器1(R14H)</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A2%A8%E6%B0%B4%E5%B1%8F%E4%B8%BB%E8%A6%81%E5%8A%9F%E8%83%BD%E5%AE%9E%E7%8E%B0"><span class="nav-number">3.</span> <span class="nav-text">墨水屏主要功能实现</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%B1%80%E9%83%A8%E5%88%B7%E6%96%B0"><span class="nav-number">3.1.</span> <span class="nav-text">局部刷新</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%81%B0%E5%BA%A6%E8%B0%83%E8%8A%82"><span class="nav-number">3.2.</span> <span class="nav-text">灰度调节</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E7%81%B0%E5%BA%A6%E5%8A%9F%E8%83%BD%E7%AE%80%E4%BB%8B"><span class="nav-number">3.2.1.</span> <span class="nav-text">灰度功能简介</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#LUT%E5%87%BD%E6%95%B0%E7%9A%84%E5%AE%9E%E7%8E%B0"><span class="nav-number">3.2.2.</span> <span class="nav-text">LUT函数的实现</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%88%86%E6%9E%90lut%E5%87%BD%E6%95%B0%E7%9A%84%E6%84%8F%E4%B9%89"><span class="nav-number">3.2.3.</span> <span class="nav-text">分析lut函数的意义</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#BUSY%E7%8A%B6%E6%80%81%E6%A3%80%E6%9F%A5"><span class="nav-number">3.3.</span> <span class="nav-text">BUSY状态检查</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A2%A8%E6%B0%B4%E5%B1%8F%E5%BC%80%E5%8F%91%E5%B0%8F%E7%BB%93"><span class="nav-number">4.</span> <span class="nav-text">墨水屏开发小结</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
