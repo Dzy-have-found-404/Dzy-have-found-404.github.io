@@ -30,7 +30,7 @@
 <meta property="og:image" content="http://example.com/upload_image/image-20201107163354835.png">
 <meta property="og:image" content="http://example.com/upload_image/image-20201119165324316.png">
 <meta property="article:published_time" content="2020-11-18T18:00:00.000Z">
-<meta property="article:modified_time" content="2021-02-08T09:24:59.000Z">
+<meta property="article:modified_time" content="2021-02-08T09:32:01.000Z">
 <meta property="article:author" content="Dzy404">
 <meta property="article:tag" content="嵌入式">
 <meta property="article:tag" content="驱动开发">
@@ -257,7 +257,7 @@
 <p><strong>与、&amp; 、AND</strong>：<code>1 &amp; 1 = 1，1 &amp; 0 = 0</code>，<strong>有0为0</strong></p>
 <p><strong>或、| 、OR</strong>：<code>1 | 1 = 1</code>，<code>1 | 0 = 1</code> ，<strong>有1为1</strong></p>
 <p><strong>异或、^ 、XOR</strong>：<code>1 ^ 0 = 1,0 ^ 1 = 1, 1 ^ 1 = 0, 0 ^ 0 = 0</code> ，<strong>不同为1</strong></p>
-<p><strong>取反、~ **：<code> ~ 1 = 0,  ~ 0 = 1</code> ，</strong>01互换**</p>
+<p><strong>取反、~ ** ：<code> ~ 1 = 0,  ~ 0 = 1</code> ， **01互换</strong></p>
 <h3 id="2-GPIO口概述"><a href="#2-GPIO口概述" class="headerlink" title="2. GPIO口概述"></a>2. GPIO口概述</h3><blockquote>
 <p>在前面的示例程序中我们发现对单片机进行编程实际上就是改写寄存器的值。单片机各个外设的功能其实是预先固定的，而寄存器就像是这些功能的控制接口，通过改变寄存器的值就可以在这些功能中进行选择。还有一些寄存器直接对应引脚的状态，例如GPIO的输入/输出寄存器。像以下语句： <code>P1OUT = 0x01</code> ;</p>
 <p>这句话其实就是赋值给P1OUT这个寄存器，这个寄存器是GPIO的输出寄存器，赋值之后对应引脚的输出状态就会发生改变。</p>
