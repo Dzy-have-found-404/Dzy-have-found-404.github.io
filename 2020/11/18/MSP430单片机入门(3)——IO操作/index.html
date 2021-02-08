@@ -30,7 +30,7 @@
 <meta property="og:image" content="http://example.com/upload_image/image-20201107163354835.png">
 <meta property="og:image" content="http://example.com/upload_image/image-20201119165324316.png">
 <meta property="article:published_time" content="2020-11-18T18:00:00.000Z">
-<meta property="article:modified_time" content="2021-02-08T09:05:07.000Z">
+<meta property="article:modified_time" content="2021-02-08T09:24:59.000Z">
 <meta property="article:author" content="Dzy404">
 <meta property="article:tag" content="嵌入式">
 <meta property="article:tag" content="驱动开发">
@@ -257,7 +257,7 @@
 <p><strong>与、&amp; 、AND</strong>：<code>1 &amp; 1 = 1，1 &amp; 0 = 0</code>，<strong>有0为0</strong></p>
 <p><strong>或、| 、OR</strong>：<code>1 | 1 = 1</code>，<code>1 | 0 = 1</code> ，<strong>有1为1</strong></p>
 <p><strong>异或、^ 、XOR</strong>：<code>1 ^ 0 = 1,0 ^ 1 = 1, 1 ^ 1 = 0, 0 ^ 0 = 0</code> ，<strong>不同为1</strong></p>
-<p><strong>取反、<del>**：`</del>1 = 0, ~0 = 1` ，</strong>01互换**</p>
+<p><strong>取反、~ **：<code> ~ 1 = 0,  ~ 0 = 1</code> ，</strong>01互换**</p>
 <h3 id="2-GPIO口概述"><a href="#2-GPIO口概述" class="headerlink" title="2. GPIO口概述"></a>2. GPIO口概述</h3><blockquote>
 <p>在前面的示例程序中我们发现对单片机进行编程实际上就是改写寄存器的值。单片机各个外设的功能其实是预先固定的，而寄存器就像是这些功能的控制接口，通过改变寄存器的值就可以在这些功能中进行选择。还有一些寄存器直接对应引脚的状态，例如GPIO的输入/输出寄存器。像以下语句： <code>P1OUT = 0x01</code> ;</p>
 <p>这句话其实就是赋值给P1OUT这个寄存器，这个寄存器是GPIO的输出寄存器，赋值之后对应引脚的输出状态就会发生改变。</p>
@@ -456,9 +456,8 @@
 <li><p>利用msp430官方库文件中宏定义，更直观地表示要操作地寄存器：</p>
 </li>
 </ol>
-<pre><code><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> BIT0                (0x0001u)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> BIT1                (0x0002u)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> BIT2                (0x0004u)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> BIT3                (0x0008u)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> BIT4                (0x0010u)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> BIT5                (0x0020u)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> BIT6                (0x0040u)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> BIT7                (0x0080u)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> BIT8                (0x0100u)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> BIT9                (0x0200u)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> BITA                (0x0400u)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> BITB                (0x0800u)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> BITC                (0x1000u)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> BITD                (0x2000u)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> BITE                (0x4000u)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> BITF                (0x8000u)</span></span><br></pre></td></tr></table></figure>
-
-`PxDIR = 0x81` 就可以改写成 `PxDIR = BIT0 + BIT7` ，可以省去计算寄存器换算16进制的值；</code></pre>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> BIT0                (0x0001u)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> BIT1                (0x0002u)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> BIT2                (0x0004u)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> BIT3                (0x0008u)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> BIT4                (0x0010u)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> BIT5                (0x0020u)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> BIT6                (0x0040u)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> BIT7                (0x0080u)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> BIT8                (0x0100u)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> BIT9                (0x0200u)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> BITA                (0x0400u)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> BITB                (0x0800u)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> BITC                (0x1000u)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> BITD                (0x2000u)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> BITE                (0x4000u)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> BITF                (0x8000u)</span></span><br></pre></td></tr></table></figure>
+<p><code>PxDIR = 0x81</code> 就可以改写成 <code>PxDIR = BIT0 + BIT7</code> ，可以省去计算寄存器换算16进制的值；</p>
 <ol start="3">
 <li>驱动库中提供了一个函数GPIO_setAsInputPin()来将I/O口配置为输出。</li>
 </ol>
@@ -489,7 +488,7 @@
 <h4 id="源码解释"><a href="#源码解释" class="headerlink" title="源码解释"></a>源码解释</h4><ol>
 <li> 关看门狗</li>
 </ol>
-<p><code>WDTCTL = WDTPW + WDTHOLD;                 // 停止看门狗</code></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">WDTCTL = WDTPW + WDTHOLD;                 <span class="comment">// 停止看门狗</span></span><br></pre></td></tr></table></figure>
 <p>这句话实现了关开门狗的功能，要想理解这句话需要先查看官方的芯片手册：</p>
 <img src="/upload_image/image-20201107163354835.png" alt="image-20201107163354835" style="zoom:50%;" />
 
