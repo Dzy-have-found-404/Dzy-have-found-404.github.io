@@ -41,9 +41,9 @@
 <meta property="article:tag" content="嵌入式">
 <meta property="article:tag" content="驱动开发">
 <meta property="article:tag" content="E-paper">
-<meta property="article:tag" content="低功耗">
 <meta property="article:tag" content="Keil">
 <meta property="article:tag" content="STM32">
+<meta property="article:tag" content="低功耗">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="http://example.com/upload_image/%E5%8E%9F%E7%90%86.png">
 
@@ -245,6 +245,13 @@
             </span>
 
           
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
 
         </div>
       </header>
@@ -643,15 +650,35 @@
     
     
     
+        <div class="reward-container">
+  <div>两种颜色的功德箱(逃</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechatpay.png" alt="Dzy404 微信支付">
+        <p>微信支付</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/images/alipay.png" alt="Dzy404 支付宝">
+        <p>支付宝</p>
+      </div>
+
+  </div>
+</div>
+
 
       <footer class="post-footer">
           <div class="post-tags">
               <a href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/" rel="tag"><i class="fa fa-tag"></i> 嵌入式</a>
               <a href="/tags/%E9%A9%B1%E5%8A%A8%E5%BC%80%E5%8F%91/" rel="tag"><i class="fa fa-tag"></i> 驱动开发</a>
               <a href="/tags/E-paper/" rel="tag"><i class="fa fa-tag"></i> E-paper</a>
-              <a href="/tags/%E4%BD%8E%E5%8A%9F%E8%80%97/" rel="tag"><i class="fa fa-tag"></i> 低功耗</a>
               <a href="/tags/Keil/" rel="tag"><i class="fa fa-tag"></i> Keil</a>
               <a href="/tags/STM32/" rel="tag"><i class="fa fa-tag"></i> STM32</a>
+              <a href="/tags/%E4%BD%8E%E5%8A%9F%E8%80%97/" rel="tag"><i class="fa fa-tag"></i> 低功耗</a>
           </div>
 
         
@@ -802,6 +829,26 @@
 -->
 
         
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
 
 
 

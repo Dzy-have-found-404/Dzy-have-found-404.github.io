@@ -525,6 +525,284 @@
       </tags>
   </entry>
   <entry>
+    <title>MSP430单片机(三)——I/O口操作</title>
+    <url>/2020/11/18/MSP430%E5%8D%95%E7%89%87%E6%9C%BA%E5%85%A5%E9%97%A8(3)%E2%80%94%E2%80%94IO%E6%93%8D%E4%BD%9C/</url>
+    <content><![CDATA[<blockquote>
+<p>学习了MSP430单片机的一些基础操作，如I/O口和看门狗的使用，以及低功耗模式。</p>
+</blockquote>
+<a id="more"></a>
+
+<h3 id="1-逻辑操作"><a href="#1-逻辑操作" class="headerlink" title="1. 逻辑操作"></a>1. 逻辑操作</h3><p>I/O和寄存器需要涉及到很多运算符的操作，先简要复习一下C语言中运算符的使用方法做个备忘。</p>
+<p><strong>与、&amp; 、AND</strong>：<code>1 &amp; 1 = 1，1 &amp; 0 = 0</code>，<strong>有0为0</strong></p>
+<p><strong>或、| 、OR</strong>：<code>1 | 1 = 1</code>，<code>1 | 0 = 1</code> ，<strong>有1为1</strong></p>
+<p><strong>异或、^ 、XOR</strong>：<code>1 ^ 0 = 1,0 ^ 1 = 1, 1 ^ 1 = 0, 0 ^ 0 = 0</code> ，<strong>不同为1</strong></p>
+<p><strong>取反、~ ** ：<code> ~ 1 = 0,  ~ 0 = 1</code> ， **01互换</strong></p>
+<h3 id="2-GPIO口概述"><a href="#2-GPIO口概述" class="headerlink" title="2. GPIO口概述"></a>2. GPIO口概述</h3><blockquote>
+<p>在前面的示例程序中我们发现对单片机进行编程实际上就是改写寄存器的值。单片机各个外设的功能其实是预先固定的，而寄存器就像是这些功能的控制接口，通过改变寄存器的值就可以在这些功能中进行选择。还有一些寄存器直接对应引脚的状态，例如GPIO的输入/输出寄存器。像以下语句： <code>P1OUT = 0x01</code> ;</p>
+<p>这句话其实就是赋值给P1OUT这个寄存器，这个寄存器是GPIO的输出寄存器，赋值之后对应引脚的输出状态就会发生改变。</p>
+<p>P1OUT寄存器共有8位，分别是从P1.0-P1.7。要给这个寄存器赋值，其实就是写入一个8位的二进制数值，例如00000001。在C语言中，为了尽量精简代码，一般把这个8位二进制数换算成2位16进制数，前面加上“0x”表示这是一个16进制的值。这样二进制的00000001也可以表示为0x01，那么上面一句P1OUT =0x01实际上是把P1.0赋值为1，P1.1-P1.7赋值为0。</p>
+<p>——<a href="https://bbs.nuedc-training.com.cn/thread-292-1-1.html">MSP430G2 LaunchPad入门系列第1篇 - MSP430简介及CCS开发环境</a></p>
+</blockquote>
+<p>单片机最基础的功能是通过引脚来控制或者采集外部电路的接口，这是我们知道的单片机最基础的功能。</p>
+<p>不同的单片机可以提供一个或多个8位I/O口，引脚的数量越多，芯片提供的I/O口就越多，相应的功能也更丰富一点；</p>
+<p>例如 8051 提供了 P0、P1、P2、P3这四组IO：</p>
+<table>
+<thead>
+<tr>
+<th align="center">I/O口</th>
+<th align="center">引脚</th>
+<th align="center">第一功能</th>
+<th align="center">第二功能</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">P0口</td>
+<td align="center">P0.0~P0.7</td>
+<td align="center">输入与输出</td>
+<td align="center">分时的传送地址低8位与数据线</td>
+</tr>
+<tr>
+<td align="center">P1口</td>
+<td align="center">P1.0~P1.7</td>
+<td align="center">输入与输出</td>
+<td align="center">无第二功能</td>
+</tr>
+<tr>
+<td align="center">P2口</td>
+<td align="center">P2.0~P2.7</td>
+<td align="center">输入与输出</td>
+<td align="center">传送地址的高八位</td>
+</tr>
+<tr>
+<td align="center">P3口</td>
+<td align="center">P3.0~P3.7</td>
+<td align="center">输入与输出</td>
+<td align="center">P3.0——RXD：串行口输入端</td>
+</tr>
+<tr>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center">P3.1——TXD：串行口输出端</td>
+</tr>
+<tr>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center">P3.2——INT0 ：外部中断0中断请求输入端</td>
+</tr>
+<tr>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center">P3.3——INT1 ：外部中断1中断请求输入端</td>
+</tr>
+<tr>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center">P3.4——T0：定时器/计数器0外部输入端</td>
+</tr>
+<tr>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center">P3.5——T1：定时器/计数器1外部输入端</td>
+</tr>
+<tr>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center">P3.6——WR：外部数据存储器写选通信号</td>
+</tr>
+<tr>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center">P3.7——RD：外部数据存储器读选通信号</td>
+</tr>
+</tbody></table>
+<p><strong>MSP430特点：</strong></p>
+<ul>
+<li><p>类型丰富：MSP430提供了12组IO口，分别是 P1-P11，PJ.，以及S、COM端口。其中除了第十一P11的宽度是3位，其他的端口全是8为宽度;</p>
+<p>  相邻的端口可以组合成端口对，分别命名为 PA、PB、PC、PD等，通过字节(byte)形式访问 <code>单独端口</code>，通过字(word)的形式访问 <code>端口对</code>;</p>
+</li>
+<li><p>功能丰富：P1和P2具有9个（或7个）寄存器，其他有6个（或4个）寄存器</p>
+<ul>
+<li>每个I/O口可单独编程</li>
+<li>输入和输出可任意组合</li>
+<li>P1、P2所有I/O口都具有边沿可选的输入中断功能</li>
+<li>能使用指令对寄存器操作</li>
+<li>可设置I/O口上拉或者下拉</li>
+<li>配置I/O驱动能力</li>
+</ul>
+</li>
+<li><p>输出特性：MSP430只有数据端口，可用端口的某一位或几位来传送状态信息来确定外设状态；</p>
+<p>  MSP430输入端口的最大漏电流为50na，输入端口的漏电流对系统的耗电影响很大；</p>
+<p>  每个端口的输出晶体管都能够限制输出电流（最大约为25mA）</p>
+</li>
+</ul>
+<p><strong>MSP430的I/O口功能：</strong></p>
+<ul>
+<li>PxDIR输入/输出方向寄存器：<strong>作为输入时，只能读，作为输出时，可读可写</strong></li>
+<li>PxIN输入寄存器：是<strong>只读</strong>寄存器，用户不能对其写入</li>
+<li>PxOUT输出寄存器：可读可写</li>
+<li>PxREN上拉或下拉电阻使能寄存器（提高信号的驱动能力）：该寄存器的每一位可以使能或禁用I/O引脚的上拉/下拉电阻——0为禁止，1为使能</li>
+<li>PxSEL功能选择寄存器：P1和P2端口还具有其他片内外设功能，0-选择引脚为I/O端口，1-选择引脚为外围模块功能</li>
+<li>PxDS输出驱动强度寄存器：每位设置引脚的输出强度为高驱动强度（“1”）或低驱动强度（“0”），默认值为低驱动强度</li>
+<li>PxIE中断使能寄存器：该寄存器的8位与该端口的8个引脚一一对应，某一位置位表示允许对应的引脚在电平变化（上升沿或下降沿）时产生中断</li>
+<li>PxIES中断触发沿选择寄存器：如果允许Px口某个引脚中断，还需定义该引脚的中断触发方式，该寄存器8位对应Px口的8个引脚（”0：上升沿使相应标志置位，1：下降沿使相应标志置位“）</li>
+<li>PxIFG中断标志寄存器：用来表示对应引脚是否产生了有PxIES设定的电平跳变，如果GIE置位，引脚对应的中断使能寄存器PxIE位置位，则会向CPU请求中断处理</li>
+</ul>
+<h3 id="3-I-O寄存器"><a href="#3-I-O寄存器" class="headerlink" title="3. I/O寄存器"></a>3. I/O寄存器</h3><p>​    (1)<strong>PxDIR</strong>：输入/输出方向寄存器</p>
+<p>​        相互独立的8位分别定义了8个引脚的输入/输出方向。8位在PUC后都被复位。使用输入和输出功能时，应该先定义端口的方向，输入/输出才能满足设计者的要求。</p>
+<p>​            0：输入模式；</p>
+<p>​            1：输出模式。</p>
+<p>​    (2)<strong>PxIN</strong>：输入寄存器</p>
+<p>​        输入寄存器是 <strong>只读</strong>寄存器。用户不能对它进行写入，只能通过该寄存器内容知道I/O端口的输入信号。此时引脚方向必须选定为输入。</p>
+<p>​     (3) <strong>PxOUT</strong>：输出寄存器</p>
+<p>​        该寄存器为I/O端口的输出缓冲寄存器，在读取时输出缓存内容与引脚方向定义无关。</p>
+<p>​     (4) <strong>PxIFG</strong>：中断标志寄存器</p>
+<p>​        该寄存器有8个标志位，标志相应引脚是否有待处理中断的信息，即相应引脚是否有中断请求。寄存器定义如下：</p>
+<table>
+<thead>
+<tr>
+<th align="center">7</th>
+<th align="center">6</th>
+<th align="center">5</th>
+<th align="center">4</th>
+<th align="center">3</th>
+<th align="center">2</th>
+<th align="center">1</th>
+<th align="center">0</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">PxIFG</td>
+<td align="center">PxIFG.6</td>
+<td align="center">PxIFG.5</td>
+<td align="center">PxIFG.4</td>
+<td align="center">PxIFG.3</td>
+<td align="center">PxIFG.2</td>
+<td align="center">PxIFG.1</td>
+<td align="center">PxIFG.0</td>
+</tr>
+</tbody></table>
+<p>​            0：没有中断请求；</p>
+<p>​            1：有中断请求。</p>
+<p>​     (5) <strong>PxIES</strong>：中断触发沿选择寄存器</p>
+<p>​        如果允许Px口的某个引脚中断，还需定义该引脚的中断触发方式。该寄存器的8位分别对应Px口的8个引脚。</p>
+<p>​            0：上升沿使相应标志置位</p>
+<p>​            1：下降沿使相应标志置位</p>
+<p>​      (6) <strong>PxIE</strong>：中断使能寄存器</p>
+<p>​         Px口的每一个引脚都有一位用以控制该引脚是否允许中断。该寄存器定义如下：</p>
+<table>
+<thead>
+<tr>
+<th align="center">7</th>
+<th align="center">6</th>
+<th align="center">5</th>
+<th align="center">4</th>
+<th align="center">3</th>
+<th align="center">2</th>
+<th align="center">1</th>
+<th align="center">0</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">PxIE.7</td>
+<td align="center">PxIE.6</td>
+<td align="center">PxIE.5</td>
+<td align="center">PxIE.4</td>
+<td align="center">PxIE.3</td>
+<td align="center">PxIE.2</td>
+<td align="center">PxIE.1</td>
+<td align="center">PxIE.0</td>
+</tr>
+</tbody></table>
+<p>​            0：禁止中断；</p>
+<p>​            1：允许中断。</p>
+<p>​     (7) <strong>PxSEL</strong>：功能选择寄存器</p>
+<p>​        P1和P2俩端口还具有其他片内外设功能，这些功能与芯片外的联系通过复用P1和P2引脚的方式来实现。P1SEL和P2SEL用来选择引脚的I/O端口功能与外围模块功能。</p>
+<p>​            0：选择引脚位I/O模式；</p>
+<p>​            1：选择引脚为外围模块功能。</p>
+<p>端口P3、P4、P5和P6没有中断能力，其余功能同P1和P2，可以实现输入/输出功能和外围模块功能。四个寄存器可以对它们进行访问和控制，这四个寄存器分别是<strong>PxDIR</strong>，PxIN，<strong>PxOUT</strong>，<strong>PxSEL</strong>，定义和用法同P1、P2端口。</p>
+<h3 id="4-I-O口操作"><a href="#4-I-O口操作" class="headerlink" title="4.  I/O口操作"></a>4.  I/O口操作</h3><p>430不支持直接对位操作，需要使用屏蔽符和掩码来实现修改寄存器的某一位而不影响其他位的目的。BIT0~F分别对16位寄存器操作。</p>
+<p>配置MSP430的寄存器可以用两种方法来实现：</p>
+<ol>
+<li><p>最直接的方式，直接给寄存器赋值，如 <code>P1DIR = 0x81</code>；</p>
+</li>
+<li><p>利用msp430官方库文件中宏定义，更直观地表示要操作地寄存器：</p>
+</li>
+</ol>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> BIT0                (0x0001u)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> BIT1                (0x0002u)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> BIT2                (0x0004u)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> BIT3                (0x0008u)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> BIT4                (0x0010u)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> BIT5                (0x0020u)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> BIT6                (0x0040u)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> BIT7                (0x0080u)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> BIT8                (0x0100u)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> BIT9                (0x0200u)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> BITA                (0x0400u)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> BITB                (0x0800u)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> BITC                (0x1000u)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> BITD                (0x2000u)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> BITE                (0x4000u)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> BITF                (0x8000u)</span></span><br></pre></td></tr></table></figure>
+<p><code>PxDIR = 0x81</code> 就可以改写成 <code>PxDIR = BIT0 + BIT7</code> ，可以省去计算寄存器换算16进制的值；</p>
+<ol start="3">
+<li>驱动库中提供了一个函数GPIO_setAsInputPin()来将I/O口配置为输出。</li>
+</ol>
+<h4 id="4-1-PxDIR"><a href="#4-1-PxDIR" class="headerlink" title="4.1 PxDIR"></a>4.1 PxDIR</h4><p>设置IO口方向，0-输入，1-输出。如P1.5、P1.6、P1.7 接有按键，P1.1、P1.3、P1.4接有LED，那么P1.5、P1.6、P1.7 要设为输入，P1.1、P1.3、P1.4 要设为输出：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">P1DIR|=BIT1+BIT3+BIT4; <span class="comment">// P1.1、P1.3、P1.4设为输出</span></span><br><span class="line"></span><br><span class="line">P1DIR &amp;=~ (BIT5+BIT6+BIT7); <span class="comment">// P1.5、P1.6、P1.7设为输入</span></span><br></pre></td></tr></table></figure>
+<p>PxDIR 寄存器在复位过程中会被清0，没有被设置的IO口方向均为输入状态，因此<strong>第二句可以被省略</strong>。</p>
+<h4 id="4-2-PxOUT和PxIN"><a href="#4-2-PxOUT和PxIN" class="headerlink" title="4.2 PxOUT和PxIN"></a>4.2 PxOUT和PxIN</h4><p>对于所有已经设成输出状态的IO口，可以通过 <code>PxOUT</code> 寄存器设置其输出电平（当IO口配置为输入模式并且置高/置低使能时， <code>PxOUT</code> 寄存器：0置低1置高）；</p>
+<p>对于所有已经被设成输入状态的IO口，可以通过 <code>PxIN</code> 寄存器读回其输入电平。</p>
+<p>如判断P1.5口上的开关状态，若低电平则从P1.1口输出高电平点亮LED：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="keyword">if</span>(( P1IN &amp; BIT5) ==<span class="number">0</span> )  P1OUT|=BIT1;  <span class="comment">//若P1.5为低电平则P1.1输出高电平</span></span><br></pre></td></tr></table></figure>
+<h4 id="4-3-PxSEL"><a href="#4-3-PxSEL" class="headerlink" title="4.3 PxSEL"></a>4.3 PxSEL</h4><p>用于设置每一位IO的功能： 0=普通IO口 1=第二功能。</p>
+<p>例如MSP4305418A中P5.6和P5.7和串口的TXD、RXD公用引脚，如果需要将两个引脚配置成串口收发脚，需将P5SEL的6，7位置高：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">P5SEL |= BIT6 + BIT7; 	<span class="comment">// P2.4,5 设为串口收发引脚</span></span><br></pre></td></tr></table></figure>
+<h4 id="4-4-PxIE和PxIES"><a href="#4-4-PxIE和PxIES" class="headerlink" title="4.4 PxIE和PxIES"></a>4.4 PxIE和PxIES</h4><p>PxIE寄存器用于设置每一位IO的中断允许： 0=不允许 1=允许</p>
+<p>PxIES寄存器用于选择每一位IO的中断触发沿： 0=上升沿 1=下降沿</p>
+<p><strong>使用方法：</strong> 使用IO口中断之前，需要先将IO 口<strong>设为输入状态</strong>，并<strong>允许该位IO的中断</strong>，再通过PxIES寄存器选择触发方式为上升沿触发或者下降沿触发。</p>
+<p>例如将P1.5、P1.6、P1.7 口设为中断源，下降沿触发：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">P1DIR &amp;=~(BIT5 + BIT6 + BIT7); <span class="comment">// P1.5、P1.6、P1.7设为输入(可省略)</span></span><br><span class="line"></span><br><span class="line">P1IES |= BIT5 + BIT6 + BIT7; <span class="comment">// P1.5、P1.6、P1.7设为下降沿中断</span></span><br><span class="line"></span><br><span class="line">P1IE |= BIT5 + BIT6 + BIT7; <span class="comment">// 允许P1.5、P1.6、P1.7中断</span></span><br><span class="line"></span><br><span class="line">EINT(); <span class="comment">// 总中断允许</span></span><br></pre></td></tr></table></figure>
+<h4 id="4-5-PxIFG"><a href="#4-5-PxIFG" class="headerlink" title="4.5 PxIFG"></a>4.5 PxIFG</h4><p>PxIFG寄存器是IO中断标志寄存器：0=中断条件不成立1=中断条件曾经成立过.</p>
+<p>这个寄存器存在的目的是为了尽可能地不漏掉每一次中断。</p>
+<p>例如P1.5、P1.6、P1.7 发生中断后执行不同的代码：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">pragma</span> vector = PORT1_VECTOR <span class="comment">//P1口中断源</span></span></span><br><span class="line"></span><br><span class="line"><span class="function">__interrupt <span class="keyword">void</span> <span class="title">P1_ISR</span><span class="params">(<span class="keyword">void</span>)</span> <span class="comment">//声明一个中断服务程序，名为P1_ISR()</span></span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span>(P1IFG &amp; BIT5) <span class="comment">//判断P1中断标志第5位(P1.5)</span></span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line"></span><br><span class="line">	... ... <span class="comment">//在这里写P1.5中断处理程序</span></span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span>(P1IFG &amp; BIT6) <span class="comment">//判断P1中断标志第6位(P1.6)</span></span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line"></span><br><span class="line">	... ... <span class="comment">//在这里写P1.6中断处理程序</span></span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span>(P1IFG &amp; BIT7) <span class="comment">//判断P1中断标志第7位(P1.7)</span></span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line"></span><br><span class="line">	... ... <span class="comment">//在这里写P1.7中断处理程序</span></span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">P1IFG=<span class="number">0</span>； <span class="comment">//清除P1所有中断标志位</span></span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>PxIFG</code> 的中断操作比较灵活，既可以被动执行中断判断，也可以通过主动向写 <code>PxIFG</code> 寄存器相应位写“1”。</p>
+<p>因此，更改 <code>PxIES</code> 应该在<strong>关闭中断后进行</strong>，并在打开中断之前<strong>及时清除中断标志</strong>。</p>
+<h3 id="5-例程"><a href="#5-例程" class="headerlink" title="5. 例程"></a>5. 例程</h3><p>使用TI官方提供的点亮LED的程序来进行430的入门操作——操作I/O口。</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="comment">//*******************************************************************************</span></span><br><span class="line"><span class="comment">//  MSP-FET430P140 Demo - Software Toggle P1.0</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="comment">//  Description: Toggle P1.0 by xor&#x27;ing P1.0 inside of a software loop.</span></span><br><span class="line"><span class="comment">//  ACLK= n/a, MCLK= SMCLK= default DCO ~800k</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="comment">//                MSP430F149</span></span><br><span class="line"><span class="comment">//             -----------------</span></span><br><span class="line"><span class="comment">//         /|\|              XIN|-</span></span><br><span class="line"><span class="comment">//          | |                 |</span></span><br><span class="line"><span class="comment">//          --|RST          XOUT|-</span></span><br><span class="line"><span class="comment">//            |                 |</span></span><br><span class="line"><span class="comment">//            |             P1.0|--&gt;LED</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="comment">//  M. Buccini</span></span><br><span class="line"><span class="comment">//  Texas Instruments Inc.</span></span><br><span class="line"><span class="comment">//  Feb 2005</span></span><br><span class="line"><span class="comment">//  Built with IAR Embedded Workbench Version: 3.21A</span></span><br><span class="line"><span class="comment">//******************************************************************************</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span>  <span class="meta-string">&lt;msp430x14x.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">main</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  WDTCTL = WDTPW + WDTHOLD;                 <span class="comment">// 停止看门狗</span></span><br><span class="line">  P1DIR |= <span class="number">0x01</span>;                            <span class="comment">// Set P1.0 to output direction</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">for</span> (;;)</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="keyword">volatile</span> <span class="keyword">unsigned</span> <span class="keyword">int</span> i;</span><br><span class="line"></span><br><span class="line">     P1OUT ^= <span class="number">0x01</span>;                          <span class="comment">// Toggle P1.0 using exclusive-OR</span></span><br><span class="line"></span><br><span class="line">     i = <span class="number">50000</span>;                              <span class="comment">// Delay</span></span><br><span class="line">     <span class="keyword">do</span> (i--);</span><br><span class="line">     <span class="keyword">while</span> (i != <span class="number">0</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="程序流程"><a href="#程序流程" class="headerlink" title="程序流程"></a>程序流程</h4><p>​    1.关看门狗；2.设置I/O口；3.延时、循环输出    </p>
+<h4 id="源码解释"><a href="#源码解释" class="headerlink" title="源码解释"></a>源码解释</h4><ol>
+<li> 关看门狗</li>
+</ol>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">WDTCTL = WDTPW + WDTHOLD;                 <span class="comment">// 停止看门狗</span></span><br></pre></td></tr></table></figure>
+<p>这句话实现了关开门狗的功能，要想理解这句话需要先查看官方的芯片手册：</p>
+<img src="/upload_image/image-20201107163354835.png" alt="image-20201107163354835" style="zoom:50%;" />
+
+<p><code>WDTPW</code>：读取时必须是<code>069h</code>，写的时候必须是<code>05Ah</code>，否则就会出现一个PUC信号导致单片机复位</p>
+<p><code>WDTHOLD</code>：置为<code>1</code>时看门狗被停止</p>
+<p>在头文件<code>msp430x14x.h</code>中查看<code>WDTPW</code>、<code>WDTHOLD</code>的宏定义</p>
+<p>430的库文件对这两个“变量”的宏定义如下:</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> WDTHOLD             (0x0080u)  	<span class="comment">/* WDT - Timer hold */</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> WDTPW               (0x5A00u)	</span></span><br></pre></td></tr></table></figure>
+<p><code>WDTPW</code>为5A表示写入，<code>WDTHOLD</code>为80，高位为1，地位为0，表示关闭看门狗。</p>
+<p>将两个数相加，送入<code>WDTCTL</code>实现关门狗；如果缺失其中一个会导致产生一个PUC信号使单片机复位。</p>
+<p>​    2. 设置I/O口</p>
+<p>​          <code>P1DIR |= 0x01;                            // 提取01口，设置P1.1为输出</code></p>
+<img src="/upload_image/image-20201119165324316.png" alt="image-20201119165324316" style="zoom:67%;" />
+
+<p>​    如上图，端口（Port）P1和P2具有输入/输出、中断和外部模块功能，这些功能可以通过它们各自的7个控制寄存器的设置来实现。</p>
+<p>​    这里P1.1端口默认无输出，而P1.3-1.6，P1.7-1.8都是默认输入(00h)</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">P1OUT ^= <span class="number">0x01</span>;                          <span class="comment">// Toggle P1.0 using exclusive-OR</span></span><br></pre></td></tr></table></figure>
+<ol start="3">
+<li>延时、循环输出</li>
+</ol>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">P1OUT ^= <span class="number">0x01</span>;                          <span class="comment">// Toggle P1.0 using exclusive-OR</span></span><br></pre></td></tr></table></figure>
+<p>这句指令又可写成     <code>P1OUT = P1OUT ^ 0x01;</code> 每次对第四位进行异或，改为输出。0 ^ 1，循环之后又变成1 ^ 1，实现闪烁。 </p>
+]]></content>
+      <categories>
+        <category>嵌入式开发</category>
+      </categories>
+      <tags>
+        <tag>嵌入式</tag>
+        <tag>驱动开发</tag>
+        <tag>MSP430</tag>
+        <tag>C/C++</tag>
+        <tag>编程语法</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>MSP430单片机(五)——USCI-UART模式</title>
     <url>/2021/01/22/MSP430%E5%8D%95%E7%89%87%E6%9C%BA%E5%85%A5%E9%97%A8(5)%E2%80%94%E2%80%94USCI-UART%E6%A8%A1%E5%BC%8F/</url>
     <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>USCI模块不仅支持UART模式，还支持SPI模式，在单片机的应用中十分重要。</p>
@@ -2248,9 +2526,9 @@ ADC1_2_IRQn = 18, /*!&lt; ADC1 and ADC2 global Interrupt */
         <tag>嵌入式</tag>
         <tag>驱动开发</tag>
         <tag>E-paper</tag>
-        <tag>低功耗</tag>
         <tag>Keil</tag>
         <tag>STM32</tag>
+        <tag>低功耗</tag>
       </tags>
   </entry>
   <entry>
@@ -2886,284 +3164,6 @@ ADC1_2_IRQn = 18, /*!&lt; ADC1 and ADC2 global Interrupt */
         <tag>树莓派</tag>
         <tag>ARM</tag>
         <tag>shell</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>MSP430单片机(三)——I/O口操作</title>
-    <url>/2020/11/18/MSP430%E5%8D%95%E7%89%87%E6%9C%BA%E5%85%A5%E9%97%A8(3)%E2%80%94%E2%80%94IO%E6%93%8D%E4%BD%9C/</url>
-    <content><![CDATA[<blockquote>
-<p>学习了MSP430单片机的一些基础操作，如I/O口和看门狗的使用，以及低功耗模式。</p>
-</blockquote>
-<a id="more"></a>
-
-<h3 id="1-逻辑操作"><a href="#1-逻辑操作" class="headerlink" title="1. 逻辑操作"></a>1. 逻辑操作</h3><p>I/O和寄存器需要涉及到很多运算符的操作，先简要复习一下C语言中运算符的使用方法做个备忘。</p>
-<p><strong>与、&amp; 、AND</strong>：<code>1 &amp; 1 = 1，1 &amp; 0 = 0</code>，<strong>有0为0</strong></p>
-<p><strong>或、| 、OR</strong>：<code>1 | 1 = 1</code>，<code>1 | 0 = 1</code> ，<strong>有1为1</strong></p>
-<p><strong>异或、^ 、XOR</strong>：<code>1 ^ 0 = 1,0 ^ 1 = 1, 1 ^ 1 = 0, 0 ^ 0 = 0</code> ，<strong>不同为1</strong></p>
-<p><strong>取反、~ ** ：<code> ~ 1 = 0,  ~ 0 = 1</code> ， **01互换</strong></p>
-<h3 id="2-GPIO口概述"><a href="#2-GPIO口概述" class="headerlink" title="2. GPIO口概述"></a>2. GPIO口概述</h3><blockquote>
-<p>在前面的示例程序中我们发现对单片机进行编程实际上就是改写寄存器的值。单片机各个外设的功能其实是预先固定的，而寄存器就像是这些功能的控制接口，通过改变寄存器的值就可以在这些功能中进行选择。还有一些寄存器直接对应引脚的状态，例如GPIO的输入/输出寄存器。像以下语句： <code>P1OUT = 0x01</code> ;</p>
-<p>这句话其实就是赋值给P1OUT这个寄存器，这个寄存器是GPIO的输出寄存器，赋值之后对应引脚的输出状态就会发生改变。</p>
-<p>P1OUT寄存器共有8位，分别是从P1.0-P1.7。要给这个寄存器赋值，其实就是写入一个8位的二进制数值，例如00000001。在C语言中，为了尽量精简代码，一般把这个8位二进制数换算成2位16进制数，前面加上“0x”表示这是一个16进制的值。这样二进制的00000001也可以表示为0x01，那么上面一句P1OUT =0x01实际上是把P1.0赋值为1，P1.1-P1.7赋值为0。</p>
-<p>——<a href="https://bbs.nuedc-training.com.cn/thread-292-1-1.html">MSP430G2 LaunchPad入门系列第1篇 - MSP430简介及CCS开发环境</a></p>
-</blockquote>
-<p>单片机最基础的功能是通过引脚来控制或者采集外部电路的接口，这是我们知道的单片机最基础的功能。</p>
-<p>不同的单片机可以提供一个或多个8位I/O口，引脚的数量越多，芯片提供的I/O口就越多，相应的功能也更丰富一点；</p>
-<p>例如 8051 提供了 P0、P1、P2、P3这四组IO：</p>
-<table>
-<thead>
-<tr>
-<th align="center">I/O口</th>
-<th align="center">引脚</th>
-<th align="center">第一功能</th>
-<th align="center">第二功能</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="center">P0口</td>
-<td align="center">P0.0~P0.7</td>
-<td align="center">输入与输出</td>
-<td align="center">分时的传送地址低8位与数据线</td>
-</tr>
-<tr>
-<td align="center">P1口</td>
-<td align="center">P1.0~P1.7</td>
-<td align="center">输入与输出</td>
-<td align="center">无第二功能</td>
-</tr>
-<tr>
-<td align="center">P2口</td>
-<td align="center">P2.0~P2.7</td>
-<td align="center">输入与输出</td>
-<td align="center">传送地址的高八位</td>
-</tr>
-<tr>
-<td align="center">P3口</td>
-<td align="center">P3.0~P3.7</td>
-<td align="center">输入与输出</td>
-<td align="center">P3.0——RXD：串行口输入端</td>
-</tr>
-<tr>
-<td align="center"></td>
-<td align="center"></td>
-<td align="center"></td>
-<td align="center">P3.1——TXD：串行口输出端</td>
-</tr>
-<tr>
-<td align="center"></td>
-<td align="center"></td>
-<td align="center"></td>
-<td align="center">P3.2——INT0 ：外部中断0中断请求输入端</td>
-</tr>
-<tr>
-<td align="center"></td>
-<td align="center"></td>
-<td align="center"></td>
-<td align="center">P3.3——INT1 ：外部中断1中断请求输入端</td>
-</tr>
-<tr>
-<td align="center"></td>
-<td align="center"></td>
-<td align="center"></td>
-<td align="center">P3.4——T0：定时器/计数器0外部输入端</td>
-</tr>
-<tr>
-<td align="center"></td>
-<td align="center"></td>
-<td align="center"></td>
-<td align="center">P3.5——T1：定时器/计数器1外部输入端</td>
-</tr>
-<tr>
-<td align="center"></td>
-<td align="center"></td>
-<td align="center"></td>
-<td align="center">P3.6——WR：外部数据存储器写选通信号</td>
-</tr>
-<tr>
-<td align="center"></td>
-<td align="center"></td>
-<td align="center"></td>
-<td align="center">P3.7——RD：外部数据存储器读选通信号</td>
-</tr>
-</tbody></table>
-<p><strong>MSP430特点：</strong></p>
-<ul>
-<li><p>类型丰富：MSP430提供了12组IO口，分别是 P1-P11，PJ.，以及S、COM端口。其中除了第十一P11的宽度是3位，其他的端口全是8为宽度;</p>
-<p>  相邻的端口可以组合成端口对，分别命名为 PA、PB、PC、PD等，通过字节(byte)形式访问 <code>单独端口</code>，通过字(word)的形式访问 <code>端口对</code>;</p>
-</li>
-<li><p>功能丰富：P1和P2具有9个（或7个）寄存器，其他有6个（或4个）寄存器</p>
-<ul>
-<li>每个I/O口可单独编程</li>
-<li>输入和输出可任意组合</li>
-<li>P1、P2所有I/O口都具有边沿可选的输入中断功能</li>
-<li>能使用指令对寄存器操作</li>
-<li>可设置I/O口上拉或者下拉</li>
-<li>配置I/O驱动能力</li>
-</ul>
-</li>
-<li><p>输出特性：MSP430只有数据端口，可用端口的某一位或几位来传送状态信息来确定外设状态；</p>
-<p>  MSP430输入端口的最大漏电流为50na，输入端口的漏电流对系统的耗电影响很大；</p>
-<p>  每个端口的输出晶体管都能够限制输出电流（最大约为25mA）</p>
-</li>
-</ul>
-<p><strong>MSP430的I/O口功能：</strong></p>
-<ul>
-<li>PxDIR输入/输出方向寄存器：<strong>作为输入时，只能读，作为输出时，可读可写</strong></li>
-<li>PxIN输入寄存器：是<strong>只读</strong>寄存器，用户不能对其写入</li>
-<li>PxOUT输出寄存器：可读可写</li>
-<li>PxREN上拉或下拉电阻使能寄存器（提高信号的驱动能力）：该寄存器的每一位可以使能或禁用I/O引脚的上拉/下拉电阻——0为禁止，1为使能</li>
-<li>PxSEL功能选择寄存器：P1和P2端口还具有其他片内外设功能，0-选择引脚为I/O端口，1-选择引脚为外围模块功能</li>
-<li>PxDS输出驱动强度寄存器：每位设置引脚的输出强度为高驱动强度（“1”）或低驱动强度（“0”），默认值为低驱动强度</li>
-<li>PxIE中断使能寄存器：该寄存器的8位与该端口的8个引脚一一对应，某一位置位表示允许对应的引脚在电平变化（上升沿或下降沿）时产生中断</li>
-<li>PxIES中断触发沿选择寄存器：如果允许Px口某个引脚中断，还需定义该引脚的中断触发方式，该寄存器8位对应Px口的8个引脚（”0：上升沿使相应标志置位，1：下降沿使相应标志置位“）</li>
-<li>PxIFG中断标志寄存器：用来表示对应引脚是否产生了有PxIES设定的电平跳变，如果GIE置位，引脚对应的中断使能寄存器PxIE位置位，则会向CPU请求中断处理</li>
-</ul>
-<h3 id="3-I-O寄存器"><a href="#3-I-O寄存器" class="headerlink" title="3. I/O寄存器"></a>3. I/O寄存器</h3><p>​    (1)<strong>PxDIR</strong>：输入/输出方向寄存器</p>
-<p>​        相互独立的8位分别定义了8个引脚的输入/输出方向。8位在PUC后都被复位。使用输入和输出功能时，应该先定义端口的方向，输入/输出才能满足设计者的要求。</p>
-<p>​            0：输入模式；</p>
-<p>​            1：输出模式。</p>
-<p>​    (2)<strong>PxIN</strong>：输入寄存器</p>
-<p>​        输入寄存器是 <strong>只读</strong>寄存器。用户不能对它进行写入，只能通过该寄存器内容知道I/O端口的输入信号。此时引脚方向必须选定为输入。</p>
-<p>​     (3) <strong>PxOUT</strong>：输出寄存器</p>
-<p>​        该寄存器为I/O端口的输出缓冲寄存器，在读取时输出缓存内容与引脚方向定义无关。</p>
-<p>​     (4) <strong>PxIFG</strong>：中断标志寄存器</p>
-<p>​        该寄存器有8个标志位，标志相应引脚是否有待处理中断的信息，即相应引脚是否有中断请求。寄存器定义如下：</p>
-<table>
-<thead>
-<tr>
-<th align="center">7</th>
-<th align="center">6</th>
-<th align="center">5</th>
-<th align="center">4</th>
-<th align="center">3</th>
-<th align="center">2</th>
-<th align="center">1</th>
-<th align="center">0</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="center">PxIFG</td>
-<td align="center">PxIFG.6</td>
-<td align="center">PxIFG.5</td>
-<td align="center">PxIFG.4</td>
-<td align="center">PxIFG.3</td>
-<td align="center">PxIFG.2</td>
-<td align="center">PxIFG.1</td>
-<td align="center">PxIFG.0</td>
-</tr>
-</tbody></table>
-<p>​            0：没有中断请求；</p>
-<p>​            1：有中断请求。</p>
-<p>​     (5) <strong>PxIES</strong>：中断触发沿选择寄存器</p>
-<p>​        如果允许Px口的某个引脚中断，还需定义该引脚的中断触发方式。该寄存器的8位分别对应Px口的8个引脚。</p>
-<p>​            0：上升沿使相应标志置位</p>
-<p>​            1：下降沿使相应标志置位</p>
-<p>​      (6) <strong>PxIE</strong>：中断使能寄存器</p>
-<p>​         Px口的每一个引脚都有一位用以控制该引脚是否允许中断。该寄存器定义如下：</p>
-<table>
-<thead>
-<tr>
-<th align="center">7</th>
-<th align="center">6</th>
-<th align="center">5</th>
-<th align="center">4</th>
-<th align="center">3</th>
-<th align="center">2</th>
-<th align="center">1</th>
-<th align="center">0</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="center">PxIE.7</td>
-<td align="center">PxIE.6</td>
-<td align="center">PxIE.5</td>
-<td align="center">PxIE.4</td>
-<td align="center">PxIE.3</td>
-<td align="center">PxIE.2</td>
-<td align="center">PxIE.1</td>
-<td align="center">PxIE.0</td>
-</tr>
-</tbody></table>
-<p>​            0：禁止中断；</p>
-<p>​            1：允许中断。</p>
-<p>​     (7) <strong>PxSEL</strong>：功能选择寄存器</p>
-<p>​        P1和P2俩端口还具有其他片内外设功能，这些功能与芯片外的联系通过复用P1和P2引脚的方式来实现。P1SEL和P2SEL用来选择引脚的I/O端口功能与外围模块功能。</p>
-<p>​            0：选择引脚位I/O模式；</p>
-<p>​            1：选择引脚为外围模块功能。</p>
-<p>端口P3、P4、P5和P6没有中断能力，其余功能同P1和P2，可以实现输入/输出功能和外围模块功能。四个寄存器可以对它们进行访问和控制，这四个寄存器分别是<strong>PxDIR</strong>，PxIN，<strong>PxOUT</strong>，<strong>PxSEL</strong>，定义和用法同P1、P2端口。</p>
-<h3 id="4-I-O口操作"><a href="#4-I-O口操作" class="headerlink" title="4.  I/O口操作"></a>4.  I/O口操作</h3><p>430不支持直接对位操作，需要使用屏蔽符和掩码来实现修改寄存器的某一位而不影响其他位的目的。BIT0~F分别对16位寄存器操作。</p>
-<p>配置MSP430的寄存器可以用两种方法来实现：</p>
-<ol>
-<li><p>最直接的方式，直接给寄存器赋值，如 <code>P1DIR = 0x81</code>；</p>
-</li>
-<li><p>利用msp430官方库文件中宏定义，更直观地表示要操作地寄存器：</p>
-</li>
-</ol>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> BIT0                (0x0001u)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> BIT1                (0x0002u)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> BIT2                (0x0004u)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> BIT3                (0x0008u)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> BIT4                (0x0010u)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> BIT5                (0x0020u)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> BIT6                (0x0040u)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> BIT7                (0x0080u)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> BIT8                (0x0100u)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> BIT9                (0x0200u)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> BITA                (0x0400u)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> BITB                (0x0800u)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> BITC                (0x1000u)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> BITD                (0x2000u)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> BITE                (0x4000u)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> BITF                (0x8000u)</span></span><br></pre></td></tr></table></figure>
-<p><code>PxDIR = 0x81</code> 就可以改写成 <code>PxDIR = BIT0 + BIT7</code> ，可以省去计算寄存器换算16进制的值；</p>
-<ol start="3">
-<li>驱动库中提供了一个函数GPIO_setAsInputPin()来将I/O口配置为输出。</li>
-</ol>
-<h4 id="4-1-PxDIR"><a href="#4-1-PxDIR" class="headerlink" title="4.1 PxDIR"></a>4.1 PxDIR</h4><p>设置IO口方向，0-输入，1-输出。如P1.5、P1.6、P1.7 接有按键，P1.1、P1.3、P1.4接有LED，那么P1.5、P1.6、P1.7 要设为输入，P1.1、P1.3、P1.4 要设为输出：</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">P1DIR|=BIT1+BIT3+BIT4; <span class="comment">// P1.1、P1.3、P1.4设为输出</span></span><br><span class="line"></span><br><span class="line">P1DIR &amp;=~ (BIT5+BIT6+BIT7); <span class="comment">// P1.5、P1.6、P1.7设为输入</span></span><br></pre></td></tr></table></figure>
-<p>PxDIR 寄存器在复位过程中会被清0，没有被设置的IO口方向均为输入状态，因此<strong>第二句可以被省略</strong>。</p>
-<h4 id="4-2-PxOUT和PxIN"><a href="#4-2-PxOUT和PxIN" class="headerlink" title="4.2 PxOUT和PxIN"></a>4.2 PxOUT和PxIN</h4><p>对于所有已经设成输出状态的IO口，可以通过 <code>PxOUT</code> 寄存器设置其输出电平（当IO口配置为输入模式并且置高/置低使能时， <code>PxOUT</code> 寄存器：0置低1置高）；</p>
-<p>对于所有已经被设成输入状态的IO口，可以通过 <code>PxIN</code> 寄存器读回其输入电平。</p>
-<p>如判断P1.5口上的开关状态，若低电平则从P1.1口输出高电平点亮LED：</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="keyword">if</span>(( P1IN &amp; BIT5) ==<span class="number">0</span> )  P1OUT|=BIT1;  <span class="comment">//若P1.5为低电平则P1.1输出高电平</span></span><br></pre></td></tr></table></figure>
-<h4 id="4-3-PxSEL"><a href="#4-3-PxSEL" class="headerlink" title="4.3 PxSEL"></a>4.3 PxSEL</h4><p>用于设置每一位IO的功能： 0=普通IO口 1=第二功能。</p>
-<p>例如MSP4305418A中P5.6和P5.7和串口的TXD、RXD公用引脚，如果需要将两个引脚配置成串口收发脚，需将P5SEL的6，7位置高：</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">P5SEL |= BIT6 + BIT7; 	<span class="comment">// P2.4,5 设为串口收发引脚</span></span><br></pre></td></tr></table></figure>
-<h4 id="4-4-PxIE和PxIES"><a href="#4-4-PxIE和PxIES" class="headerlink" title="4.4 PxIE和PxIES"></a>4.4 PxIE和PxIES</h4><p>PxIE寄存器用于设置每一位IO的中断允许： 0=不允许 1=允许</p>
-<p>PxIES寄存器用于选择每一位IO的中断触发沿： 0=上升沿 1=下降沿</p>
-<p><strong>使用方法：</strong> 使用IO口中断之前，需要先将IO 口<strong>设为输入状态</strong>，并<strong>允许该位IO的中断</strong>，再通过PxIES寄存器选择触发方式为上升沿触发或者下降沿触发。</p>
-<p>例如将P1.5、P1.6、P1.7 口设为中断源，下降沿触发：</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">P1DIR &amp;=~(BIT5 + BIT6 + BIT7); <span class="comment">// P1.5、P1.6、P1.7设为输入(可省略)</span></span><br><span class="line"></span><br><span class="line">P1IES |= BIT5 + BIT6 + BIT7; <span class="comment">// P1.5、P1.6、P1.7设为下降沿中断</span></span><br><span class="line"></span><br><span class="line">P1IE |= BIT5 + BIT6 + BIT7; <span class="comment">// 允许P1.5、P1.6、P1.7中断</span></span><br><span class="line"></span><br><span class="line">EINT(); <span class="comment">// 总中断允许</span></span><br></pre></td></tr></table></figure>
-<h4 id="4-5-PxIFG"><a href="#4-5-PxIFG" class="headerlink" title="4.5 PxIFG"></a>4.5 PxIFG</h4><p>PxIFG寄存器是IO中断标志寄存器：0=中断条件不成立1=中断条件曾经成立过.</p>
-<p>这个寄存器存在的目的是为了尽可能地不漏掉每一次中断。</p>
-<p>例如P1.5、P1.6、P1.7 发生中断后执行不同的代码：</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">pragma</span> vector = PORT1_VECTOR <span class="comment">//P1口中断源</span></span></span><br><span class="line"></span><br><span class="line"><span class="function">__interrupt <span class="keyword">void</span> <span class="title">P1_ISR</span><span class="params">(<span class="keyword">void</span>)</span> <span class="comment">//声明一个中断服务程序，名为P1_ISR()</span></span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span>(P1IFG &amp; BIT5) <span class="comment">//判断P1中断标志第5位(P1.5)</span></span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line"></span><br><span class="line">	... ... <span class="comment">//在这里写P1.5中断处理程序</span></span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span>(P1IFG &amp; BIT6) <span class="comment">//判断P1中断标志第6位(P1.6)</span></span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line"></span><br><span class="line">	... ... <span class="comment">//在这里写P1.6中断处理程序</span></span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span>(P1IFG &amp; BIT7) <span class="comment">//判断P1中断标志第7位(P1.7)</span></span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line"></span><br><span class="line">	... ... <span class="comment">//在这里写P1.7中断处理程序</span></span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">P1IFG=<span class="number">0</span>； <span class="comment">//清除P1所有中断标志位</span></span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p><code>PxIFG</code> 的中断操作比较灵活，既可以被动执行中断判断，也可以通过主动向写 <code>PxIFG</code> 寄存器相应位写“1”。</p>
-<p>因此，更改 <code>PxIES</code> 应该在<strong>关闭中断后进行</strong>，并在打开中断之前<strong>及时清除中断标志</strong>。</p>
-<h3 id="5-例程"><a href="#5-例程" class="headerlink" title="5. 例程"></a>5. 例程</h3><p>使用TI官方提供的点亮LED的程序来进行430的入门操作——操作I/O口。</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="comment">//*******************************************************************************</span></span><br><span class="line"><span class="comment">//  MSP-FET430P140 Demo - Software Toggle P1.0</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="comment">//  Description: Toggle P1.0 by xor&#x27;ing P1.0 inside of a software loop.</span></span><br><span class="line"><span class="comment">//  ACLK= n/a, MCLK= SMCLK= default DCO ~800k</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="comment">//                MSP430F149</span></span><br><span class="line"><span class="comment">//             -----------------</span></span><br><span class="line"><span class="comment">//         /|\|              XIN|-</span></span><br><span class="line"><span class="comment">//          | |                 |</span></span><br><span class="line"><span class="comment">//          --|RST          XOUT|-</span></span><br><span class="line"><span class="comment">//            |                 |</span></span><br><span class="line"><span class="comment">//            |             P1.0|--&gt;LED</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="comment">//  M. Buccini</span></span><br><span class="line"><span class="comment">//  Texas Instruments Inc.</span></span><br><span class="line"><span class="comment">//  Feb 2005</span></span><br><span class="line"><span class="comment">//  Built with IAR Embedded Workbench Version: 3.21A</span></span><br><span class="line"><span class="comment">//******************************************************************************</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span>  <span class="meta-string">&lt;msp430x14x.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">main</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  WDTCTL = WDTPW + WDTHOLD;                 <span class="comment">// 停止看门狗</span></span><br><span class="line">  P1DIR |= <span class="number">0x01</span>;                            <span class="comment">// Set P1.0 to output direction</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">for</span> (;;)</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="keyword">volatile</span> <span class="keyword">unsigned</span> <span class="keyword">int</span> i;</span><br><span class="line"></span><br><span class="line">     P1OUT ^= <span class="number">0x01</span>;                          <span class="comment">// Toggle P1.0 using exclusive-OR</span></span><br><span class="line"></span><br><span class="line">     i = <span class="number">50000</span>;                              <span class="comment">// Delay</span></span><br><span class="line">     <span class="keyword">do</span> (i--);</span><br><span class="line">     <span class="keyword">while</span> (i != <span class="number">0</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h4 id="程序流程"><a href="#程序流程" class="headerlink" title="程序流程"></a>程序流程</h4><p>​    1.关看门狗；2.设置I/O口；3.延时、循环输出    </p>
-<h4 id="源码解释"><a href="#源码解释" class="headerlink" title="源码解释"></a>源码解释</h4><ol>
-<li> 关看门狗</li>
-</ol>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">WDTCTL = WDTPW + WDTHOLD;                 <span class="comment">// 停止看门狗</span></span><br></pre></td></tr></table></figure>
-<p>这句话实现了关开门狗的功能，要想理解这句话需要先查看官方的芯片手册：</p>
-<img src="/upload_image/image-20201107163354835.png" alt="image-20201107163354835" style="zoom:50%;" />
-
-<p><code>WDTPW</code>：读取时必须是<code>069h</code>，写的时候必须是<code>05Ah</code>，否则就会出现一个PUC信号导致单片机复位</p>
-<p><code>WDTHOLD</code>：置为<code>1</code>时看门狗被停止</p>
-<p>在头文件<code>msp430x14x.h</code>中查看<code>WDTPW</code>、<code>WDTHOLD</code>的宏定义</p>
-<p>430的库文件对这两个“变量”的宏定义如下:</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> WDTHOLD             (0x0080u)  	<span class="comment">/* WDT - Timer hold */</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> WDTPW               (0x5A00u)	</span></span><br></pre></td></tr></table></figure>
-<p><code>WDTPW</code>为5A表示写入，<code>WDTHOLD</code>为80，高位为1，地位为0，表示关闭看门狗。</p>
-<p>将两个数相加，送入<code>WDTCTL</code>实现关门狗；如果缺失其中一个会导致产生一个PUC信号使单片机复位。</p>
-<p>​    2. 设置I/O口</p>
-<p>​          <code>P1DIR |= 0x01;                            // 提取01口，设置P1.1为输出</code></p>
-<img src="/upload_image/image-20201119165324316.png" alt="image-20201119165324316" style="zoom:67%;" />
-
-<p>​    如上图，端口（Port）P1和P2具有输入/输出、中断和外部模块功能，这些功能可以通过它们各自的7个控制寄存器的设置来实现。</p>
-<p>​    这里P1.1端口默认无输出，而P1.3-1.6，P1.7-1.8都是默认输入(00h)</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">P1OUT ^= <span class="number">0x01</span>;                          <span class="comment">// Toggle P1.0 using exclusive-OR</span></span><br></pre></td></tr></table></figure>
-<ol start="3">
-<li>延时、循环输出</li>
-</ol>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">P1OUT ^= <span class="number">0x01</span>;                          <span class="comment">// Toggle P1.0 using exclusive-OR</span></span><br></pre></td></tr></table></figure>
-<p>这句指令又可写成     <code>P1OUT = P1OUT ^ 0x01;</code> 每次对第四位进行异或，改为输出。0 ^ 1，循环之后又变成1 ^ 1，实现闪烁。 </p>
-]]></content>
-      <categories>
-        <category>嵌入式开发</category>
-      </categories>
-      <tags>
-        <tag>嵌入式</tag>
-        <tag>驱动开发</tag>
-        <tag>MSP430</tag>
-        <tag>C/C++</tag>
-        <tag>编程语法</tag>
       </tags>
   </entry>
 </search>
