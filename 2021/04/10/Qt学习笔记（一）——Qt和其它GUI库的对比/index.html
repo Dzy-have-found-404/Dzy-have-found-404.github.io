@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="C语言中文网——Qt教程_  Qt和其它GUI库的对比Windows环境Windows 下的 GUI 解决方案比较多：  基于 C++ 的有 Qt、MFC、WTL、wxWidgets、DirectUI、Htmlayout； 基于 C# 的有 WinForm、WPF； 基于 Java 的有 AWT、Swing； 基于 Pascal 的 有Delphi； 基于Go语言的有 walk 和 electr">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Qt学习笔记（一）——概述">
+<meta property="og:url" content="http://example.com/2021/04/10/Qt%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%80%EF%BC%89%E2%80%94%E2%80%94Qt%E5%92%8C%E5%85%B6%E5%AE%83GUI%E5%BA%93%E7%9A%84%E5%AF%B9%E6%AF%94/index.html">
+<meta property="og:site_name" content="Dzy404&#39;s Blog">
+<meta property="og:description" content="C语言中文网——Qt教程_  Qt和其它GUI库的对比Windows环境Windows 下的 GUI 解决方案比较多：  基于 C++ 的有 Qt、MFC、WTL、wxWidgets、DirectUI、Htmlayout； 基于 C# 的有 WinForm、WPF； 基于 Java 的有 AWT、Swing； 基于 Pascal 的 有Delphi； 基于Go语言的有 walk 和 electr">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/upload_image/image-20210407164205874.png">
+<meta property="article:published_time" content="2021-04-10T18:00:00.000Z">
+<meta property="article:modified_time" content="2021-04-28T08:31:17.000Z">
+<meta property="article:author" content="Dzy404">
+<meta property="article:tag" content="嵌入式">
+<meta property="article:tag" content="Linux">
+<meta property="article:tag" content="GUI">
+<meta property="article:tag" content="Qt">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/upload_image/image-20210407164205874.png">
+
+<link rel="canonical" href="http://example.com/2021/04/10/Qt%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%80%EF%BC%89%E2%80%94%E2%80%94Qt%E5%92%8C%E5%85%B6%E5%AE%83GUI%E5%BA%93%E7%9A%84%E5%AF%B9%E6%AF%94/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Qt学习笔记（一）——概述 | Dzy404's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Dzy404's Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">式遏寇虐  憯不畏明</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/04/10/Qt%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%80%EF%BC%89%E2%80%94%E2%80%94Qt%E5%92%8C%E5%85%B6%E5%AE%83GUI%E5%BA%93%E7%9A%84%E5%AF%B9%E6%AF%94/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="Dzy404">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Dzy404's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Qt学习笔记（一）——概述
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-04-10 18:00:00" itemprop="dateCreated datePublished" datetime="2021-04-10T18:00:00+00:00">2021-04-10</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F%E5%BC%80%E5%8F%91/" itemprop="url" rel="index"><span itemprop="name">嵌入式开发</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <blockquote>
+<p><a target="_blank" rel="noopener" href="http://c.biancheng.net/view/3876.html">C语言中文网——Qt教程_</a></p>
+</blockquote>
+<h3 id="Qt和其它GUI库的对比"><a href="#Qt和其它GUI库的对比" class="headerlink" title="Qt和其它GUI库的对比"></a>Qt和其它GUI库的对比</h3><h4 id="Windows环境"><a href="#Windows环境" class="headerlink" title="Windows环境"></a>Windows环境</h4><p>Windows 下的 GUI 解决方案比较多：</p>
+<ul>
+<li>基于 <a target="_blank" rel="noopener" href="http://c.biancheng.net/cplus/">C++</a> 的有 <a target="_blank" rel="noopener" href="http://c.biancheng.net/qt/">Qt</a>、MFC、WTL、wxWidgets、DirectUI、Htmlayout；</li>
+<li>基于 <a target="_blank" rel="noopener" href="http://c.biancheng.net/csharp/">C#</a> 的有 WinForm、WPF；</li>
+<li>基于 <a target="_blank" rel="noopener" href="http://c.biancheng.net/java/">Java</a> 的有 AWT、<a target="_blank" rel="noopener" href="http://c.biancheng.net/swing/">Swing</a>；</li>
+<li>基于 Pascal 的 有Delphi；</li>
+<li>基于Go语言的有 walk 和 electron；</li>
+<li>还有国内初露头角的 aardio；</li>
+<li>Visual Basic 曾经很流行，现在逐渐失去了色彩；</li>
+<li>如果你有 Web 开发经验，也可以基于 Webkit 或 Chromium 将网页转换为桌面程序。</li>
+</ul>
+<p>用 Qt 来开发 Windows 桌面程序有以下优点：</p>
+<ul>
+<li>简单易学：Qt 封装的很好，几行代码就可以开发出一个简单的客户端，不需要了解 Windows API。</li>
+<li>资料丰富：资料丰富能够成倍降低学习成本，否则你只能去看源码，关于 DirectUI、Htmlayout、aardio 的资料就很少。</li>
+<li>漂亮的界面：Qt 很容易做出漂亮的界面和炫酷的动画，而 MFC、WTL、wxWidgets 比较麻烦。</li>
+<li>独立安装：Qt 程序最终会编译为本地代码，不需要其他库的支撑，而 Java 要安装虚拟机，C# 要安装 .NET Framework。</li>
+<li>跨平台：如果你的程序需要运行在多个平台下，同时又希望降低开发成本，Qt 几乎是必备的。</li>
+</ul>
+<p><strong>Qt 和 MFC对比</strong></p>
+<p>读者经常将 MFC 和 Qt 进行对比，MFC 只能应用在 Windows 平台，而 Qt 是跨平台的，一次编写，到处运行。</p>
+<p>另外，Qt 已经封装了底层细节，学习 Qt 将会非常简单；而 MFC 只是给 Windows API 加了一层包装，不了解 Windows API 也学不好 MFC，大家普遍反映 MFC 难学。</p>
+<h4 id="Linux环境"><a href="#Linux环境" class="headerlink" title="Linux环境"></a>Linux环境</h4><p>Linux 下常用的 GUI 库有基于 C++ 的 Qt、GTK+、wxWidgets，以及基于 Java 的 AWT 和 Swing。其中最著名的就是 Qt 和 GTK+：KDE 桌面系统已经将 Qt 作为默认的 GUI 库，Gnome 桌面系统也将 GTK+ 作为默认的 GUI 库。</p>
+<blockquote>
+<p>参考链接：<a target="_blank" rel="noopener" href="http://c.biancheng.net/view/2912.html">Linux桌面系统</a></p>
+</blockquote>
+<img src="/upload_image/image-20210407164205874.png" alt="image-20210407164205874" style="zoom:50%;" />
+
+<h3 id="Qt和QML的对比"><a href="#Qt和QML的对比" class="headerlink" title="Qt和QML的对比"></a>Qt和QML的对比</h3><p>QML 包含大量使用手机移动设备的功能模块，比如基本部件（QtQuick 模块）、GPS 定位、渲染特效、蓝牙、NFC、WebkKit 等等。</p>
+<p>QML 类似于网页设计的 HTML，是一种标记语言，我们可以借助 CSS 对它进行美化，也可以借助 <a target="_blank" rel="noopener" href="http://c.biancheng.net/js/">JavaScript</a> 进行交互。有 Web 开发经验的读者学习 QML 将非常轻松。</p>
+<p>使用 QML 开发界面主要有以下几个优点：</p>
+<ul>
+<li>QML 非常灵活，可以做出非常炫酷的效果，例如 QQ、360、迅雷等都不在话下。</li>
+<li>QML 是标记语言，见名知意，非常容易编写和阅读，大大提高了开发和维护效率。</li>
+<li>QML 界面简洁大气，有很多动画，适合移动端。</li>
+<li>不同平台下的 QML 使用相同的渲染机制，界面效果一致，不会随操作系统的不同而变化。</li>
+</ul>
+<p><strong>QML 只能用来进行界面设计和人机交互，也就是只能胜任 UI 部分，在底层仍然需要调用 C++ 编写的组件来完善功能，比如访问数据库、网络通信、多线程多进程、文件读写、图像处理、音频视频处理等都离不开 C++。</strong></p>
+<p>现阶段新生的 QML 还不如传统的 C++ 部件编程那样拥有丰富的开发组件，尤其缺乏复杂的企业级应用程序所必须的树等控件。这就决定了至少现阶段，真正大型的桌面程序仍然只能选择以 C++ 为主、QML 为辅的开发模式。</p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>两种颜色的功德箱(逃</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechatpay.png" alt="Dzy404 微信支付">
+        <p>微信支付</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/images/alipay.png" alt="Dzy404 支付宝">
+        <p>支付宝</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/" rel="tag"><i class="fa fa-tag"></i> 嵌入式</a>
+              <a href="/tags/Linux/" rel="tag"><i class="fa fa-tag"></i> Linux</a>
+              <a href="/tags/GUI/" rel="tag"><i class="fa fa-tag"></i> GUI</a>
+              <a href="/tags/Qt/" rel="tag"><i class="fa fa-tag"></i> Qt</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/01/27/%E8%A7%A3%E5%86%B3%E6%A0%91%E8%8E%93%E6%B4%BE%E5%AE%89%E8%A3%85motion%E7%9A%84%E4%BE%9D%E8%B5%96%E9%97%AE%E9%A2%98/" rel="prev" title="树莓派安装motion的问题">
+      <i class="fa fa-chevron-left"></i> 树莓派安装motion的问题
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/04/14/Qt%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%8C%EF%BC%89%E2%80%94%E2%80%94%E5%AE%89%E8%A3%85%E4%B8%8E%E8%AF%B4%E6%98%8E/" rel="next" title="Qt学习笔记（二）——安装与说明">
+      Qt学习笔记（二）——安装与说明 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Qt%E5%92%8C%E5%85%B6%E5%AE%83GUI%E5%BA%93%E7%9A%84%E5%AF%B9%E6%AF%94"><span class="nav-number">1.</span> <span class="nav-text">Qt和其它GUI库的对比</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Windows%E7%8E%AF%E5%A2%83"><span class="nav-number">1.1.</span> <span class="nav-text">Windows环境</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Linux%E7%8E%AF%E5%A2%83"><span class="nav-number">1.2.</span> <span class="nav-text">Linux环境</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Qt%E5%92%8CQML%E7%9A%84%E5%AF%B9%E6%AF%94"><span class="nav-number">2.</span> <span class="nav-text">Qt和QML的对比</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Dzy404"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">Dzy404</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">23</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">28</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/dzy404" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;dzy404" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:dzhiyuan529@gmail.com" title="E-Mail → mailto:dzhiyuan529@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i></a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2020 – 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-fire"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Dzy404</span>
+</div>
+
+<!--
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+-->
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

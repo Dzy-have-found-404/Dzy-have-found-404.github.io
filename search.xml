@@ -3166,4 +3166,188 @@ ADC1_2_IRQn = 18, /*!&lt; ADC1 and ADC2 global Interrupt */
         <tag>shell</tag>
       </tags>
   </entry>
+  <entry>
+    <title>Qt学习笔记（一）——概述</title>
+    <url>/2021/04/10/Qt%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%80%EF%BC%89%E2%80%94%E2%80%94Qt%E5%92%8C%E5%85%B6%E5%AE%83GUI%E5%BA%93%E7%9A%84%E5%AF%B9%E6%AF%94/</url>
+    <content><![CDATA[<blockquote>
+<p><a href="http://c.biancheng.net/view/3876.html">C语言中文网——Qt教程_</a></p>
+</blockquote>
+<h3 id="Qt和其它GUI库的对比"><a href="#Qt和其它GUI库的对比" class="headerlink" title="Qt和其它GUI库的对比"></a>Qt和其它GUI库的对比</h3><h4 id="Windows环境"><a href="#Windows环境" class="headerlink" title="Windows环境"></a>Windows环境</h4><p>Windows 下的 GUI 解决方案比较多：</p>
+<ul>
+<li>基于 <a href="http://c.biancheng.net/cplus/">C++</a> 的有 <a href="http://c.biancheng.net/qt/">Qt</a>、MFC、WTL、wxWidgets、DirectUI、Htmlayout；</li>
+<li>基于 <a href="http://c.biancheng.net/csharp/">C#</a> 的有 WinForm、WPF；</li>
+<li>基于 <a href="http://c.biancheng.net/java/">Java</a> 的有 AWT、<a href="http://c.biancheng.net/swing/">Swing</a>；</li>
+<li>基于 Pascal 的 有Delphi；</li>
+<li>基于Go语言的有 walk 和 electron；</li>
+<li>还有国内初露头角的 aardio；</li>
+<li>Visual Basic 曾经很流行，现在逐渐失去了色彩；</li>
+<li>如果你有 Web 开发经验，也可以基于 Webkit 或 Chromium 将网页转换为桌面程序。</li>
+</ul>
+<p>用 Qt 来开发 Windows 桌面程序有以下优点：</p>
+<ul>
+<li>简单易学：Qt 封装的很好，几行代码就可以开发出一个简单的客户端，不需要了解 Windows API。</li>
+<li>资料丰富：资料丰富能够成倍降低学习成本，否则你只能去看源码，关于 DirectUI、Htmlayout、aardio 的资料就很少。</li>
+<li>漂亮的界面：Qt 很容易做出漂亮的界面和炫酷的动画，而 MFC、WTL、wxWidgets 比较麻烦。</li>
+<li>独立安装：Qt 程序最终会编译为本地代码，不需要其他库的支撑，而 Java 要安装虚拟机，C# 要安装 .NET Framework。</li>
+<li>跨平台：如果你的程序需要运行在多个平台下，同时又希望降低开发成本，Qt 几乎是必备的。</li>
+</ul>
+<p><strong>Qt 和 MFC对比</strong></p>
+<p>读者经常将 MFC 和 Qt 进行对比，MFC 只能应用在 Windows 平台，而 Qt 是跨平台的，一次编写，到处运行。</p>
+<p>另外，Qt 已经封装了底层细节，学习 Qt 将会非常简单；而 MFC 只是给 Windows API 加了一层包装，不了解 Windows API 也学不好 MFC，大家普遍反映 MFC 难学。</p>
+<h4 id="Linux环境"><a href="#Linux环境" class="headerlink" title="Linux环境"></a>Linux环境</h4><p>Linux 下常用的 GUI 库有基于 C++ 的 Qt、GTK+、wxWidgets，以及基于 Java 的 AWT 和 Swing。其中最著名的就是 Qt 和 GTK+：KDE 桌面系统已经将 Qt 作为默认的 GUI 库，Gnome 桌面系统也将 GTK+ 作为默认的 GUI 库。</p>
+<blockquote>
+<p>参考链接：<a href="http://c.biancheng.net/view/2912.html">Linux桌面系统</a></p>
+</blockquote>
+<img src="/upload_image/image-20210407164205874.png" alt="image-20210407164205874" style="zoom:50%;" />
+
+<h3 id="Qt和QML的对比"><a href="#Qt和QML的对比" class="headerlink" title="Qt和QML的对比"></a>Qt和QML的对比</h3><p>QML 包含大量使用手机移动设备的功能模块，比如基本部件（QtQuick 模块）、GPS 定位、渲染特效、蓝牙、NFC、WebkKit 等等。</p>
+<p>QML 类似于网页设计的 HTML，是一种标记语言，我们可以借助 CSS 对它进行美化，也可以借助 <a href="http://c.biancheng.net/js/">JavaScript</a> 进行交互。有 Web 开发经验的读者学习 QML 将非常轻松。</p>
+<p>使用 QML 开发界面主要有以下几个优点：</p>
+<ul>
+<li>QML 非常灵活，可以做出非常炫酷的效果，例如 QQ、360、迅雷等都不在话下。</li>
+<li>QML 是标记语言，见名知意，非常容易编写和阅读，大大提高了开发和维护效率。</li>
+<li>QML 界面简洁大气，有很多动画，适合移动端。</li>
+<li>不同平台下的 QML 使用相同的渲染机制，界面效果一致，不会随操作系统的不同而变化。</li>
+</ul>
+<p><strong>QML 只能用来进行界面设计和人机交互，也就是只能胜任 UI 部分，在底层仍然需要调用 C++ 编写的组件来完善功能，比如访问数据库、网络通信、多线程多进程、文件读写、图像处理、音频视频处理等都离不开 C++。</strong></p>
+<p>现阶段新生的 QML 还不如传统的 C++ 部件编程那样拥有丰富的开发组件，尤其缺乏复杂的企业级应用程序所必须的树等控件。这就决定了至少现阶段，真正大型的桌面程序仍然只能选择以 C++ 为主、QML 为辅的开发模式。</p>
+]]></content>
+      <categories>
+        <category>嵌入式开发</category>
+      </categories>
+      <tags>
+        <tag>嵌入式</tag>
+        <tag>Linux</tag>
+        <tag>GUI</tag>
+        <tag>Qt</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Qt学习笔记（二）——安装与说明</title>
+    <url>/2021/04/14/Qt%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%8C%EF%BC%89%E2%80%94%E2%80%94%E5%AE%89%E8%A3%85%E4%B8%8E%E8%AF%B4%E6%98%8E/</url>
+    <content><![CDATA[<blockquote>
+<p>教程：<a href="http://c.biancheng.net/view/3851.html">Qt下载（多种下载通道+所有版本）</a></p>
+<p>下载地址：</p>
+<ul>
+<li>中国科学技术大学：<a href="http://mirrors.ustc.edu.cn/qtproject/">http://mirrors.ustc.edu.cn/qtproject/</a>    （推荐，速度较快）</li>
+<li>清华大学：<a href="https://mirrors.tuna.tsinghua.edu.cn/qt/">https://mirrors.tuna.tsinghua.edu.cn/qt/</a></li>
+<li>北京理工大学：<a href="http://mirror.bit.edu.cn/qtproject/">http://mirror.bit.edu.cn/qtproject/</a></li>
+<li>中国互联网络信息中心：<a href="https://mirrors.cnnic.cn/qt/">https://mirrors.cnnic.cn/qt/</a></li>
+</ul>
+</blockquote>
+<h3 id="Qt资源的文件目录"><a href="#Qt资源的文件目录" class="headerlink" title="Qt资源的文件目录"></a>Qt资源的文件目录</h3><p>Qt 官网有一个专门的<a href="http://download.qt.io/">资源下载网站</a>，进入网站后看到文件目录：</p>
+<img src="/upload_image/image-20210408114158407.png" alt="image-20210408114158407" style="zoom: 50%;" />
+
+<p>点进【archive/】或者【official_releases】，进入目录：</p>
+<img src="/upload_image/image-20210408120048841.png" alt="image-20210408120048841" style="zoom: 67%;" />
+
+<p>qtcreator 本身是个空壳，它没有编译套件和 Qt 开发库。</p>
+<p>除了老版本的 Qt 4 需要手动下载 qtcreator、编译套件、Qt 开发库进行搭配之外，一般用不到，因为 Qt 5 有专门的大安装包，里面包含开发需要的东西，并且能自动配置好。</p>
+<p>进入【qt/】目录：</p>
+<img src="/upload_image/image-20210408135657398.png" alt="image-20210408135657398" style="zoom: 40%;" />
+
+<p>进入【5.9/】目录，选择【5.9.0/】，根据开发环境选择对应的安装包，windows选择 【.exe】文件。</p>
+<p>下载缓慢更新国内源</p>
+<h3 id="Qt安装-amp-Qt安装目录"><a href="#Qt安装-amp-Qt安装目录" class="headerlink" title="Qt安装&amp;Qt安装目录"></a>Qt安装&amp;Qt安装目录</h3><p>下载完成后点击安装，勾选图中选项。</p>
+<img src="/upload_image/1-1Z52915401NT.gif" alt="Qt组件" style="zoom:50%;" />
+
+<p><strong>Qt安装目录结构：</strong></p>
+<img src="/upload_image/image-20210413163257885.png" alt="image-20210413163257885" style="zoom:50%;" />
+
+<ul>
+<li>~\5.9\mingw53_32\ 目录包含的是 Qt 的类库文件，例如头文件、静态库、动态库等，这些类库文件使用 MinGW 工具集编译而成。</li>
+<li>~\Tools\mingw53_32\ 目录包含的是 MinGW 工具集，例如编译器 g++、链接器 ld、make 工具、打包工具 ar 等</li>
+<li> ~\Docs ：Qt 类库的帮助文件，需要用 Qt Assistant 工具才能查看</li>
+<li>~\Examples ：示例代码，可以用 QtCreator 集成开发环境打开各个示例</li>
+<li>~\Licenses：许可协议</li>
+<li>~\vcredist：VC运行库</li>
+<li>~\MaintenanceTool.exe：对于离线安装包，它只能用于删除软件包，如果 Qt 开发环境是用在线安装方式装的，这个工具还可以管理开发环境组件和升级组件</li>
+</ul>
+<p><strong>Qt类库目录：</strong></p>
+<p><img src="/upload_image/1-1Z5291A334220.gif" alt="Qt 类库目录"></p>
+]]></content>
+      <categories>
+        <category>嵌入式开发</category>
+      </categories>
+      <tags>
+        <tag>嵌入式</tag>
+        <tag>Linux</tag>
+        <tag>GUI</tag>
+        <tag>Qt</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>图像&amp;视频编码标准</title>
+    <url>/2021/04/27/%E5%9B%BE%E5%83%8F&amp;%E8%A7%86%E9%A2%91%E7%BC%96%E7%A0%81%E6%A0%87%E5%87%86/</url>
+    <content><![CDATA[<h3 id="图像压缩技术"><a href="#图像压缩技术" class="headerlink" title="图像压缩技术"></a>图像压缩技术</h3><p>图像的压缩分为无损数据压缩和有损数据压缩两种。无损压缩技术只是利用数据的统计冗余信息进行编码，可完全恢复原始数据而不引起任何失真，缺点是压缩率很低，只适用于一些有重要价值的图像。有损压缩技术主要是利用人类的视觉特性对图像中某些频率或空间信息不敏感，在压缩过程中损失一定的信息，虽然不能完全恢复原始数据，但是损失部分对理解原始图像的影响很小，却换来了大得多的压缩率，尤其在带宽限制的场合，有损压缩的研究意义更大。 </p>
+<ul>
+<li><p><strong>JPEG</strong>（Joint Photographic Experts Group）是在国际标准组织 ISO 的领导下，由联合图像专家组 JPEG 小组制定的一种静态图像压缩标准。JPEG 算法主要采用的以离散余弦变换（DCT，Discrete Cosine Transform）为主的区块编码算法，由于 DCT 为浮点运算，变换后要对数据进行重新量化，然后采用之字形的曲徊序列，进行扫描游程编码，最后采用霍夫曼编码或算术编码进行熵编码。JPEG是一种有损压缩编码，对图像的压缩率较高，但是在压缩率较大时，会产生严重的块效应。 </p>
+</li>
+<li><p>在保证图像质量的基础上，为进一步改善图像压缩的效率，JPEG 专家组在2000 年底又提出了改进的 <strong>JPEG2000</strong>算法。JPEG2000 主要采用了小波变换为主的多尺度分析算法。由于算法复杂度、专利授权等问题。JPEG2000 并没有得到广泛应用，现在存储和网络传输中使用最多的仍然是 JPEG 图像。</p>
+</li>
+</ul>
+<h3 id="视频编解码技术"><a href="#视频编解码技术" class="headerlink" title="视频编解码技术"></a>视频编解码技术</h3><p>动态图像压缩通常又称为视频编解码技术，为了使各种应用系统实现兼容，同时推进技术的市场化，各标准组织就新技术的规范化制定了一系列的标准，其中，以国际电信联盟（ITU）和国际标准化组织(ISO)为主。</p>
+<h4 id="ITU-T标准"><a href="#ITU-T标准" class="headerlink" title="ITU-T标准"></a>ITU-T标准</h4><p>ITU-T 的视频编码专家组 VCEG（Video Coding Experts Group）主要制定了 <strong>H.26X</strong> 系列标准，包括 **H.261，H.263，H.263+，H.263++**。</p>
+<ul>
+<li><p>H.261 是 ITU-T 提出的第一个标准，也是第一个实用的数字视频编码标准。它采用了基于运动补偿的帧间预测和 DCT 变换的混合编解码方法。由于是为ISDN（Intergrated Services Digtal Network）网络设计，ISDN 的带宽为 64kbps 的整数倍，H.261 也称为 P*64。</p>
+</li>
+<li><p>H.263 最早是为低码率图像压缩标准，实际上其应用码率范围很广，它是 H.261 的改进和扩充，之后又推出了 H.263+和 H.263++，改进了编码效率，增强了抗误码性能。</p>
+</li>
+</ul>
+<h4 id="ITU-T-MPEG联合标准"><a href="#ITU-T-MPEG联合标准" class="headerlink" title="ITU-T/MPEG联合标准"></a>ITU-T/MPEG联合标准</h4><ul>
+<li><p><strong>H.264</strong> 则是 ITU-T 和 ISO/IEC 共同联合制定的标准，在 ISO 标准中称为先进视频编码 AVC，隶属于 MPEG-4 PART10。H.264 继续采用了混合编码的模式，采用了一些新技术，如整数变换，去块效应环路滤波器，基于上下文二进制算术编码 CABAC（Context-based Adpative Binary Arithmetic Coding）等。这使得压缩性能较传统编码方案有很大提高，它的优异性能也将在数字电视广播、网络电视IPTV、视频实时通信以及网络视频流媒体传输中占据重要位置。</p>
+</li>
+<li><p>2013 年 1 月 25 日，ITU-T 正式批准了下一代视频新标准 <strong>H.265</strong>，又称之为高效视频编码 HEVC（High Efficiency Video Coding）。H.265/HEVC 的编码架构上大致和 H.264/AVC 相似，但在实现工具和细节上，相较于目前的 H.264 标准有了很大的改善，如宏块大小支持 64x64，增加算法并行度等。其目标是在有限带宽下传输更高质量的网络视频，并能够支持更大分辨率的超高清视频编码，如 4096x2160 的 4K 视频和 8192x4320 的 8K 视频。 </p>
+</li>
+</ul>
+<h4 id="MPEG标准"><a href="#MPEG标准" class="headerlink" title="MPEG标准"></a>MPEG标准</h4><p>ISO 下属的动态图像专家组 MPEG（Moving Picture Experts Group）则制定了文件存储中常用的 MPEG 系列标准，包括 MPEG-1，MPEG-2，MPEG-4等</p>
+<ul>
+<li><p><strong>MPEG-1</strong> 则是 ISO 制定的第一个视频压缩标准。主要是为在 CD-ROM 上存储和播放视频文件而设计，只能提供 CIF（352x288）分辨率的图像质量。MPEG-1引入了帧内压缩帧（I 帧），预测帧（P 帧），双向预测帧（B 帧）的概念。</p>
+</li>
+<li><p><strong>MPEG-2</strong> 则是为标准数字电视（SDTV）和高清电视（HDTV）设计，它可以看成是 MPEG-1的扩展，其解码器可以解码 MPEG-1 码流。与 MPEG-1 相比，MPEG-2 支持隔行扫描视频和更高的分辨率，改进了运动估计算法等，在数据电视和 DVD 存储播放中得到广泛应用。</p>
+</li>
+<li><p><strong>MPEG-4</strong> 是将众多的多媒体应用集成于一个完整的框架内，旨在为多媒体通信以及应用环境提供标准的算法及工具。它提出了面向对象（AVO，audio-visual object）的编码技术，大大提高了视频通信的搅浑能力和编码效率，但是 MPEG-4 并不是一个单一的视频标准，如 Xvid 编码就属于 MPEG-4 PART2。</p>
+</li>
+<li><p>ISO 还基于 JPEG 提出了动态图像压缩标准 <strong>MJPEG</strong>（Motion JPEG），其主要特点是不考虑帧间编码，只单独对某一帧进行帧内压缩，优点是可以对每一帧进行精确的编辑，缺点是压缩率不高。</p>
+</li>
+</ul>
+<h4 id="国产AVS标准"><a href="#国产AVS标准" class="headerlink" title="国产AVS标准"></a>国产AVS标准</h4><p>我国也在视频压缩中制定了具备自主知识产权的 AVS（Audio  Video coding Standard）标准。AVS 标准中采用的核心技术包括 8x8 整数变换，特殊的帧间预测运动补偿，二维的熵编码等。AVS 吸收了以往标准的优点，性能上与 H.264 标准相当。现已经在国内的广播电视系统中进行了使用。</p>
+<p><img src="D:/02%20%E7%AC%94%E8%AE%B0/Markdown/%E5%9B%BE%E5%BA%8A/image-20210427155616895.png" alt="image-20210427155616895"></p>
+<h4 id="比较"><a href="#比较" class="headerlink" title="比较"></a>比较</h4><ul>
+<li><p><strong>码流：</strong>码流相当于视频文件在宽带中的水流速度，它的大小影响了传送速度和画面质量和占用内存。</p>
+<p>  计算公式：视频文件大小=码流×3600S÷8÷1024=___M/小时。</p>
+<p>  MJPEG码流 2048 kb/s和H.264码流 512 kb/画面质量效果一致，两种码流计算出的视频文件大小为：</p>
+<p>  MJPEG：2048kb/s×3600S÷8÷1024=900 Mbps/小时，32G的存储卡可以储存1.5天；</p>
+<p>  H.264：512 kb/s×3600S÷8÷1024=225M/小时，32G的存储卡可以储存5-6天。</p>
+<p>  总结：H.264比MJPEG节省了80%以上的码率，还比MJPEG节省了4倍储存空间。</p>
+</li>
+<li><p><strong>压缩率：</strong></p>
+<p>  MJPEG压缩比是20:1，H.264压缩比是200:1</p>
+</li>
+<li><p><strong>网络兼容性：</strong> </p>
+<p>  MJPEG 改良了帧间预测机制，提高了纠错和网络兼容性，对网络传输具有更好的支持功能。但是每个生产商的网络摄像机适用的网络都有限定性。网络兼容性强；</p>
+<p>  H.264 不管你的网络是CDMA，GPRS，WCDMA还是CDMA2000都能一样使用。</p>
+</li>
+<li><p><strong>网络适用性：</strong></p>
+<p>  MJPEG网络传输网络占用大大，适用于短距离的无线监控，长距离手机、IPAD无线监控网络达不到传输要求，画面效果差。在不稳定网络环境下发生丢包等错误，视频文件易丢失；<br>  H.264不仅在相同宽带下能够提供更优秀的图像质量，即使手机、PAD无线网络传输、远程监控依然能够很好适应。</p>
+</li>
+<li><p><strong>标准性：</strong></p>
+<p>  MJPEG 由JPEG专家组制订，并不是一个标准的压缩方式，每个厂家都有其自己的MJPEG版本，双方的文件互相无法识别传输<br>  H.264 是第一个由ITU-T（国际电联）和 ISO（国际标准化组织）共同开发定制的视频编码技术标准，具有一定的权威性和科学性</p>
+</li>
+<li><p><strong>成本：</strong></p>
+<p>  MJPEG实现成本最低，市场上先进的技术和成熟的技术并存。MJPEG获得较好的单幅图像质量，能够精确到帧的编辑，有利于编辑，受网络丢包问题影响较小，所以在众多中低产品中仍有应用；</p>
+<p>  H.264解码算法复杂、编码要求苛刻，对芯片承受能力要求高也是制约其发展的一个重要因素。</p>
+</li>
+</ul>
+<p>现有的实验表明，在相同的视觉效果上，H.264 的压缩效率比 H.263 或 MPEG-2 提高了至少 50%，并且有良好的网络适应性，可以适用于从高质量高分辨率到低码率高效率的编码模式，以及从有线网络到无线网络的各种传输信道。</p>
+]]></content>
+      <categories>
+        <category>嵌入式开发</category>
+      </categories>
+      <tags>
+        <tag>嵌入式</tag>
+        <tag>H.264</tag>
+        <tag>视频监控</tag>
+      </tags>
+  </entry>
 </search>
