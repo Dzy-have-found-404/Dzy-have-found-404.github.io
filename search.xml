@@ -3170,8 +3170,11 @@ ADC1_2_IRQn = 18, /*!&lt; ADC1 and ADC2 global Interrupt */
     <title>Qt学习笔记（一）——概述</title>
     <url>/2021/04/10/Qt%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%80%EF%BC%89%E2%80%94%E2%80%94Qt%E5%92%8C%E5%85%B6%E5%AE%83GUI%E5%BA%93%E7%9A%84%E5%AF%B9%E6%AF%94/</url>
     <content><![CDATA[<blockquote>
+<p>Qt的一些比较和特性介绍</p>
 <p><a href="http://c.biancheng.net/view/3876.html">C语言中文网——Qt教程_</a></p>
 </blockquote>
+<a id="more"></a>
+
 <h3 id="Qt和其它GUI库的对比"><a href="#Qt和其它GUI库的对比" class="headerlink" title="Qt和其它GUI库的对比"></a>Qt和其它GUI库的对比</h3><h4 id="Windows环境"><a href="#Windows环境" class="headerlink" title="Windows环境"></a>Windows环境</h4><p>Windows 下的 GUI 解决方案比较多：</p>
 <ul>
 <li>基于 <a href="http://c.biancheng.net/cplus/">C++</a> 的有 <a href="http://c.biancheng.net/qt/">Qt</a>、MFC、WTL、wxWidgets、DirectUI、Htmlayout；</li>
@@ -3235,6 +3238,8 @@ ADC1_2_IRQn = 18, /*!&lt; ADC1 and ADC2 global Interrupt */
 <li>中国互联网络信息中心：<a href="https://mirrors.cnnic.cn/qt/">https://mirrors.cnnic.cn/qt/</a></li>
 </ul>
 </blockquote>
+<a id="more"></a>
+
 <h3 id="Qt资源的文件目录"><a href="#Qt资源的文件目录" class="headerlink" title="Qt资源的文件目录"></a>Qt资源的文件目录</h3><p>Qt 官网有一个专门的<a href="http://download.qt.io/">资源下载网站</a>，进入网站后看到文件目录：</p>
 <img src="/upload_image/image-20210408114158407.png" alt="image-20210408114158407" style="zoom: 50%;" />
 
@@ -3280,6 +3285,8 @@ ADC1_2_IRQn = 18, /*!&lt; ADC1 and ADC2 global Interrupt */
     <title>图像&amp;视频编码标准</title>
     <url>/2021/04/27/%E5%9B%BE%E5%83%8F&amp;%E8%A7%86%E9%A2%91%E7%BC%96%E7%A0%81%E6%A0%87%E5%87%86/</url>
     <content><![CDATA[<h3 id="图像压缩技术"><a href="#图像压缩技术" class="headerlink" title="图像压缩技术"></a>图像压缩技术</h3><p>图像的压缩分为无损数据压缩和有损数据压缩两种。无损压缩技术只是利用数据的统计冗余信息进行编码，可完全恢复原始数据而不引起任何失真，缺点是压缩率很低，只适用于一些有重要价值的图像。有损压缩技术主要是利用人类的视觉特性对图像中某些频率或空间信息不敏感，在压缩过程中损失一定的信息，虽然不能完全恢复原始数据，但是损失部分对理解原始图像的影响很小，却换来了大得多的压缩率，尤其在带宽限制的场合，有损压缩的研究意义更大。 </p>
+<a id="more"></a>
+
 <ul>
 <li><p><strong>JPEG</strong>（Joint Photographic Experts Group）是在国际标准组织 ISO 的领导下，由联合图像专家组 JPEG 小组制定的一种静态图像压缩标准。JPEG 算法主要采用的以离散余弦变换（DCT，Discrete Cosine Transform）为主的区块编码算法，由于 DCT 为浮点运算，变换后要对数据进行重新量化，然后采用之字形的曲徊序列，进行扫描游程编码，最后采用霍夫曼编码或算术编码进行熵编码。JPEG是一种有损压缩编码，对图像的压缩率较高，但是在压缩率较大时，会产生严重的块效应。 </p>
 </li>
@@ -3312,7 +3319,7 @@ ADC1_2_IRQn = 18, /*!&lt; ADC1 and ADC2 global Interrupt */
 </li>
 </ul>
 <h4 id="国产AVS标准"><a href="#国产AVS标准" class="headerlink" title="国产AVS标准"></a>国产AVS标准</h4><p>我国也在视频压缩中制定了具备自主知识产权的 AVS（Audio  Video coding Standard）标准。AVS 标准中采用的核心技术包括 8x8 整数变换，特殊的帧间预测运动补偿，二维的熵编码等。AVS 吸收了以往标准的优点，性能上与 H.264 标准相当。现已经在国内的广播电视系统中进行了使用。</p>
-<p><img src="D:/02%20%E7%AC%94%E8%AE%B0/Markdown/%E5%9B%BE%E5%BA%8A/image-20210427155616895.png" alt="image-20210427155616895"></p>
+<p><img src="/upload_image/image-20210427155616895.png" alt="image-20210427155616895"></p>
 <h4 id="比较"><a href="#比较" class="headerlink" title="比较"></a>比较</h4><ul>
 <li><p><strong>码流：</strong>码流相当于视频文件在宽带中的水流速度，它的大小影响了传送速度和画面质量和占用内存。</p>
 <p>  计算公式：视频文件大小=码流×3600S÷8÷1024=___M/小时。</p>

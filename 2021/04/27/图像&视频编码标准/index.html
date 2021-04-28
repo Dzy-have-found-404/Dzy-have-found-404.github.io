@@ -27,15 +27,15 @@
 <meta property="og:site_name" content="Dzy404&#39;s Blog">
 <meta property="og:description" content="图像压缩技术图像的压缩分为无损数据压缩和有损数据压缩两种。无损压缩技术只是利用数据的统计冗余信息进行编码，可完全恢复原始数据而不引起任何失真，缺点是压缩率很低，只适用于一些有重要价值的图像。有损压缩技术主要是利用人类的视觉特性对图像中某些频率或空间信息不敏感，在压缩过程中损失一定的信息，虽然不能完全恢复原始数据，但是损失部分对理解原始图像的影响很小，却换来了大得多的压缩率，尤其在带宽限制的场合，有">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="d:/02%20%E7%AC%94%E8%AE%B0/Markdown/%E5%9B%BE%E5%BA%8A/image-20210427155616895.png">
+<meta property="og:image" content="http://example.com/upload_image/image-20210427155616895.png">
 <meta property="article:published_time" content="2021-04-27T18:00:00.000Z">
-<meta property="article:modified_time" content="2021-04-28T08:20:31.000Z">
+<meta property="article:modified_time" content="2021-04-28T08:41:39.000Z">
 <meta property="article:author" content="Dzy404">
 <meta property="article:tag" content="嵌入式">
 <meta property="article:tag" content="H.264">
 <meta property="article:tag" content="视频监控">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="d:/02%20%E7%AC%94%E8%AE%B0/Markdown/%E5%9B%BE%E5%BA%8A/image-20210427155616895.png">
+<meta name="twitter:image" content="http://example.com/upload_image/image-20210427155616895.png">
 
 <link rel="canonical" href="http://example.com/2021/04/27/%E5%9B%BE%E5%83%8F&%E8%A7%86%E9%A2%91%E7%BC%96%E7%A0%81%E6%A0%87%E5%87%86/">
 
@@ -253,6 +253,8 @@
 
       
         <h3 id="图像压缩技术"><a href="#图像压缩技术" class="headerlink" title="图像压缩技术"></a>图像压缩技术</h3><p>图像的压缩分为无损数据压缩和有损数据压缩两种。无损压缩技术只是利用数据的统计冗余信息进行编码，可完全恢复原始数据而不引起任何失真，缺点是压缩率很低，只适用于一些有重要价值的图像。有损压缩技术主要是利用人类的视觉特性对图像中某些频率或空间信息不敏感，在压缩过程中损失一定的信息，虽然不能完全恢复原始数据，但是损失部分对理解原始图像的影响很小，却换来了大得多的压缩率，尤其在带宽限制的场合，有损压缩的研究意义更大。 </p>
+<a id="more"></a>
+
 <ul>
 <li><p><strong>JPEG</strong>（Joint Photographic Experts Group）是在国际标准组织 ISO 的领导下，由联合图像专家组 JPEG 小组制定的一种静态图像压缩标准。JPEG 算法主要采用的以离散余弦变换（DCT，Discrete Cosine Transform）为主的区块编码算法，由于 DCT 为浮点运算，变换后要对数据进行重新量化，然后采用之字形的曲徊序列，进行扫描游程编码，最后采用霍夫曼编码或算术编码进行熵编码。JPEG是一种有损压缩编码，对图像的压缩率较高，但是在压缩率较大时，会产生严重的块效应。 </p>
 </li>
@@ -285,7 +287,7 @@
 </li>
 </ul>
 <h4 id="国产AVS标准"><a href="#国产AVS标准" class="headerlink" title="国产AVS标准"></a>国产AVS标准</h4><p>我国也在视频压缩中制定了具备自主知识产权的 AVS（Audio  Video coding Standard）标准。AVS 标准中采用的核心技术包括 8x8 整数变换，特殊的帧间预测运动补偿，二维的熵编码等。AVS 吸收了以往标准的优点，性能上与 H.264 标准相当。现已经在国内的广播电视系统中进行了使用。</p>
-<p><img src="D:/02%20%E7%AC%94%E8%AE%B0/Markdown/%E5%9B%BE%E5%BA%8A/image-20210427155616895.png" alt="image-20210427155616895"></p>
+<p><img src="/upload_image/image-20210427155616895.png" alt="image-20210427155616895"></p>
 <h4 id="比较"><a href="#比较" class="headerlink" title="比较"></a>比较</h4><ul>
 <li><p><strong>码流：</strong>码流相当于视频文件在宽带中的水流速度，它的大小影响了传送速度和画面质量和占用内存。</p>
 <p>  计算公式：视频文件大小=码流×3600S÷8÷1024=___M/小时。</p>
